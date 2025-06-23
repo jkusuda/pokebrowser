@@ -1,0 +1,165 @@
+#pokebrowser-encounter {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: 3px solid #fff;
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
+  color: white;
+  font-family: Arial, sans-serif;
+  z-index: 10000;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  min-width: 200px;
+  max-width: 250px;
+  animation: encounterSlideIn 0.5s ease-out;
+}
+
+@keyframes encounterSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+#pokebrowser-encounter .pokeball-icon {
+  font-size: 20px;
+  margin-bottom: 8px;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-8px);
+  }
+  60% {
+    transform: translateY(-4px);
+  }
+}
+
+#pokebrowser-encounter h3 {
+  margin: 8px 0;
+  font-size: 16px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#pokebrowser-encounter .pokemon-sprite {
+  margin: 12px 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  margin: 12px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#pokebrowser-encounter .pokemon-sprite img {
+  width: 60px;
+  height: 60px;
+  image-rendering: pixelated;
+}
+
+#pokebrowser-encounter .rarity {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 15px;
+  font-size: 11px;
+  font-weight: bold;
+  margin: 8px 0;
+  text-transform: uppercase;
+}
+
+#pokebrowser-encounter .rarity.common {
+  background: #4CAF50;
+}
+
+#pokebrowser-encounter .rarity.uncommon {
+  background: #2196F3;
+}
+
+#pokebrowser-encounter .rarity.rare {
+  background: #9C27B0;
+}
+
+#pokebrowser-encounter .rarity.legendary {
+  background: linear-gradient(45deg, #FFD700, #FFA500);
+  animation: legendary-glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes legendary-glow {
+  from {
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+  }
+  to {
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+  }
+}
+
+#pokebrowser-encounter button {
+  background: #fff;
+  color: #333;
+  border: none;
+  padding: 8px 15px;
+  margin: 3px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 12px;
+  transition: all 0.3s ease;
+}
+
+#pokebrowser-encounter button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#pokebrowser-encounter #catch-pokemon {
+  background: #4CAF50;
+  color: white;
+}
+
+#pokebrowser-encounter #catch-pokemon:hover {
+  background: #45a049;
+}
+
+#pokebrowser-encounter #run-away {
+  background: #f44336;
+  color: white;
+}
+
+#pokebrowser-encounter #run-away:hover {
+  background: #da190b;
+}
+
+#pokebrowser-encounter .success-message {
+  animation: successPulse 0.6s ease-out;
+}
+
+@keyframes successPulse {
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+#pokebrowser-encounter .close-instruction {
+  font-size: 10px;
+  opacity: 0.8;
+  margin-top: 8px;
+  font-style: italic;
+}

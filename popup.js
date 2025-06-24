@@ -42,7 +42,6 @@ function displayCollection(collection) {
           Caught on ${pokemon.site} • ${formatDate(pokemon.caughtAt)}
         </div>
       </div>
-      <span class="rarity-badge ${pokemon.rarity}">${pokemon.rarity}</span>
     </div>
   `).join('');
 }
@@ -52,21 +51,8 @@ function updateStats(collection) {
   const totalCaught = collection.length;
   const uniquePokemon = new Set(collection.map(p => p.id)).size;
   
-  // Find rarest Pokemon
-  const rarityOrder = ['common', 'uncommon', 'rare', 'legendary'];
-  let rarestRarity = 'None';
-  
-  for (let i = rarityOrder.length - 1; i >= 0; i--) {
-    if (collection.some(p => p.rarity === rarityOrder[i])) {
-      rarestRarity = rarityOrder[i];
-      break;
-    }
-  }
-  
   document.getElementById('total-caught').textContent = totalCaught;
   document.getElementById('unique-count').textContent = uniquePokemon;
-  document.getElementById('rarest-rarity').textContent = 
-    rarestRarity === 'None' ? 'None' : rarestRarity.charAt(0).toUpperCase() + rarestRarity.slice(1);
 }
 
 // Format date for display
@@ -94,31 +80,10 @@ async function clearCollection() {
   if (confirm('Are you sure you want to clear your entire Pokémon collection? This cannot be undone.')) {
     try {
       await chrome.storage.local.set({ pokemonCollection: [] });
-      loadCollection(); // Just reload the collection
+      loadCollection();
     } catch (error) {
       console.error('Error clearing collection:', error);
     }
-  }
-}
-
-// Export collection data
-async function exportCollection() {
-  try {
-    const result = await chrome.storage.local.get(['pokemonCollection']);
-    const collection = result.pokemonCollection || [];
-    
-    const dataStr = JSON.stringify(collection, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `pokebrowser-collection-${new Date().toISOString().split('T')[0]}.json`;
-    link.click();
-    
-    URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error('Error exporting collection:', error);
   }
 }
 
@@ -127,7 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
   loadCollection();
   
   document.getElementById('clear-collection').addEventListener('click', clearCollection);
-  document.getElementById('export-collection').addEventListener('click', exportCollection);
 });
 
 // Refresh collection when storage changes

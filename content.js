@@ -56,7 +56,6 @@ function createEncounterPopup(pokemon) {
       <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png" 
            alt="${pokemon.name}" onerror="this.style.display='none'">
     </div>
-    <div class="rarity ${pokemon.rarity}">${pokemon.rarity.toUpperCase()}</div>
     <button id="catch-pokemon">Catch Pokemon!</button>
     <button id="run-away">Run Away</button>
   `;
@@ -71,8 +70,6 @@ function createEncounterPopup(pokemon) {
   document.getElementById('run-away').addEventListener('click', (e) => {
     closePokemonEncounter();
   });
-  
-  // No click-anywhere-to-close for initial encounter to prevent accidental losses
 }
 
 // Catch the Pokemon and save to storage

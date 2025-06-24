@@ -8,31 +8,108 @@
       min-height: 400px;
       margin: 0;
       padding: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Courier New', monospace;
+      background: #d32f2f;
       color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Pokédex top section */
+    .pokedex-top {
+      background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+      height: 80px;
+      position: relative;
+      border-bottom: 4px solid #333;
+    }
+    
+    .pokedex-top::before {
+      content: '';
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      width: 50px;
+      height: 50px;
+      background: radial-gradient(circle, #4fc3f7 0%, #0288d1 40%, #01579b 100%);
+      border-radius: 50%;
+      border: 4px solid #fff;
+      box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.3), 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+    
+    .pokedex-top::after {
+      content: '';
+      position: absolute;
+      top: 25px;
+      left: 30px;
+      width: 30px;
+      height: 30px;
+      background: radial-gradient(circle at 30% 30%, #87ceeb 0%, #4682b4 100%);
+      border-radius: 50%;
+      box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+    
+    .indicator-lights {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      gap: 8px;
+    }
+    
+    .indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid #333;
+    }
+    
+    .indicator.red {
+      background: #f44336;
+      box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.3);
+    }
+    
+    .indicator.yellow {
+      background: #ffeb3b;
+      box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.3);
+    }
+    
+    .indicator.green {
+      background: #4caf50;
+      box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.3);
     }
     
     .header {
-      background: rgba(0, 0, 0, 0.2);
+      background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
       padding: 15px;
       text-align: center;
-      border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+      border-bottom: 2px solid #666;
+      position: relative;
     }
     
     .header h1 {
       margin: 0;
-      font-size: 24px;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      font-size: 20px;
+      color: #4fc3f7;
+      text-shadow: 0 0 10px rgba(79, 195, 247, 0.5);
+      letter-spacing: 2px;
+    }
+    
+    .screen-bezel {
+      background: #333;
+      padding: 8px;
+      margin: 0 15px;
+      border-radius: 8px;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
     }
     
     .stats {
       display: flex;
       justify-content: space-around;
       padding: 10px;
-      background: rgba(255, 255, 255, 0.1);
-      margin: 10px;
-      border-radius: 10px;
+      background: linear-gradient(135deg, #0d3a4f 0%, #1b4e5e 100%);
+      border-radius: 4px;
+      border: 2px solid #2e5d7d;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
     }
     
     .stat {
@@ -40,50 +117,63 @@
     }
     
     .stat-number {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: bold;
       display: block;
+      color: #4fc3f7;
+      text-shadow: 0 0 5px rgba(79, 195, 247, 0.5);
+      font-family: 'Courier New', monospace;
     }
     
     .stat-label {
-      font-size: 12px;
-      opacity: 0.9;
+      font-size: 10px;
+      color: #81d4fa;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
     
     .collection {
-      max-height: 250px;
+      max-height: 200px;
       overflow-y: auto;
-      padding: 10px;
+      background: linear-gradient(135deg, #0d3a4f 0%, #1b4e5e 100%);
+      margin: 8px 15px;
+      border-radius: 4px;
+      border: 2px solid #2e5d7d;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
     }
     
     .pokemon-item {
-      background: rgba(255, 255, 255, 0.1);
-      margin: 8px 0;
-      padding: 10px;
-      border-radius: 8px;
+      background: rgba(79, 195, 247, 0.1);
+      margin: 4px 8px;
+      padding: 8px;
+      border-radius: 4px;
       display: flex;
       align-items: center;
-      transition: background 0.3s ease;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(79, 195, 247, 0.3);
     }
     
     .pokemon-item:hover {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(79, 195, 247, 0.2);
+      border-color: #4fc3f7;
+      box-shadow: 0 0 8px rgba(79, 195, 247, 0.3);
     }
     
     .pokemon-sprite {
-      width: 40px;
-      height: 40px;
+      width: 32px;
+      height: 32px;
       margin-right: 10px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
+      border: 1px solid #4fc3f7;
     }
     
     .pokemon-sprite img {
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
       image-rendering: pixelated;
     }
     
@@ -94,62 +184,65 @@
     .pokemon-name {
       font-weight: bold;
       margin-bottom: 2px;
-    }
-    
-    .pokemon-details {
-      font-size: 11px;
-      opacity: 0.8;
-    }
-    
-    .rarity-badge {
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-size: 10px;
-      font-weight: bold;
+      color: #4fc3f7;
+      text-shadow: 0 0 3px rgba(79, 195, 247, 0.5);
+      font-size: 12px;
       text-transform: uppercase;
     }
     
-    .rarity-badge.common { background: #4CAF50; }
-    .rarity-badge.uncommon { background: #2196F3; }
-    .rarity-badge.rare { background: #9C27B0; }
-    .rarity-badge.legendary { background: linear-gradient(45deg, #FFD700, #FFA500); }
+    .pokemon-details {
+      font-size: 10px;
+      color: #81d4fa;
+      font-family: 'Courier New', monospace;
+    }
     
     .empty-state {
       text-align: center;
-      padding: 40px 20px;
-      opacity: 0.7;
+      padding: 30px 20px;
+      color: #81d4fa;
     }
     
     .empty-state h3 {
       margin-bottom: 10px;
+      color: #4fc3f7;
+      text-shadow: 0 0 5px rgba(79, 195, 247, 0.5);
     }
     
     .controls {
-      padding: 10px;
-      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 15px;
+      background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+      border-top: 2px solid #666;
       text-align: center;
     }
     
     .btn {
-      background: rgba(255, 255, 255, 0.2);
+      background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
       color: white;
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      border: 2px solid #333;
       padding: 8px 16px;
-      border-radius: 20px;
+      border-radius: 4px;
       cursor: pointer;
-      font-size: 12px;
-      margin: 0 5px;
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
       transition: all 0.3s ease;
+      font-family: 'Courier New', monospace;
     }
     
     .btn:hover {
-      background: rgba(255, 255, 255, 0.3);
+      background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
       transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
     }
     
     .scrollbar {
       scrollbar-width: thin;
-      scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+      scrollbar-color: #4fc3f7 transparent;
     }
     
     .scrollbar::-webkit-scrollbar {
@@ -161,41 +254,100 @@
     }
     
     .scrollbar::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.3);
+      background: #4fc3f7;
       border-radius: 3px;
+      box-shadow: 0 0 3px rgba(79, 195, 247, 0.5);
+    }
+    
+    /* Pokédex bottom styling */
+    .pokedex-bottom {
+      background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+      height: 20px;
+      border-top: 2px solid #666;
+      position: relative;
+    }
+    
+    .pokedex-bottom::before {
+      content: '';
+      position: absolute;
+      bottom: 5px;
+      left: 20px;
+      width: 8px;
+      height: 8px;
+      background: #4fc3f7;
+      border-radius: 50%;
+      box-shadow: 0 0 5px rgba(79, 195, 247, 0.8);
+    }
+    
+    .pokedex-bottom::after {
+      content: '';
+      position: absolute;
+      bottom: 5px;
+      right: 20px;
+      width: 8px;
+      height: 8px;
+      background: #f44336;
+      border-radius: 50%;
+      box-shadow: 0 0 5px rgba(244, 67, 54, 0.8);
+    }
+    
+    /* Scan lines effect */
+    .collection::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(79, 195, 247, 0.03) 2px,
+        rgba(79, 195, 247, 0.03) 4px
+      );
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
+  <div class="pokedex-top">
+    <div class="indicator-lights">
+      <div class="indicator red"></div>
+      <div class="indicator yellow"></div>
+      <div class="indicator green"></div>
+    </div>
+  </div>
+  
   <div class="header">
-    <h1>🔴 Pokebrowser</h1>
+    <h1>POKÉBROWSER</h1>
+  </div>
+  
+  <div class="screen-bezel">
     <div class="stats">
       <div class="stat">
-        <span class="stat-number" id="total-caught">0</span>
+        <span class="stat-number" id="total-caught">000</span>
         <span class="stat-label">Caught</span>
       </div>
       <div class="stat">
-        <span class="stat-number" id="unique-count">0</span>
-        <span class="stat-label">Unique</span>
-      </div>
-      <div class="stat">
-        <span class="stat-number" id="rarest-rarity">None</span>
-        <span class="stat-label">Rarest</span>
+        <span class="stat-number" id="unique-count">000</span>
+        <span class="stat-label">Species</span>
       </div>
     </div>
   </div>
   
   <div class="collection scrollbar" id="pokemon-collection">
     <div class="empty-state">
-      <h3>No Pokémon Yet!</h3>
-      <p>Browse websites to encounter wild Pokémon and start your collection!</p>
+      <h3>POKEDEX EMPTY</h3>
+      <p>Scan web pages to detect wild Pokémon and begin data collection...</p>
     </div>
   </div>
   
   <div class="controls">
-    <button class="btn" id="clear-collection">Clear Collection</button>
-    <button class="btn" id="export-collection">Export Data</button>
+    <button class="btn" id="clear-collection">PURGE DATA</button>
   </div>
+  
+  <div class="pokedex-bottom"></div>
   
   <script src="popup.js"></script>
 </body>

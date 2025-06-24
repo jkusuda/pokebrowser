@@ -2,11 +2,15 @@
   "manifest_version": 3,
   "name": "Pokebrowser",
   "version": "1.0",
-  "description": "Turn your web browsing into a Pokémon adventure! Discover wild Pokémon on websites and build your collection as you surf. ",
+  "description": "Turn your web browsing into a Pokémon adventure! Discover wild Pokémon on websites and build your collection as you surf.",
   
   "permissions": [
     "storage",
     "activeTab"
+  ],
+  
+  "host_permissions": [
+    "https://*.supabase.co/*"
   ],
   
   "content_scripts": [
@@ -26,5 +30,17 @@
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
-  }
+  },
+  
+  "background": {
+    "service_worker": "background.js"
+  },
+  
+  "web_accessible_resources": [
+    {
+      "resources": ["auth.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+
 }

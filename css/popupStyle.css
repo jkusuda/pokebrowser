@@ -361,3 +361,9 @@ body {
     .hidden {
       display: none;
     }
+
+    .clickable-pokemon:hover {
+    background-color: #4fc3f7;
+    transform: translateY(-2px);
+    transition: all 0.2s ease;
+}

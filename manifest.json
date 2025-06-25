@@ -38,7 +38,7 @@
   
   "web_accessible_resources": [
     {
-      "resources": ["html/auth.html"],
+      "resources": ["html/pokemon-detail.html", "html/auth.html"],
       "matches": ["<all_urls>"]
     }
   ]

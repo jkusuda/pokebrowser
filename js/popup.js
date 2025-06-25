@@ -10,7 +10,7 @@ import { formatDate } from './utils/date-formatter.js';
 
 // Constants
 const SUPABASE_URL = 'https://mzoxfiqdhbitwoyspnfm.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16b3hmaXFkaGJpdHdveXNwbmZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3OTIyMjIsImV4cCI6MjA2NjM2ODIyMn0.YbxebGzAZne6i3kZFfZPp1U3F-ewYIHy8gaaw9q1zkM'; // Empty - this should contain your public API key
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16b3hmaXFkaGJpdHdveXNwbmZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3OTIyMjIsImV4cCI6MjA2NjM2ODIyMn0.YbxebGzAZne6i3kZFfZPp1U3F-ewYIHy8gaaw9q1zkM';
 
 // Global variables
 let supabase;        // Supabase client instance
@@ -402,7 +402,7 @@ function displayCollection(collection) {
         
         // Template literal with HTML structure
         return `
-            <div class="pokemon-item">
+            <div class="pokemon-item clickable-pokemon">
                 <div class="pokemon-sprite">
                     <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png" 
                          alt="${pokemon.name}" onerror="this.style.display='none'">
@@ -417,6 +417,13 @@ function displayCollection(collection) {
             </div>
         `;
     }).join('');
+
+    elements.pokemon_collection.querySelectorAll('.pokemon-item').forEach((item, index) => {
+    item.style.cursor = 'pointer';
+    item.addEventListener('click', () => {
+        openPokemonDetail(sortedCollection[index]);
+    });
+});
 }
 
 // Update statistics display
@@ -426,6 +433,24 @@ function updateStats(collection) {
     
     if (elements.total_caught) elements.total_caught.textContent = totalCaught.toString().padStart(3, '0');
     if (elements.unique_count) elements.unique_count.textContent = uniquePokemon.toString().padStart(3, '0');
+}
+
+function openPokemonDetail(pokemon) {
+    const url = chrome.runtime.getURL('../html/pokemon-detail.html');
+    const params = new URLSearchParams({
+        id: pokemon.id,
+        name: pokemon.name,
+        caughtAt: pokemon.caughtAt,
+        site: pokemon.site
+    });
+    
+    chrome.windows.create({
+        url: `${url}?${params.toString()}`,
+        type: 'popup',
+        width: 500,
+        height: 600,
+        focused: true
+    });
 }
 
 /**

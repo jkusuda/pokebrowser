@@ -1,9 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <style>
-    body {
+body {
       width: 350px;
       min-height: 400px;
       margin: 0;
@@ -366,63 +361,3 @@
     .hidden {
       display: none;
     }
-  </style>
-</head>
-<body>
-  <div class="pokedex-top">
-    <div class="indicator-lights">
-      <div class="indicator red"></div>
-      <div class="indicator yellow"></div>
-      <div class="indicator green"></div>
-    </div>
-  </div>
-  
-  <div class="header">
-    <h1>POKÉBROWSER</h1>
-  </div>
-  
-  <div class="screen-bezel">
-    <div class="stats">
-      <div class="stat">
-        <span class="stat-number" id="total-caught">000</span>
-        <span class="stat-label">Caught</span>
-      </div>
-      <div class="stat">
-        <span class="stat-number" id="unique-count">000</span>
-        <span class="stat-label">Species</span>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Auth Section -->
-  <div class="auth-section" id="auth-section">
-    <div id="logged-out-state">
-      <h3>CLOUD STORAGE</h3>
-      <p>Log in to permanently store your Pokémon collection and sync across devices!</p>
-      <button class="btn secondary" id="login-btn">LOGIN / SIGN UP</button>
-    </div>
-    
-    <div id="logged-in-state" class="hidden">
-      <div class="user-info" id="user-email"></div>
-      <div class="sync-status" id="sync-status">Local storage only</div>
-      <button class="btn" id="logout-btn">LOGOUT</button>
-    </div>
-  </div>
-  
-  <div class="collection scrollbar" id="pokemon-collection">
-    <div class="empty-state">
-      <h3>POKEDEX EMPTY</h3>
-      <p>Scan web pages to detect wild Pokémon and begin data collection...</p>
-    </div>
-  </div>
-  
-  <div class="controls">
-    <button class="btn" id="clear-collection">PURGE DATA</button>
-  </div>
-  
-  <div class="pokedex-bottom"></div>
-  
-  <script src="supabase-client.js"></script>
-  <script src="popup.js"></script>
-</body>
-</html>

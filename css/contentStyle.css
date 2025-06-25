@@ -1,0 +1,170 @@
+
+#pokebrowser-encounter {
+  position: fixed;
+  top: 10px;
+  right: 20px;
+  background: linear-gradient(135deg, #4a90e2 0%, #2c5aa0 50%, #1e3a8a 100%);
+  border: 2px solid #fff;
+  border-radius: 10px;
+  padding: 8px;
+  text-align: center;
+  color: white;
+  font-family: Arial, sans-serif;
+  z-index: 10000;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  width: 250px;
+  animation: encounterSlideIn 0.5s ease-out;
+}
+
+@keyframes encounterSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+#pokebrowser-encounter .pokeball-icon {
+  display: none;
+}
+
+#pokebrowser-encounter .encounter-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding: 0 8px;
+
+}
+
+#pokebrowser-encounter .pokemon-sprite {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#pokebrowser-encounter .pokemon-sprite img {
+  width: 100px;
+  height: 100px;
+  image-rendering: pixelated;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+#pokebrowser-encounter .button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-left: 8px;
+  margin-right: 8px;
+  flex-shrink: 0;
+  width: 80px;
+}
+
+#pokebrowser-encounter h3 {
+  margin: 0;
+  font-size: 12px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+  line-height: 1.2;
+  text-align: center;
+}
+
+#pokebrowser-encounter button {
+  background: #fff;
+  color: #333;
+  border: none;
+  padding: 4px 6px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 8px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#pokebrowser-encounter button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+#pokebrowser-encounter #catch-pokemon {
+  background: #4CAF50;
+  color: white;
+}
+
+#pokebrowser-encounter #catch-pokemon:hover {
+  background: #45a049;
+}
+
+#pokebrowser-encounter #run-away {
+  background: #f44336;
+  color: white;
+}
+
+#pokebrowser-encounter #run-away:hover {
+  background: #da190b;
+}
+
+#pokebrowser-encounter .success-message {
+  animation: successPulse 0.6s ease-out;
+}
+
+@keyframes successPulse {
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+#pokebrowser-encounter .rarity {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 8px;
+  font-weight: bold;
+  margin: 4px 0;
+  text-transform: uppercase;
+}
+
+#pokebrowser-encounter .rarity.common {
+  background: #4CAF50;
+}
+
+#pokebrowser-encounter .rarity.uncommon {
+  background: #2196F3;
+}
+
+#pokebrowser-encounter .rarity.rare {
+  background: #9C27B0;
+}
+
+#pokebrowser-encounter .rarity.legendary {
+  background: linear-gradient(45deg, #FFD700, #FFA500);
+  animation: legendary-glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes legendary-glow {
+  from {
+    box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+  }
+  to {
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+  }
+}
+
+#pokebrowser-encounter .close-instruction {
+  font-size: 8px;
+  opacity: 0.8;
+  margin-top: 4px;
+  font-style: italic;
+}

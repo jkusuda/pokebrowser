@@ -45,19 +45,22 @@ function selectRandomPokemon() {
   return availablePokemon[Math.floor(Math.random() * availablePokemon.length)];
 }
 
-// Create encounter popup
+// Updated JavaScript function
 function createEncounterPopup(pokemon) {
   const popup = document.createElement('div');
   popup.id = 'pokebrowser-encounter';
   popup.innerHTML = `
-    <div class="pokeball-icon">⚪</div>
-    <h3>A wild ${pokemon.name} appeared!</h3>
-    <div class="pokemon-sprite">
-      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png" 
-           alt="${pokemon.name}" onerror="this.style.display='none'">
+    <div class="encounter-content">
+      <div class="pokemon-sprite">
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png" 
+             alt="${pokemon.name}" onerror="this.style.display='none'">
+      </div>
+      <div class="button-container">
+        <button id="catch-pokemon">Catch Pokemon!</button>
+        <button id="run-away">Run Away</button>
+      </div>
     </div>
-    <button id="catch-pokemon">Catch Pokemon!</button>
-    <button id="run-away">Run Away</button>
+    <h3>A wild ${pokemon.name} appeared!</h3>
   `;
   
   document.body.appendChild(popup);

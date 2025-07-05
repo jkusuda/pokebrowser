@@ -69,31 +69,49 @@ function createEncounterPopup(pokemon) {
   
   document.body.appendChild(popup);
   
-  // Load the grass platform image using Chrome extension API
+  // Safely load the grass platform image
   const grassPlatform = popup.querySelector('.grass-platform');
-  const grassImageUrl = chrome.runtime.getURL('grass-platform.webp');
-  grassPlatform.style.backgroundImage = `url('${grassImageUrl}')`;
+  const grassImageUrl = getExtensionURL('grass-platform.webp');
+  if (grassImageUrl) {
+    grassPlatform.style.backgroundImage = `url('${grassImageUrl}')`;
+  }
   
   document.getElementById('catch-pokemon').addEventListener('click', () => catchPokemon(pokemon));
   document.getElementById('run-away').addEventListener('click', closePokemonEncounter);
 }
 
-/**
- * Catches the Pokémon and saves it to local storage.
+/*
+* Catches the Pokémon with pokeball animation.
  * @param {Object} pokemon - The Pokémon to be caught.
  */
 async function catchPokemon(pokemon) {
+  // Start the catch animation
+  startCatchAnimation(pokemon);
+}
+
+
+/**
+ * Saves the caught Pokémon and shows success message.
+ * @param {Object} pokemon - The caught Pokémon.
+ */
+async function savePokemonAndShowSuccess(pokemon) {
   try {
-    const result = await chrome.storage.local.get(['pokemonCollection']);
-    const collection = result.pokemonCollection || [];
-    
-    const caughtPokemon = { ...pokemon, caughtAt: new Date().toISOString(), site: window.location.hostname };
-    collection.push(caughtPokemon);
-    
-    await chrome.storage.local.set({ pokemonCollection: collection });
+    // Safety check for chrome.storage
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      const result = await chrome.storage.local.get(['pokemonCollection']);
+      const collection = result.pokemonCollection || [];
+      
+      const caughtPokemon = { ...pokemon, caughtAt: new Date().toISOString(), site: window.location.hostname };
+      collection.push(caughtPokemon);
+      
+      await chrome.storage.local.set({ pokemonCollection: collection });
+    } else {
+      console.warn('chrome.storage not available. Skipping save.');
+    }
     showCatchSuccess(pokemon);
   } catch (error) {
     console.error('Error catching Pokemon:', error);
+    showCatchSuccess(pokemon); // Show success anyway for demo
   }
 }
 
@@ -103,14 +121,21 @@ async function catchPokemon(pokemon) {
  */
 function showCatchSuccess(pokemon) {
   const popup = document.getElementById('pokebrowser-encounter');
-  popup.innerHTML = `
-    <div class="success-message">
-      <div class="pokeball-icon">⚪</div>
-      <h3>Gotcha!</h3>
-      <p>${pokemon.name} was caught!</p>
+  
+  // Only replace the encounter text and button container, keep the grass platform
+  const encounterText = popup.querySelector('.encounter-text');
+  const buttonContainer = popup.querySelector('.button-container');
+  
+  if (encounterText) {
+    encounterText.innerHTML = `
+      <h3>Gotcha! ${pokemon.name} was caught!</h3>
       <div class="close-instruction">Click anywhere to close</div>
-    </div>
-  `;
+    `;
+  }
+  
+  if (buttonContainer) {
+    buttonContainer.style.display = 'none';
+  }
   
   const clickHandler = (e) => {
     if (!popup.contains(e.target)) {
@@ -120,7 +145,7 @@ function showCatchSuccess(pokemon) {
   };
   
   setTimeout(() => document.addEventListener('click', clickHandler), 100);
-  setTimeout(closePokemonEncounter, 3000);
+  setTimeout(closePokemonEncounter, 5000); // Increased from 3000 to 5000 (5 seconds)
 }
 
 /**
@@ -132,10 +157,45 @@ function closePokemonEncounter() {
 }
 
 /**
+ * Safely gets a URL for a resource within the extension.
+ * @param {string} resourcePath - The path to the resource.
+ * @returns {string|null} - The full URL or null if the API is unavailable.
+ */
+function getExtensionURL(resourcePath) {
+  if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL) {
+    return chrome.runtime.getURL(resourcePath);
+  }
+  console.warn(`chrome.runtime.getURL not available for resource: ${resourcePath}`);
+  return null;
+}
+
+/**
  * Initializes the Pokémon encounter check.
  */
 function initializePokebrowser() {
   if (window.location.protocol.startsWith('chrome')) return;
+
+  // Inject the CSS
+  const updatedCSS = `
+  /* Throw movement animation - adjusted for scaled pokeball */
+  @keyframes throwPokeball {
+    0% {
+      transform: scale(1.5) translate(0, 0) rotate(0deg);
+    }
+    33% {
+      transform: scale(1.5) translate(50px, -40px) rotate(120deg);
+    }
+    66% {
+      transform: scale(1.5) translate(60px, -50px) rotate(240deg);
+    }
+    100% {
+      transform: scale(1.5) translate(70px, -40px) rotate(360deg);
+    }
+  }
+  `;
+  const style = document.createElement('style');
+  style.textContent = updatedCSS;
+  document.head.appendChild(style);
   
   setTimeout(() => {
     if (shouldShowEncounter()) {

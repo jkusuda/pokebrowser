@@ -8,5 +8,6 @@ export const CONFIG = {
     SYNC_DELAY: 1000,
     BATCH_SIZE: 25,
     AUTH_CHECK_INTERVAL: 1000,
-    IMMEDIATE_SYNC_ACTIONS: ['login', 'new_pokemon', 'user_action']
+    IMMEDIATE_SYNC_ACTIONS: ['login', 'new_pokemon', 'user_action'],
+    ANIMATIONS_ENABLED: true
 };

@@ -1,289 +1,433 @@
-// POKEMON-DETAIL.JS
-// Handles fetching and displaying detailed Pokemon information
+// pokemon-detail.js - Modular Pokemon Detail Page
+// =================================================
 
-// Cache for Pokemon data to avoid repeated API calls
-const pokemonCache = new Map();
-
-// DOM elements
-const elements = {
-    loading: document.getElementById('loading-state'),
-    error: document.getElementById('error-state'),
-    details: document.getElementById('pokemon-details'),
-    name: document.getElementById('pokemon-name'),
-    id: document.getElementById('pokemon-id'),
-    sprite: document.getElementById('pokemon-sprite'),
-    types: document.getElementById('pokemon-types'),
-    stats: document.getElementById('pokemon-stats'),
-    abilities: document.getElementById('pokemon-abilities'),
-    pokedexEntry: document.getElementById('pokedex-entry'),
-    catchDetails: document.getElementById('catch-details')
+// Configuration
+const CONFIG = {
+    SUPABASE_URL: 'https://mzoxfiqdhbitwoyspnfm.supabase.co',
+    SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16b3hmaXFkaGJpdHdveXNwbmZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3OTIyMjIsImV4cCI6MjA2NjM2ODIyMn0.YbxebGzAZne6i3kZFfZPp1U3F-ewYIHy8gaaw9q1zkM', // Replace with your actual key
+    POKEAPI_BASE_URL: 'https://pokeapi.co/api/v2/pokemon',
+    SPRITE_BASE_URL: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon'
 };
 
-// Stat display names mapping
-const STAT_NAMES = {
-    'hp': 'HP',
-    'attack': 'Attack',
-    'defense': 'Defense',
-    'special-attack': 'Sp. Atk',
-    'special-defense': 'Sp. Def',
-    'speed': 'Speed'
-};
+// State Management
+class AppState {
+    constructor() {
+        this.currentPokemon = null;
+        this.pokemonData = null;
+        this.supabase = null;
+        this.currentUser = null;
+        this.cache = new Map();
+    }
 
-// Tab switching function for info panel
-function switchTab(tabName) {
-    // Remove active class from all tabs
-    document.querySelectorAll('.info-tab').forEach(tab => tab.classList.remove('active'));
-    document.querySelectorAll('.info-content > div').forEach(content => content.style.display = 'none');
-    
-    // Add active class to clicked tab
-    const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
-    if (activeTab) {
-        activeTab.classList.add('active');
-        document.getElementById(tabName + '-content').style.display = 'block';
+    setPokemon(pokemon) {
+        this.currentPokemon = pokemon;
+    }
+
+    setPokemonData(data) {
+        this.pokemonData = data;
+    }
+
+    setSupabase(client) {
+        this.supabase = client;
+    }
+
+    setUser(user) {
+        this.currentUser = user;
+    }
+
+    getCachedData(key) {
+        return this.cache.get(key);
+    }
+
+    setCachedData(key, data) {
+        this.cache.set(key, data);
+    }
+
+    isLoggedIn() {
+        return !!this.currentUser;
+    }
+
+    canSync() {
+        return this.isLoggedIn() && this.supabase && navigator.onLine;
     }
 }
 
-// Initialize the page
-async function initializePage() {
-    try {
-        // Get URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const pokemonId = urlParams.get('id');
-        const pokemonName = urlParams.get('name');
-        const caughtAt = urlParams.get('caughtAt');
-        const site = urlParams.get('site');
-
-        if (!pokemonId) {
-            throw new Error('No Pokemon ID provided');
-        }
-
-        // Set basic info immediately
-        if (pokemonName) {
-            elements.name.textContent = capitalizeFirst(pokemonName);
-        }
-        elements.id.textContent = `#${pokemonId.toString().padStart(3, '0')}`;
-
-        // Set catch details
-        if (caughtAt && site) {
-            const catchDate = new Date(caughtAt).toLocaleDateString();
-            elements.catchDetails.innerHTML = `
-                Caught on <strong>${site}</strong><br>
-                ${catchDate}
-            `;
-        }
-
-        // Fetch and display Pokemon data
-        await fetchAndDisplayPokemon(pokemonId);
-
-    } catch (error) {
-        console.error('Error initializing page:', error);
-        showError();
-    }
-}
-
-// Fetch Pokemon data from PokeAPI
-async function fetchPokemonData(pokemonId) {
-    // Check cache first
-    if (pokemonCache.has(pokemonId)) {
-        return pokemonCache.get(pokemonId);
+// DOM Manager
+class DOMManager {
+    constructor() {
+        this.elements = this.initializeElements();
     }
 
-    try {
-        // Fetch basic Pokemon data
-        const pokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`);
-        if (!pokemonResponse.ok) {
-            throw new Error(`Pokemon not found: ${pokemonResponse.status}`);
-        }
-        const pokemonData = await pokemonResponse.json();
+    initializeElements() {
+        const elementIds = [
+            'loading-state', 'error-state', 'pokemon-details', 'pokemon-name',
+            'pokemon-id', 'pokemon-sprite', 'pokemon-types', 'candy-count',
+            'candy-label', 'caught-site', 'caught-date', 'evolve-btn',
+            'summon-btn', 'release-btn'
+        ];
 
-        // Fetch species data for Pokedex entry
-        const speciesResponse = await fetch(pokemonData.species.url);
-        if (!speciesResponse.ok) {
-            throw new Error(`Species data not found: ${speciesResponse.status}`);
-        }
-        const speciesData = await speciesResponse.json();
+        const elements = {};
+        elementIds.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                elements[id.replace(/-/g, '_')] = element;
+            } else {
+                console.warn(`Element with id '${id}' not found`);
+            }
+        });
 
-        // Combine data
-        const combinedData = {
-            ...pokemonData,
-            species: speciesData
+        return elements;
+    }
+
+    showLoading() {
+        this.elements.loading_state.style.display = 'block';
+        this.elements.error_state.style.display = 'none';
+        this.elements.pokemon_details.style.display = 'none';
+    }
+
+    showError(message = 'An error occurred') {
+        this.elements.loading_state.style.display = 'none';
+        this.elements.error_state.style.display = 'block';
+        this.elements.pokemon_details.style.display = 'none';
+        
+        // Update error message if there's an error message element
+        const errorMsg = document.querySelector('.error-message');
+        if (errorMsg) errorMsg.textContent = message;
+    }
+
+    showDetails() {
+        this.elements.loading_state.style.display = 'none';
+        this.elements.error_state.style.display = 'none';
+        this.elements.pokemon_details.style.display = 'block';
+    }
+
+    updateBasicInfo(pokemonData) {
+        this.elements.pokemon_name.textContent = Utils.capitalizeFirst(pokemonData.name);
+        this.elements.pokemon_id.textContent = `#${pokemonData.id.toString().padStart(3, '0')}`;
+    }
+
+    updateSprite(pokemonData) {
+        const spriteUrl = pokemonData.sprites.other?.['official-artwork']?.front_default ||
+                         pokemonData.sprites.front_default ||
+                         `${CONFIG.SPRITE_BASE_URL}/${pokemonData.id}.png`;
+        
+        this.elements.pokemon_sprite.src = spriteUrl;
+        this.elements.pokemon_sprite.alt = pokemonData.name;
+        
+        this.elements.pokemon_sprite.onerror = () => {
+            this.elements.pokemon_sprite.src = `${CONFIG.SPRITE_BASE_URL}/${pokemonData.id}.png`;
         };
+    }
 
-        // Cache the result
-        pokemonCache.set(pokemonId, combinedData);
-        return combinedData;
+    updateTypes(pokemonData) {
+        this.elements.pokemon_types.innerHTML = pokemonData.types.map(typeInfo => {
+            const typeName = typeInfo.type.name;
+            return `<span class="type-badge type-${typeName}">${Utils.capitalizeFirst(typeName)}</span>`;
+        }).join('');
+    }
 
-    } catch (error) {
-        console.error('Error fetching Pokemon data:', error);
-        throw error;
+    updateCandies(pokemonData) {
+        const candyCount = Math.floor(Math.random() * 100) + 1;
+        this.elements.candy_count.textContent = candyCount;
+        this.elements.candy_label.textContent = `${Utils.capitalizeFirst(pokemonData.name)} Candy`;
+    }
+
+    updateCatchInfo(pokemon) {
+        if (pokemon.site && pokemon.caughtAt) {
+            const catchDate = new Date(pokemon.caughtAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            this.elements.caught_site.textContent = `Caught on ${pokemon.site}`;
+            this.elements.caught_date.textContent = catchDate;
+        }
+    }
+
+    setButtonState(buttonName, disabled, text) {
+        const button = this.elements[buttonName];
+        if (button) {
+            button.disabled = disabled;
+            if (text) button.textContent = text;
+        }
     }
 }
 
-// Fetch and display all Pokemon information
-async function fetchAndDisplayPokemon(pokemonId) {
-    try {
-        showLoading();
+// API Service
+class APIService {
+    static async fetchPokemonData(pokemonId, cache) {
+        if (cache.has(pokemonId)) {
+            return cache.get(pokemonId);
+        }
 
-        const pokemonData = await fetchPokemonData(pokemonId);
-
-        // Update all sections
-        updateBasicInfo(pokemonData);
-        updateSprite(pokemonData);
-        updateTypes(pokemonData);
-        updateStats(pokemonData);
-        updateAbilities(pokemonData);
-        updatePokedexEntry(pokemonData);
-
-        showDetails();
-
-    } catch (error) {
-        console.error('Error displaying Pokemon:', error);
-        showError();
+        try {
+            const response = await fetch(`${CONFIG.POKEAPI_BASE_URL}/${pokemonId}`);
+            if (!response.ok) {
+                throw new Error(`Pokemon not found: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            cache.set(pokemonId, data);
+            return data;
+        } catch (error) {
+            console.error('Error fetching Pokemon data:', error);
+            throw error;
+        }
     }
 }
 
-// Update basic Pokemon information
-function updateBasicInfo(pokemonData) {
-    elements.name.textContent = capitalizeFirst(pokemonData.name);
-    elements.id.textContent = `#${pokemonData.id.toString().padStart(3, '0')}`;
+// Storage Service
+class StorageService {
+    static async getPokemonCollection() {
+        const { pokemonCollection = [] } = await chrome.storage.local.get(['pokemonCollection']);
+        return pokemonCollection;
+    }
+
+    static async setPokemonCollection(collection) {
+        await chrome.storage.local.set({ pokemonCollection: collection });
+    }
+
+    static async removePokemonFromCollection(pokemonToRemove) {
+        const collection = await this.getPokemonCollection();
+        const updatedCollection = collection.filter(pokemon => 
+            !(pokemon.id === pokemonToRemove.id && 
+              pokemon.site === pokemonToRemove.site && 
+              new Date(pokemon.caughtAt).getTime() === new Date(pokemonToRemove.caughtAt).getTime())
+        );
+        
+        await this.setPokemonCollection(updatedCollection);
+        return updatedCollection.length < collection.length; // Return true if Pokemon was removed
+    }
 }
 
-// Update Pokemon sprite
-function updateSprite(pokemonData) {
-    const spriteUrl = pokemonData.sprites.other?.['showdown']?.front_default ||
-                        pokemonData.sprites.front_default ||
-                        `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonData.id}.png`;
-    
-    elements.sprite.src = spriteUrl;
-    elements.sprite.alt = pokemonData.name;
-    
-    // Add error handling for sprite
-    elements.sprite.onerror = () => {
-        elements.sprite.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonData.id}.png`;
+// Auth Service
+class AuthService {
+    static async initializeSupabase() {
+        if (typeof window.supabase === 'undefined') {
+            throw new Error('Supabase library not loaded');
+        }
+
+        const client = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+        
+        // Check current auth state
+        const { data: { session } } = await client.auth.getSession();
+        const user = session?.user || null;
+        
+        return { client, user };
+    }
+}
+
+// Pokemon Service
+class PokemonService {
+    constructor(appState) {
+        this.state = appState;
+    }
+
+    async releasePokemon(pokemon) {
+        if (!pokemon) {
+            throw new Error('No Pokemon data provided');
+        }
+
+        console.log('Releasing Pokemon:', pokemon);
+
+        // Remove from Supabase if logged in
+        if (this.state.canSync()) {
+            await this.removeFromSupabase(pokemon);
+        }
+
+        // Remove from local storage
+        const removed = await StorageService.removePokemonFromCollection(pokemon);
+        
+        if (!removed) {
+            throw new Error('Pokemon not found in collection');
+        }
+
+        return { success: true };
+    }
+
+    async removeFromSupabase(pokemon) {
+        const { error } = await this.state.supabase
+            .from('pokemon')
+            .delete()
+            .eq('user_id', this.state.currentUser.id)
+            .eq('pokemon_id', pokemon.id)
+            .eq('site_caught', pokemon.site)
+            .eq('caught_at', pokemon.caughtAt);
+        
+        if (error) {
+            console.error('Supabase delete error:', error);
+            throw error;
+        }
+    }
+}
+
+// URL Parser
+class URLParser {
+    static parseURLParams() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return {
+            id: parseInt(urlParams.get('id')) || 25,
+            name: urlParams.get('name'),
+            caughtAt: urlParams.get('caughtAt'),
+            site: urlParams.get('site')
+        };
+    }
+}
+
+// Utilities
+class Utils {
+    static capitalizeFirst(str) {
+        if (!str) return '';
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    static async delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+}
+
+// Main Application Controller
+class PokemonDetailApp {
+    constructor() {
+        this.state = new AppState();
+        this.dom = new DOMManager();
+        this.pokemonService = new PokemonService(this.state);
+        this.isInitialized = false;
+    }
+
+    async initialize() {
+        if (this.isInitialized) return;
+
+        try {
+            this.dom.showLoading();
+            
+            // Initialize Supabase and auth
+            await this.initializeAuth();
+            
+            // Parse URL parameters and set current Pokemon
+            const pokemonParams = URLParser.parseURLParams();
+            this.state.setPokemon(pokemonParams);
+            
+            // Set initial UI state
+            this.setInitialUI(pokemonParams);
+            
+            // Fetch Pokemon data
+            await this.fetchPokemonData(pokemonParams.id);
+            
+            // Set up event listeners
+            this.setupEventListeners();
+            
+            this.dom.showDetails();
+            this.isInitialized = true;
+            
+        } catch (error) {
+            console.error('Error initializing app:', error);
+            this.dom.showError(error.message);
+        }
+    }
+
+    async initializeAuth() {
+        try {
+            const { client, user } = await AuthService.initializeSupabase();
+            this.state.setSupabase(client);
+            this.state.setUser(user);
+        } catch (error) {
+            console.warn('Auth initialization failed:', error);
+            // Continue without auth - app will work in local-only mode
+        }
+    }
+
+    setInitialUI(pokemon) {
+        if (pokemon.name) {
+            this.dom.elements.pokemon_name.textContent = Utils.capitalizeFirst(pokemon.name);
+        }
+        this.dom.elements.pokemon_id.textContent = `#${pokemon.id.toString().padStart(3, '0')}`;
+        this.dom.updateCatchInfo(pokemon);
+    }
+
+    async fetchPokemonData(pokemonId) {
+        try {
+            const pokemonData = await APIService.fetchPokemonData(pokemonId, this.state.cache);
+            this.state.setPokemonData(pokemonData);
+            
+            // Update UI with Pokemon data
+            this.dom.updateBasicInfo(pokemonData);
+            this.dom.updateSprite(pokemonData);
+            this.dom.updateTypes(pokemonData);
+            this.dom.updateCandies(pokemonData);
+            
+        } catch (error) {
+            console.error('Error fetching Pokemon data:', error);
+            throw new Error('Failed to load Pokemon data');
+        }
+    }
+
+    setupEventListeners() {
+        // Evolve button
+        this.dom.elements.evolve_btn?.addEventListener('click', () => {
+            alert('Evolution feature coming soon!');
+        });
+
+        // Summon button
+        this.dom.elements.summon_btn?.addEventListener('click', () => {
+            alert('Summon feature coming soon!');
+        });
+
+        // Release button
+        this.dom.elements.release_btn?.addEventListener('click', () => {
+            this.handleRelease();
+        });
+    }
+
+    async handleRelease() {
+        const confirmMessage = 'Are you sure you want to release this Pokemon? This action cannot be undone.';
+        
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+
+        try {
+            // Update UI state
+            this.dom.setButtonState('release_btn', true, 'Releasing...');
+            
+            // Release Pokemon
+            const result = await this.pokemonService.releasePokemon(this.state.currentPokemon);
+            
+            if (result.success) {
+                alert('Pokemon released! 💔');
+                await Utils.delay(500); // Brief delay for user feedback
+                window.close();
+            }
+            
+        } catch (error) {
+            console.error('Error releasing Pokemon:', error);
+            alert(`Failed to release Pokemon: ${error.message}`);
+        } finally {
+            // Reset button state
+            this.dom.setButtonState('release_btn', false, 'Release');
+        }
+    }
+}
+
+// Initialize the application
+let app;
+
+document.addEventListener('DOMContentLoaded', () => {
+    app = new PokemonDetailApp();
+    app.initialize();
+});
+
+// Export for testing purposes
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        PokemonDetailApp,
+        AppState,
+        DOMManager,
+        APIService,
+        StorageService,
+        AuthService,
+        PokemonService,
+        URLParser,
+        Utils
     };
 }
-
-// Update Pokemon types
-function updateTypes(pokemonData) {
-    elements.types.innerHTML = pokemonData.types.map(typeInfo => {
-        const typeName = typeInfo.type.name;
-        return `<span class="type-badge type-${typeName}">${capitalizeFirst(typeName)}</span>`;
-    }).join('');
-}
-
-// Update Pokemon stats
-function updateStats(pokemonData) {
-    elements.stats.innerHTML = pokemonData.stats.map(statInfo => {
-        const statName = STAT_NAMES[statInfo.stat.name] || capitalizeFirst(statInfo.stat.name);
-        return `
-            <div class="stat-item">
-                <div class="stat-name">${statName}</div>
-                <div class="stat-value">${statInfo.base_stat}</div>
-            </div>
-        `;
-    }).join('');
-}
-
-// Update Pokemon abilities
-function updateAbilities(pokemonData) {
-    elements.abilities.innerHTML = pokemonData.abilities.map(abilityInfo => {
-        const abilityName = abilityInfo.ability.name.replace('-', ' ');
-        const isHidden = abilityInfo.is_hidden ? ' (Hidden)' : '';
-        return `<span class="ability-tag">${capitalizeFirst(abilityName)}${isHidden}</span>`;
-    }).join('');
-}
-
-// Update Pokedex entry
-function updatePokedexEntry(pokemonData) {
-    // Find English flavor text
-    const englishEntries = pokemonData.species.flavor_text_entries.filter(
-        entry => entry.language.name === 'en'
-    );
-
-    if (englishEntries.length > 0) {
-        // Get the most recent entry (usually the best one)
-        const entry = englishEntries[englishEntries.length - 1];
-        const cleanText = entry.flavor_text.replace(/\f|\n|\r/g, ' ').replace(/\s+/g, ' ').trim();
-        elements.pokedexEntry.textContent = cleanText;
-    } else {
-        elements.pokedexEntry.textContent = 'No Pokedex entry available.';
-    }
-}
-
-// Show loading state
-function showLoading() {
-    elements.loading.style.display = 'block';
-    elements.error.style.display = 'none';
-    elements.details.style.display = 'none';
-}
-
-// Show error state
-function showError() {
-    elements.loading.style.display = 'none';
-    elements.error.style.display = 'block';
-    elements.details.style.display = 'none';
-}
-
-// Show details state
-function showDetails() {
-    elements.loading.style.display = 'none';
-    elements.error.style.display = 'none';
-    elements.details.style.display = 'block';
-}
-
-// Utility function to capitalize first letter
-function capitalizeFirst(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-// Format date for display
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-}
-
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize the page
-    initializePage();
-
-    // Set up tab switching
-    document.querySelectorAll('.info-tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            const tabName = this.getAttribute('data-tab');
-            switchTab(tabName);
-        });
-    });
-
-    // Add interactive feedback for control buttons
-    document.querySelectorAll('.control-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            this.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                this.style.transform = 'scale(1)';
-            }, 100);
-        });
-    });
-});
-
-// Handle window focus for better user experience
-window.addEventListener('focus', () => {
-    // Optional: refresh data when window gains focus
-    // This could be useful if you want to ensure data is always current
-});
-
-// Handle errors globally
-window.addEventListener('error', (event) => {
-    console.error('Global error:', event.error);
-    showError();
-});
-
-// Handle unhandled promise rejections
-window.addEventListener('unhandledrejection', (event) => {
-    console.error('Unhandled promise rejection:', event.reason);
-    showError();
-});

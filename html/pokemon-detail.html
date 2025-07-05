@@ -10,102 +10,72 @@
     <div class="container">
         <!-- Loading State -->
         <div id="loading-state" class="loading">
-            <div style="font-size: 12px; font-weight: bold;">LOADING</div>
-            <div class="loading-dots">
-                <div class="loading-dot"></div>
-                <div class="loading-dot"></div>
-                <div class="loading-dot"></div>
-            </div>
+            <div class="loading-text">Loading Pokemon...</div>
+            <div class="pokeball-spinner"></div>
         </div>
 
         <!-- Error State -->
         <div id="error-state" class="error" style="display: none;">
-            <div style="font-size: 10px; font-weight: bold;">ERROR</div>
-            <div style="font-size: 8px; margin-top: 5px;">DATA NOT FOUND</div>
+            <div style="font-size: 24px; margin-bottom: 10px;">❌</div>
+            <div style="font-size: 18px; font-weight: bold;">Pokemon Not Found</div>
+            <div style="font-size: 14px; margin-top: 5px;">Please check the Pokemon ID and try again.</div>
         </div>
 
-        <!-- Pokemon Display -->
+        <!-- Pokemon Details -->
         <div id="pokemon-details" style="display: none;">
-            <div class="header">
-                <span id="pokemon-name">Pikachu</span>
-                <span id="pokemon-id">#025</span>
-            </div>
-            
-            <div class="pokemon-display">
-                <div class="sprite-container">
-                    <div class="sprite-frame">
-                        <img id="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pokemon Sprite">
-                    </div>
-                    <div class="pokemon-id-display">ID: <span id="pokemon-number">025</span></div>
-                </div>
-                
-                <div class="pokemon-info">
-                    <div id="pokemon-types" class="type-display">
-                        <span class="type-badge type-electric">Electric</span>
-                    </div>
-                    <div id="catch-details" class="catch-info-mini">
-                        Height: 0.4m | Weight: 6.0kg
-                    </div>
+            <!-- Header with Sprite -->
+            <div class="pokemon-header">
+                <div class="pokemon-name" id="pokemon-name">Pikachu</div>
+                <div class="pokemon-id" id="pokemon-id">#025</div>
+                <div class="pokemon-sprite-container">
+                    <img id="pokemon-sprite" class="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pokemon Sprite">
                 </div>
             </div>
 
-            <!-- Info Panel -->
-            <div class="info-panel">
-                <div class="info-tabs">
-                    <div class="info-tab active" data-tab="stats">Stats</div>
-                    <div class="info-tab" data-tab="abilities">Abilities</div>
-                    <div class="info-tab" data-tab="dex">Dex</div>
-                </div>
-                <div class="info-content">
-                    <div id="stats-content">
-                        <div id="pokemon-stats" class="stats-grid">
-                            <div class="stat-item">
-                                <div class="stat-name">HP</div>
-                                <div class="stat-value">35</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-name">Attack</div>
-                                <div class="stat-value">55</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-name">Defense</div>
-                                <div class="stat-value">40</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-name">Sp. Atk</div>
-                                <div class="stat-value">50</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-name">Sp. Def</div>
-                                <div class="stat-value">50</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-name">Speed</div>
-                                <div class="stat-value">90</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="abilities-content" style="display: none;">
-                        <div id="pokemon-abilities" class="abilities-list">
-                            <div class="ability-item">
-                                <div class="ability-name">Static</div>
-                                <div class="ability-description">Contact with the Pokémon may cause paralysis</div>
-                            </div>
-                            <div class="ability-item">
-                                <div class="ability-name">Lightning Rod</div>
-                                <div class="ability-description">Draws in all Electric-type moves</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="dex-content" style="display: none;">
-                        <div id="pokedex-entry">
-                            When Pikachu meet, they'll touch their tails together and exchange electricity through them as a form of greeting.
-                        </div>
+            <!-- Pokemon Card -->
+            <div class="pokemon-card">
+                <!-- Types Section -->
+                <div class="types-section">
+                    <div id="pokemon-types" class="types-container">
+                        <span class="type-badge type-electric">Electric</span>
                     </div>
                 </div>
+
+                <!-- Candies Section -->
+                <div class="candies-section">
+                    <div class="section-title">Candies</div>
+                    <div class="candy-container">
+                        <div class="candy-count" id="candy-count">25</div>
+                        <div class="candy-label" id="candy-label">Pikachu Candy</div>
+                    </div>
+                </div>
+
+                <!-- Buttons Section -->
+                <div class="buttons-section">
+                    <div class="button-grid">
+                        <button class="pogo-button evolve-button" id="evolve-btn">
+                            🔄 Evolve
+                        </button>
+                        <button class="pogo-button summon-button" id="summon-btn">
+                            ⚡ Summon
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Caught Info -->
+                <div class="caught-section">
+                    <div class="caught-site" id="caught-site">Caught on Example Site</div>
+                    <div class="caught-date" id="caught-date">December 15, 2023</div>
+                </div>
+                <div class="release-button-container">
+                        <button class="pogo-button release-button" id="release-btn">
+                            🗑️ Release
+                        </button>
+                    </div>
             </div>
         </div>
     </div>
     <script src="../js/pokemon-detail.js"></script>
+    <script type="module" src="../js/supabase-client.js"></script>
 </body>
 </html>

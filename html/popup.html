@@ -5,8 +5,8 @@
   <link rel="stylesheet" href="../css/popupStyle.css">
 </head>
 <body>
-  <div class="pokedex-top">
-    <div class="indicator-lights">
+  <div class="top-section">
+    <div class="indicators">
       <div class="indicator red"></div>
       <div class="indicator yellow"></div>
       <div class="indicator green"></div>
@@ -17,8 +17,8 @@
     <h1>POKÉBROWSER</h1>
   </div>
   
-  <div class="screen-bezel">
-    <div class="stats">
+  <div class="stats-section">
+    <div class="stats card">
       <div class="stat">
         <span class="stat-number" id="total-caught">000</span>
         <span class="stat-label">Caught</span>
@@ -30,32 +30,42 @@
     </div>
   </div>
   
-  <!-- Auth Section -->
-  <div class="auth-section" id="auth-section">
-    <div id="logged-out-state">
-      <h3>CLOUD STORAGE</h3>
-      <p>Log in to permanently store your Pokémon collection and sync across devices!</p>
-      <button class="btn secondary" id="login-btn">LOGIN / SIGN UP</button>
-    </div>
-    
-    <div id="logged-in-state" class="hidden">
-      <div class="user-info" id="user-email"></div>
-      <div class="sync-status" id="sync-status">Local storage only</div>
-      <button class="btn" id="logout-btn">LOGOUT</button>
-    </div>
+  <div class="section-title">
+    <h2>Recent Catches</h2>
   </div>
   
-  <div class="collection scrollbar" id="pokemon-collection">
+  <div class="collection card" id="pokemon-collection" role="list" aria-label="Pokemon collection">
     <div class="empty-state">
       <h3>POKEDEX EMPTY</h3>
       <p>Scan web pages to detect wild Pokémon and begin data collection...</p>
     </div>
   </div>
   
-  <div class="controls">
+  <div class="action-section">
+    <button class="btn secondary" id="view-pokedex-btn" aria-label="View full Pokédex">
+      VIEW POKÉDEX
+    </button>
   </div>
   
-  <div class="pokedex-bottom"></div>
+  <div class="auth-section card" id="auth-section">
+    <div id="logged-out-state">
+      <h3>CLOUD STORAGE</h3>
+      <p>Log in to sync your collection across devices!</p>
+      <button class="btn secondary" id="login-btn" aria-label="Login or sign up">
+        LOGIN
+      </button>
+    </div>
+    
+    <div id="logged-in-state" class="hidden">
+      <div class="user-info" id="user-email" aria-live="polite"></div>
+      <div class="sync-status" id="sync-status" aria-live="polite">Local storage only</div>
+      <button class="btn" id="logout-btn" aria-label="Logout">
+        LOGOUT
+      </button>
+    </div>
+  </div>
+  
+  <div class="bottom-section"></div>
   
   <script type="module" src="../js/supabase-client.js"></script>
   <script type="module" src="../js/popup.js"></script>

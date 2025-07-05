@@ -39,7 +39,7 @@
   
   "web_accessible_resources": [
     {
-      "resources": ["pokemon-detail.html", "auth.html"],
+      "resources": ["pokemon-detail.html", "auth.html", "grass-platform.webp"],
       "matches": ["<all_urls>"]
     }
   ]

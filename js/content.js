@@ -51,19 +51,28 @@ function createEncounterPopup(pokemon) {
   popup.id = 'pokebrowser-encounter';
   popup.innerHTML = `
     <div class="encounter-content">
-      <div class="pokemon-sprite">
-        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png" 
-             alt="${pokemon.name}" onerror="this.style.display='none'">
+      <div class="grass-platform">
+        <div class="pokemon-sprite">
+          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${pokemon.id}.gif" 
+               alt="${pokemon.name}" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png'">
+        </div>
+      </div>
+      <div class="encounter-text">
+        <h3>A wild ${pokemon.name} appeared!</h3>
       </div>
       <div class="button-container">
-        <button id="catch-pokemon">Catch Pokemon!</button>
-        <button id="run-away">Run Away</button>
+        <button id="catch-pokemon">Catch</button>
+        <button id="run-away">Run</button>
       </div>
     </div>
-    <h3>A wild ${pokemon.name} appeared!</h3>
   `;
   
   document.body.appendChild(popup);
+  
+  // Load the grass platform image using Chrome extension API
+  const grassPlatform = popup.querySelector('.grass-platform');
+  const grassImageUrl = chrome.runtime.getURL('grass-platform.webp');
+  grassPlatform.style.backgroundImage = `url('${grassImageUrl}')`;
   
   document.getElementById('catch-pokemon').addEventListener('click', () => catchPokemon(pokemon));
   document.getElementById('run-away').addEventListener('click', closePokemonEncounter);

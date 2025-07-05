@@ -1,19 +1,19 @@
-
 #pokebrowser-encounter {
   position: fixed;
   top: 10px;
   right: 20px;
-  background: linear-gradient(135deg, #4a90e2 0%, #2c5aa0 50%, #1e3a8a 100%);
-  border: 2px solid #fff;
-  border-radius: 10px;
-  padding: 8px;
+  background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 50%, #81c784 100%);
+  border: 4px solid #2e7d32;
+  border-radius: 8px;
+  padding: 12px;
   text-align: center;
-  color: white;
-  font-family: 'Helvetica', sans-serif;;
+  color: #1b5e20;
+  font-family: 'Helvetica', 'sans-serif';
   z-index: 10000;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-  width: 250px;
-  animation: encounterSlideIn 0.5s ease-out;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  width: 300px;
+  height: 180px; /* Reduced from 200px */
+  animation: encounterSlideIn 0.6s ease-out;
 }
 
 @keyframes encounterSlideIn {
@@ -27,144 +27,142 @@
   }
 }
 
-#pokebrowser-encounter .pokeball-icon {
-  display: none;
-}
-
 #pokebrowser-encounter .encounter-content {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
-  padding: 0 8px;
+  height: 100%;
+  gap: 4px; /* Reduced from 8px */
+}
 
+#pokebrowser-encounter .grass-platform {
+  position: relative;
+  width: 200px;
+  height: 90px;
+  background-repeat: no-repeat;
+  background-position: center bottom; /* Align grass to bottom */
+  background-size: contain;
+  display: flex;
+  align-items: flex-end; /* Align sprite to bottom of platform */
+  justify-content: center;
+  margin-bottom: 0;
+  margin-top: 8px;
 }
 
 #pokebrowser-encounter .pokemon-sprite {
-  flex: 1;
+  position: relative;
+  z-index: 2;
   display: flex;
-  align-items: center;
+  align-items: flex-end; /* Align sprite to bottom */
   justify-content: center;
+  margin-bottom: 15px; /* Fine-tune sprite position on grass */
 }
 
 #pokebrowser-encounter .pokemon-sprite img {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   image-rendering: pixelated;
   filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+  /* Removed the bounce animation since GIFs are already animated */
 }
 
-#pokebrowser-encounter .button-container {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-left: 8px;
-  margin-right: 8px;
-  flex-shrink: 0;
-  width: 80px;
+@keyframes pokemonBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+#pokebrowser-encounter .encounter-text {
+  margin: 0; /* Reduced from 2px 0 */
 }
 
 #pokebrowser-encounter h3 {
   margin: 0;
-  font-size: 12px;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
   line-height: 1.2;
   text-align: center;
+  color: #1b5e20;
+}
+
+#pokebrowser-encounter .button-container {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  width: 100%;
 }
 
 #pokebrowser-encounter button {
-  background: #fff;
-  color: #333;
   border: none;
-  padding: 4px 6px;
-  border-radius: 12px;
+  padding: 4px 12px; /* Reduced from 6px 16px */
+  border-radius: 6px;
   cursor: pointer;
   font-weight: bold;
-  font-size: 8px;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-  width: 100%;
-  box-sizing: border-box;
+  font-size: 11px; /* Reduced from 12px */
+  font-family: 'Courier New', monospace;
+  transition: all 0.2s ease;
+  min-width: 50px; /* Reduced from 60px */
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  text-transform: uppercase;
+  height: 28px; /* Added explicit height for smaller buttons */
 }
 
 #pokebrowser-encounter button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+#pokebrowser-encounter button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 #pokebrowser-encounter #catch-pokemon {
-  background: #4CAF50;
+  background: linear-gradient(135deg, #ff5252 0%, #d32f2f 100%);
   color: white;
+  border: 2px solid #b71c1c;
 }
 
 #pokebrowser-encounter #catch-pokemon:hover {
-  background: #45a049;
+  background: linear-gradient(135deg, #ff1744 0%, #c62828 100%);
 }
 
 #pokebrowser-encounter #run-away {
-  background: #f44336;
+  background: linear-gradient(135deg, #64b5f6 0%, #1976d2 100%);
   color: white;
+  border: 2px solid #0d47a1;
 }
 
 #pokebrowser-encounter #run-away:hover {
-  background: #da190b;
+  background: linear-gradient(135deg, #42a5f5 0%, #1565c0 100%);
 }
 
-#pokebrowser-encounter .success-message {
-  animation: successPulse 0.6s ease-out;
+/* Retro Pokemon game feel */
+#pokebrowser-encounter {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
 }
 
-@keyframes successPulse {
-  0% {
-    transform: scale(0.8);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-#pokebrowser-encounter .rarity {
-  display: inline-block;
-  padding: 2px 6px;
-  border-radius: 10px;
-  font-size: 8px;
-  font-weight: bold;
-  margin: 4px 0;
-  text-transform: uppercase;
-}
-
-#pokebrowser-encounter .rarity.common {
-  background: #4CAF50;
-}
-
-#pokebrowser-encounter .rarity.uncommon {
-  background: #2196F3;
-}
-
-#pokebrowser-encounter .rarity.rare {
-  background: #9C27B0;
-}
-
-#pokebrowser-encounter .rarity.legendary {
-  background: linear-gradient(45deg, #FFD700, #FFA500);
-  animation: legendary-glow 1.5s ease-in-out infinite alternate;
-}
-
-@keyframes legendary-glow {
-  from {
-    box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
-  }
-  to {
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-  }
-}
-
-#pokebrowser-encounter .close-instruction {
-  font-size: 8px;
-  opacity: 0.8;
-  margin-top: 4px;
-  font-style: italic;
+/* Optional: Add scanlines effect for authentic retro feel */
+#pokebrowser-encounter::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    transparent 0%,
+    rgba(0, 0, 0, 0.05) 50%,
+    transparent 100%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  border-radius: 16px;
 }

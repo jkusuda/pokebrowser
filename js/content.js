@@ -29,12 +29,16 @@ function shouldShowEncounter() {
 function selectRandomPokemon() {
   const availablePokemon = POKEMON_LIST.filter(p => Math.random() < ENCOUNTER_RATES[p.rarity]);
   
+  let selectedPokemon;
   if (availablePokemon.length === 0) {
     const commonPokemon = POKEMON_LIST.filter(p => p.rarity === 'common');
-    return commonPokemon[Math.floor(Math.random() * commonPokemon.length)];
+    selectedPokemon = { ...commonPokemon[Math.floor(Math.random() * commonPokemon.length)] };
+  } else {
+    selectedPokemon = { ...availablePokemon[Math.floor(Math.random() * availablePokemon.length)] };
   }
   
-  return availablePokemon[Math.floor(Math.random() * availablePokemon.length)];
+  selectedPokemon.shiny = Math.random() < 1 / 1;
+  return selectedPokemon;
 }
 
 // Creates and displays the encounter popup.
@@ -45,12 +49,12 @@ function createEncounterPopup(pokemon) {
     <div class="encounter-content">
       <div class="grass-platform">
         <div class="pokemon-sprite">
-          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${pokemon.id}.gif" 
-               alt="${pokemon.name}" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png'">
+          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${pokemon.shiny ? 'shiny/' : ''}${pokemon.id}.gif" 
+               alt="${pokemon.name}" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.shiny ? 'shiny/' : ''}${pokemon.id}.png'">
         </div>
       </div>
       <div class="encounter-text">
-        <h3>A wild ${pokemon.name} appeared!</h3>
+        <h3>A wild ${pokemon.shiny ? 'shiny' : ''} ${pokemon.name} appeared!</h3>
       </div>
       <div class="button-container">
         <button id="catch-pokemon">Catch</button>
@@ -84,7 +88,7 @@ async function savePokemonAndShowSuccess(pokemon) {
       const result = await chrome.storage.local.get(['pokemonCollection']);
       const collection = result.pokemonCollection || [];
       
-      const caughtPokemon = { ...pokemon, caughtAt: new Date().toISOString(), site: window.location.hostname };
+      const caughtPokemon = { ...pokemon, caughtAt: new Date().toISOString(), site: window.location.hostname, shiny: pokemon.shiny || false };
       collection.push(caughtPokemon);
       
       await chrome.storage.local.set({ pokemonCollection: collection });

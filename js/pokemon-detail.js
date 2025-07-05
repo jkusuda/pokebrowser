@@ -3,6 +3,7 @@ import { PokemonDetailDOMManager as DOMManager } from './PokemonDetailDOMManager
 import { APIService } from './services/ApiService.js';
 import { AuthService } from './services/AuthService.js';
 import { PokemonService } from './services/PokemonService.js';
+import { StorageService } from './services/StorageService.js';
 import { Utils } from './utils/Utils.js';
 
 /**
@@ -31,10 +32,26 @@ class PokemonDetailApp {
             await this.initializeAuth();
             
             const pokemonParams = Utils.parseURLParams();
-            this.state.setPokemon(pokemonParams);
+            const collection = await StorageService.getPokemonCollection();
             
-            this.setInitialUI(pokemonParams);
-            await this.fetchPokemonData(pokemonParams.id);
+            const pokemon = collection.find(p => 
+                p.id.toString() === pokemonParams.id.toString() &&
+                p.caughtAt === pokemonParams.caughtAt &&
+                p.site === pokemonParams.site
+            );
+
+            if (pokemon) {
+                this.state.setPokemon(pokemon);
+                this.setInitialUI(pokemon);
+                this.dom.updateSprite(pokemon, pokemon.shiny);
+                await this.fetchApiData(pokemon.id);
+            } else {
+                // Fallback for pokemon not in collection, or direct access
+                this.state.setPokemon(pokemonParams);
+                this.setInitialUI(pokemonParams);
+                this.dom.updateSprite(pokemonParams, pokemonParams.shiny);
+                await this.fetchApiData(pokemonParams.id);
+            }
             
             this.setupEventListeners();
             this.dom.showDetails();
@@ -67,26 +84,28 @@ class PokemonDetailApp {
         if (pokemon.name) {
             this.dom.elements.pokemon_name.textContent = Utils.capitalizeFirst(pokemon.name);
         }
+        if (pokemon.shiny) {
+            this.dom.elements.pokemon_name.textContent += ' ⭐';
+        }
         this.dom.elements.pokemon_id.textContent = `#${String(pokemon.id).padStart(3, '0')}`;
         this.dom.updateCatchInfo(pokemon);
     }
 
     /**
-     * Fetches Pokémon data from the API.
+     * Fetches additional Pokémon data from the API.
      * @param {number} pokemonId - The ID of the Pokémon to fetch.
      */
-    async fetchPokemonData(pokemonId) {
+    async fetchApiData(pokemonId) {
         try {
             const pokemonData = await APIService.fetchPokemonData(pokemonId, this.state.getCache());
             this.state.setPokemonData(pokemonData);
             
-            this.dom.updateBasicInfo(pokemonData);
-            this.dom.updateSprite(pokemonData);
+            // Update UI with API data, but don't overwrite essential info
             this.dom.updateTypes(pokemonData);
             this.dom.updateCandies(pokemonData);
         } catch (error) {
-            console.error('Error fetching Pokemon data:', error);
-            throw new Error('Failed to load Pokemon data');
+            console.error('Error fetching API data:', error);
+            // Don't throw, as basic info is already displayed
         }
     }
 

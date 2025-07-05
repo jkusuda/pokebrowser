@@ -82,8 +82,7 @@ export class SyncService {
                         name: p.name,
                         species: p.species || p.name,
                         level: p.level,
-                        type1: p.types?.[0] || 'normal',
-                        type2: p.types?.[1],
+                        shiny: p.shiny || false,
                         site_caught: p.site,
                         caught_at: p.caughtAt
                     }));
@@ -117,7 +116,7 @@ export class SyncService {
         try {
             const { data: cloudPokemon, error } = await this.state.supabase
                 .from('pokemon')
-                .select('pokemon_id, name, species, level, type1, type2, site_caught, caught_at')
+                .select('pokemon_id, name, species, level, shiny, site_caught, caught_at')
                 .eq('user_id', this.state.currentUser.id)
                 .order('caught_at', { ascending: false });
             if (error) throw error;
@@ -125,7 +124,7 @@ export class SyncService {
             const localCollection = await StorageService.getPokemonCollection();
             const cloudCollection = cloudPokemon?.map(p => ({
                 id: p.pokemon_id, name: p.name, species: p.species, level: p.level,
-                types: [p.type1, p.type2].filter(Boolean), site: p.site_caught, caughtAt: p.caught_at
+                shiny: p.shiny, site: p.site_caught, caughtAt: p.caught_at
             }));
 
             const mergedCollection = this.mergeCollections(localCollection, cloudCollection);

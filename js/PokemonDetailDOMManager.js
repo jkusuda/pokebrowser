@@ -77,17 +77,21 @@ export class PokemonDetailDOMManager {
 
     /**
      * Updates the Pokémon sprite.
-     * @param {Object} pokemonData - The Pokémon data.
+     * @param {Object} pokemon - The Pokémon data from storage.
+     * @param {boolean} isShiny - Whether the Pokémon is shiny.
      */
-    updateSprite(pokemonData) {
-        const spriteUrl = pokemonData.sprites.other?.['official-artwork']?.front_default ||
-                         pokemonData.sprites.front_default ||
-                         `${CONFIG.SPRITE_BASE_URL}/${pokemonData.id}.png`;
-        
-        this.elements.pokemon_sprite.src = spriteUrl;
-        this.elements.pokemon_sprite.alt = pokemonData.name;
+    updateSprite(pokemon, isShiny) {
+        const shinyPath = isShiny ? 'shiny/' : '';
+        const animatedSpriteUrl = `${CONFIG.ANIMATED_SPRITE_BASE_URL}/${shinyPath}${pokemon.id}.gif`;
+        const staticSpriteUrl = `${CONFIG.SPRITE_BASE_URL}/${shinyPath}${pokemon.id}.png`;
+
+        this.elements.pokemon_sprite.src = animatedSpriteUrl;
+        this.elements.pokemon_sprite.alt = pokemon.name;
         this.elements.pokemon_sprite.onerror = () => {
-            this.elements.pokemon_sprite.src = `${CONFIG.SPRITE_BASE_URL}/${pokemonData.id}.png`;
+            this.elements.pokemon_sprite.src = staticSpriteUrl;
+            this.elements.pokemon_sprite.onerror = () => {
+                this.elements.pokemon_sprite.style.display = 'none';
+            };
         };
     }
 

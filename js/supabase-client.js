@@ -2,10 +2,6 @@
  * A simplified Supabase client for Chrome extensions.
  */
 class SupabaseClient {
-    /**
-     * @param {string} url - The Supabase project URL.
-     * @param {string} key - The Supabase anon key.
-     */
     constructor(url, key) {
         this.url = url;
         this.key = key;

@@ -140,7 +140,7 @@ export class DOMManager {
         this.elements.pokemon_collection.innerHTML = sortedCollection.map((pokemon, index) => `
             <div class="pokemon-item clickable-pokemon" data-pokemon-index="${index}">
                 <div class="pokemon-sprite">
-                    <img src="${CONFIG.SPRITE_BASE_URL}/${pokemon.id}.png" 
+                    <img src="${CONFIG.SPRITE_BASE_URL}/${pokemon.shiny ? 'shiny/' : ''}${pokemon.id}.png" 
                          alt="${pokemon.name}" onerror="this.style.display='none'">
                 </div>
                 <div class="pokemon-info">

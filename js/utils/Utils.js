@@ -15,7 +15,8 @@ export class Utils {
             id: parseInt(urlParams.get('id')) || 25,
             name: urlParams.get('name'),
             caughtAt: urlParams.get('caughtAt'),
-            site: urlParams.get('site')
+            site: urlParams.get('site'),
+            shiny: urlParams.get('shiny') === 'true'
         };
     }
 

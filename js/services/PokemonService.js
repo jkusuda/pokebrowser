@@ -50,7 +50,8 @@ export class PokemonService {
             id: pokemon.id,
             name: pokemon.name,
             caughtAt: pokemon.caughtAt,
-            site: pokemon.site
+            site: pokemon.site,
+            shiny: pokemon.shiny || false
         });
 
         chrome.windows.create({

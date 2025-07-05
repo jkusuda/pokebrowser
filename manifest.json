@@ -17,13 +17,13 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["js/content.js"],
-      "css": ["css/contentStyle.css"]
+      "js": ["scripts/js/content.js"],
+      "css": ["styles/contentStyle.css"]
     }
   ],
   
   "action": {
-    "default_popup": "html/popup.html",
+    "default_popup": "popup.html",
     "default_title": "Pokebrowser - View Collection"
   },
   
@@ -34,12 +34,12 @@
   },
   
   "background": {
-    "service_worker": "js/background.js"
+    "service_worker": "scripts/js/background.js"
   },
   
   "web_accessible_resources": [
     {
-      "resources": ["html/pokemon-detail.html", "html/auth.html"],
+      "resources": ["pokemon-detail.html", "auth.html"],
       "matches": ["<all_urls>"]
     }
   ]

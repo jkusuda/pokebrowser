@@ -1,4 +1,4 @@
-// Pokemon data (simplified list - you can expand this)
+// Simplified list of Pokémon with their rarity.
 const POKEMON_LIST = [
   { id: 1, name: "Bulbasaur", rarity: "common" },
   { id: 4, name: "Charmander", rarity: "common" },
@@ -11,7 +11,7 @@ const POKEMON_LIST = [
   { id: 150, name: "Mewtwo", rarity: "legendary" }
 ];
 
-// Encounter rates by rarity
+// Encounter rates for each Pokémon rarity.
 const ENCOUNTER_RATES = {
   common: 0.15,
   uncommon: 0.08,
@@ -19,25 +19,22 @@ const ENCOUNTER_RATES = {
   legendary: 0.01
 };
 
-// Check if we should show an encounter
+/**
+ * Determines whether to show a Pokémon encounter.
+ * @returns {boolean} - True if an encounter should be shown, false otherwise.
+ */
 function shouldShowEncounter() {
-  // 20% base chance of any encounter per page load
-  return true;
+  return true; // 20% base chance of any encounter per page load
 }
 
-// Select a random Pokemon based on rarity
+/**
+ * Selects a random Pokémon based on rarity.
+ * @returns {Object} - The selected Pokémon.
+ */
 function selectRandomPokemon() {
-  const availablePokemon = [];
-  
-  POKEMON_LIST.forEach(pokemon => {
-    const rate = ENCOUNTER_RATES[pokemon.rarity];
-    if (Math.random() < rate) {
-      availablePokemon.push(pokemon);
-    }
-  });
+  const availablePokemon = POKEMON_LIST.filter(p => Math.random() < ENCOUNTER_RATES[p.rarity]);
   
   if (availablePokemon.length === 0) {
-    // Fallback to a common Pokemon
     const commonPokemon = POKEMON_LIST.filter(p => p.rarity === 'common');
     return commonPokemon[Math.floor(Math.random() * commonPokemon.length)];
   }
@@ -45,7 +42,10 @@ function selectRandomPokemon() {
   return availablePokemon[Math.floor(Math.random() * availablePokemon.length)];
 }
 
-// Updated JavaScript function
+/**
+ * Creates and displays the encounter popup.
+ * @param {Object} pokemon - The Pokémon to be displayed.
+ */
 function createEncounterPopup(pokemon) {
   const popup = document.createElement('div');
   popup.id = 'pokebrowser-encounter';
@@ -65,44 +65,33 @@ function createEncounterPopup(pokemon) {
   
   document.body.appendChild(popup);
   
-  // Add event listeners for buttons
-  document.getElementById('catch-pokemon').addEventListener('click', (e) => {
-    catchPokemon(pokemon);
-  });
-  
-  document.getElementById('run-away').addEventListener('click', (e) => {
-    closePokemonEncounter();
-  });
+  document.getElementById('catch-pokemon').addEventListener('click', () => catchPokemon(pokemon));
+  document.getElementById('run-away').addEventListener('click', closePokemonEncounter);
 }
 
-// Catch the Pokemon and save to storage
+/**
+ * Catches the Pokémon and saves it to local storage.
+ * @param {Object} pokemon - The Pokémon to be caught.
+ */
 async function catchPokemon(pokemon) {
   try {
-    // Get existing collection
     const result = await chrome.storage.local.get(['pokemonCollection']);
     const collection = result.pokemonCollection || [];
     
-    // Add new Pokemon with timestamp
-    const caughtPokemon = {
-      ...pokemon,
-      caughtAt: new Date().toISOString(),
-      site: window.location.hostname
-    };
-    
+    const caughtPokemon = { ...pokemon, caughtAt: new Date().toISOString(), site: window.location.hostname };
     collection.push(caughtPokemon);
     
-    // Save updated collection
     await chrome.storage.local.set({ pokemonCollection: collection });
-    
-    // Show success message
     showCatchSuccess(pokemon);
-    
   } catch (error) {
     console.error('Error catching Pokemon:', error);
   }
 }
 
-// Show catch success message
+/**
+ * Displays a success message after catching a Pokémon.
+ * @param {Object} pokemon - The caught Pokémon.
+ */
 function showCatchSuccess(pokemon) {
   const popup = document.getElementById('pokebrowser-encounter');
   popup.innerHTML = `
@@ -114,7 +103,6 @@ function showCatchSuccess(pokemon) {
     </div>
   `;
   
-  // Add click-anywhere-to-close for success state only
   const clickHandler = (e) => {
     if (!popup.contains(e.target)) {
       closePokemonEncounter();
@@ -122,30 +110,24 @@ function showCatchSuccess(pokemon) {
     }
   };
   
-  setTimeout(() => {
-    document.addEventListener('click', clickHandler);
-  }, 100);
-  
-  setTimeout(() => closePokemonEncounter(), 3000);
+  setTimeout(() => document.addEventListener('click', clickHandler), 100);
+  setTimeout(closePokemonEncounter, 3000);
 }
 
-// Close encounter popup
+/**
+ * Closes the encounter popup.
+ */
 function closePokemonEncounter() {
   const popup = document.getElementById('pokebrowser-encounter');
-  if (popup) {
-    popup.remove();
-  }
+  if (popup) popup.remove();
 }
 
-// Initialize encounter check
+/**
+ * Initializes the Pokémon encounter check.
+ */
 function initializePokebrowser() {
-  // Don't show on extension pages or chrome pages
-  if (window.location.protocol === 'chrome-extension:' || 
-      window.location.protocol === 'chrome:') {
-    return;
-  }
+  if (window.location.protocol.startsWith('chrome')) return;
   
-  // Wait a bit after page load, then check for encounter
   setTimeout(() => {
     if (shouldShowEncounter()) {
       const pokemon = selectRandomPokemon();
@@ -154,7 +136,7 @@ function initializePokebrowser() {
   }, 2000);
 }
 
-// Start the extension when page loads
+// Initializes the extension when the page loads.
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initializePokebrowser);
 } else {

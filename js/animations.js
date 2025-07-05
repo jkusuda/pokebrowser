@@ -1,7 +1,6 @@
-/**
- * Starts the pokeball catch animation sequence with manual frame control.
- * @param {Object} pokemon - The Pokémon being caught.
- */
+// animations.js - Contains logic for pokeball throwing
+
+// Starts the pokeball catch animation sequence with manual frame control.
 function startCatchAnimation(pokemon) {
   const popup = document.getElementById('pokebrowser-encounter');
   const pokemonSprite = popup.querySelector('.pokemon-sprite img');
@@ -10,23 +9,23 @@ function startCatchAnimation(pokemon) {
   const buttonContainer = popup.querySelector('.button-container');
   buttonContainer.style.display = 'none';
   
-  // Create pokeball element - BIGGER SIZE
+  // Create pokeball element
   const pokeball = document.createElement('div');
   pokeball.className = 'pokeball';
   pokeball.innerHTML = '<div class="pokeball-sprite"></div>';
   
-  // Style the pokeball container - SCALED UP
+  // Style the pokeball container
   pokeball.style.position = 'absolute';
-  pokeball.style.width = '64px';   // Keep original sprite size
-  pokeball.style.height = '64px';  // Keep original sprite size
-  pokeball.style.bottom = '-32px'; // Half of original size
-  pokeball.style.left = '-32px';   // Half of original size
+  pokeball.style.width = '64px';
+  pokeball.style.height = '64px';
+  pokeball.style.bottom = '-32px';
+  pokeball.style.left = '-32px';
   pokeball.style.zIndex = '3';
   pokeball.style.opacity = '0';
   pokeball.style.transform = 'scale(1.5)'; // Scale up by 1.5x (96px effective size)
   pokeball.style.transition = 'transform 0.1s ease-out, filter 0.2s ease-out';
   
-  // Safely load the pokeball sprite sheet
+  // Load the pokeball sprite sheet
   const pokeballSprite = pokeball.querySelector('.pokeball-sprite');
   const pokeballImageUrl = getExtensionURL('pokeball-spritesheet.png');
   if (pokeballImageUrl) {
@@ -49,9 +48,7 @@ function startCatchAnimation(pokemon) {
   }, 500);
 }
 
-/**
- * Handles the throw animation with manual frame control
- */
+// Handles the throw animation with manual frame control
 function throwPokeballWithFrames(pokeball, pokeballSprite, pokemonSprite, pokemon) {
   pokeball.style.opacity = '1';
   
@@ -59,7 +56,7 @@ function throwPokeballWithFrames(pokeball, pokeballSprite, pokemonSprite, pokemo
   const throwFrames = [0, -64, -128]; // Frames 1, 2, 3
   let currentFrame = 0;
   
-  // Start CSS animation for movement - adjusted to land in center
+  // Start CSS animation for movement
   pokeball.style.animation = 'throwPokeball 0.8s ease-out forwards';
   
   // Manually update sprite frames during throw
@@ -75,9 +72,7 @@ function throwPokeballWithFrames(pokeball, pokeballSprite, pokemonSprite, pokemo
   }, 800);
 }
 
-/**
- * Handles the catch sequence (flash + shake + success)
- */
+// Handles the catch sequence (flash + shake + success)
 function startCatchSequence(pokeball, pokeballSprite, pokemonSprite, pokemon) {
   // Hide pokemon with flash effect
   pokemonSprite.style.opacity = '0';
@@ -107,9 +102,7 @@ function startCatchSequence(pokeball, pokeballSprite, pokemonSprite, pokemon) {
   }, 100);
 }
 
-/**
- * Handles the shaking animation
- */
+// Handles the shaking animation
 function startShakingAnimation(pokeball, pokeballSprite, pokemon) {
   // Shaking frames (16-20)
   const shakeFrames = [-960, -1024, -1088, -1152, -1216]; // Frames 16, 17, 18, 19, 20
@@ -118,7 +111,6 @@ function startShakingAnimation(pokeball, pokeballSprite, pokemon) {
   
   function performShake() {
     if (shakeCount >= maxShakes) {
-      // Success! Show particles
       showSuccessParticles(pokeball, pokeballSprite, pokemon);
       return;
     }
@@ -128,7 +120,7 @@ function startShakingAnimation(pokeball, pokeballSprite, pokemon) {
       // Update sprite frame
       pokeballSprite.style.backgroundPosition = `0 ${shakeFrames[frameIndex]}px`;
       
-      // Update position for shaking effect - centered on grass platform
+      // Update position for shaking effect
       const shakeAmount = 5 + (shakeCount * 2); // Increase shake intensity
       const xOffset = Math.sin(frameIndex * 0.5) * shakeAmount;
       const rotation = Math.sin(frameIndex * 0.3) * (5 + shakeCount * 3);
@@ -152,9 +144,7 @@ function startShakingAnimation(pokeball, pokeballSprite, pokemon) {
   performShake();
 }
 
-/**
- * Shows success particles animation
- */
+// Shows success particles animation
 function showSuccessParticles(pokeball, pokeballSprite, pokemon) {
   // Success frames (28-32)
   const particleFrames = [-1728, -1792, -1856, -1920, -1984]; // Frames 28, 29, 30, 31, 32

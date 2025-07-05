@@ -1,4 +1,4 @@
-// Utility functions
+// Utils.js
 
 export class Utils {
     static capitalizeFirst(str) {

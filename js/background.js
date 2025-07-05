@@ -1,11 +1,5 @@
-/**
- * Background script for the Chrome extension.
- * Manages the service worker and persists authentication state.
- */
+// background.js - Manages the service worker and persists authentication state.
 
-/**
- * Fired when the extension is first installed.
- */
 chrome.runtime.onInstalled.addListener(() => {
     console.log('Extension installed');
 });
@@ -32,10 +26,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true; // Keep the message channel open.
 });
 
-/**
- * Fired when the extension is started up.
- */
 chrome.runtime.onStartup.addListener(() => {
     console.log('Extension startup');
-    // Optional: Clean up expired sessions or perform other cleanup tasks.
+    // TODO: Clean up expired sessions or perform other cleanup tasks.
 });

@@ -1,3 +1,4 @@
+// popup.js - Main controller for the popup app.
 import { AppState } from './AppState.js';
 import { DOMManager } from './DOMManager.js';
 import { AuthService } from './services/AuthService.js';
@@ -5,13 +6,7 @@ import { SyncService } from './services/SyncService.js';
 import { PokemonService } from './services/PokemonService.js';
 import { StorageService } from './services/StorageService.js';
 
-/**
- * Main controller for the popup application.
- */
 class PopupApp {
-    /**
-     * Initializes the application.
-     */
     constructor() {
         this.state = new AppState();
         this.dom = new DOMManager();
@@ -21,9 +16,7 @@ class PopupApp {
         this.currentCollection = [];
     }
 
-    /**
-     * Initializes the application, including Supabase, authentication, and event listeners.
-     */
+    // Initializes the application, including Supabase, authentication, and event listeners.
     async initialize() {
         if (this.state.isInitialized) return;
 
@@ -41,9 +34,7 @@ class PopupApp {
         }
     }
 
-    /**
-     * Initializes the Supabase client.
-     */
+    // Initializes the Supabase client.
     async initializeSupabase() {
         try {
             await this.auth.initializeSupabase();
@@ -54,9 +45,7 @@ class PopupApp {
         }
     }
 
-    /**
-     * Initializes authentication and sets up listeners for auth state changes.
-     */
+    //Initializes authentication and sets up listeners for auth state changes.
     async initializeAuth() {
         if (!this.state.supabase) return;
 
@@ -106,9 +95,7 @@ class PopupApp {
         }
     }
 
-    /**
-     * Handles the initial synchronization when the app loads.
-     */
+    // Handles the initial synchronization when the app loads.
     async handleInitialSync() {
         try {
             this.dom.updateSyncStatus('Syncing from cloud...', 'syncing');
@@ -131,9 +118,7 @@ class PopupApp {
         }
     }
 
-    /**
-     * Handles the sign-in process.
-     */
+    // Handles the sign-in process.
     async handleSignIn() {
         try {
             await this.handleInitialSync();
@@ -142,9 +127,7 @@ class PopupApp {
         }
     }
 
-    /**
-     * Loads the Pokémon collection from storage.
-     */
+    // Loads the Pokémon collection from storage.
     async loadCollection() {
         try {
             const collection = await StorageService.getPokemonCollection();
@@ -159,9 +142,7 @@ class PopupApp {
         }
     }
 
-    /**
-     * Sets up a listener for changes in local storage.
-     */
+    // Sets up a listener for changes in local storage.
     setupStorageListener() {
         chrome.storage.onChanged.addListener((changes, namespace) => {
             if (namespace === 'local' && changes.pokemonCollection) {
@@ -175,9 +156,7 @@ class PopupApp {
         });
     }
 
-    /**
-     * Displays the Pokémon collection in the UI.
-     */
+    // Displays the Pokémon collection in the UI.
     displayCollection() {
         const sortedCollection = this.dom.displayCollection(this.currentCollection);
         this.dom.updateStats(this.currentCollection);
@@ -199,9 +178,7 @@ class PopupApp {
         });
     }
 
-    /**
-     * Sets up event listeners for UI elements.
-     */
+    // Sets up event listeners for UI elements.
     setupEventListeners() {
         this.dom.elements.login_btn?.addEventListener('click', async () => {
             try {
@@ -231,9 +208,7 @@ class PopupApp {
         });
     }
 
-    /**
-     * Sets up listeners for network online/offline status changes.
-     */
+    // Sets up listeners for network online/offline status changes.
     setupNetworkListeners() {
         const handleOnlineStatus = () => {
             if (navigator.onLine && this.state.canSync()) {

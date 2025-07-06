@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js';
-import { Utils } from './utils/Utils.js';
+import { CONFIG } from '../config.js';
+import { Utils } from '../utils/Utils.js';
 
 /**
  * Manages DOM manipulations and updates.
@@ -21,7 +21,7 @@ export class DOMManager {
         const elementIds = [
             'auth-section', 'logged-out-state', 'logged-in-state', 'login-btn',
             'logout-btn', 'user-email', 'sync-status', 'pokemon-collection',
-            'total-caught', 'unique-count'
+            'total-caught', 'unique-count', 'view-pokedex-btn'
         ];
 
         return elementIds.reduce((acc, id) => {

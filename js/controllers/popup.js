@@ -1,10 +1,10 @@
 // popup.js - Main controller for the popup app.
-import { AppState } from './AppState.js';
-import { DOMManager } from './DOMManager.js';
-import { AuthService } from './services/AuthService.js';
-import { SyncService } from './services/SyncService.js';
-import { PokemonService } from './services/PokemonService.js';
-import { StorageService } from './services/StorageService.js';
+import { AppState } from '../AppState.js';
+import { DOMManager } from '../dom/DOMManager.js';
+import { AuthService } from '../services/AuthService.js';
+import { SyncService } from '../services/SyncService.js';
+import { PokemonService } from '../services/PokemonService.js';
+import { StorageService } from '../services/StorageService.js';
 
 class PopupApp {
     constructor() {
@@ -204,6 +204,14 @@ class PopupApp {
                 this.dom.updateSyncStatus('Error signing out', 'error');
             } finally {
                 this.dom.setButtonState('logout_btn', false);
+            }
+        });
+
+        this.dom.elements.view_pokedex_btn?.addEventListener('click', () => {
+            if (this.state.currentUser) {
+                chrome.tabs.create({ url: chrome.runtime.getURL('pokedex.html') });
+            } else {
+                alert('Please log in to view the Pokedex.');
             }
         });
     }

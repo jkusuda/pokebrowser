@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokedex Entry</title>
+    <link rel="stylesheet" href="styles/pokedetailStyle.css">
+</head>
+<body>
+    <div class="container">
+        <div id="loading-state" class="loading">
+            <div class="loading-text">Loading Pokemon...</div>
+            <div class="pokeball-spinner"></div>
+        </div>
+
+        <div id="error-state" class="error" style="display: none;">
+            <div style="font-size: 24px; margin-bottom: 10px;">❌</div>
+            <div style="font-size: 18px; font-weight: bold;">Pokemon Not Found</div>
+            <div style="font-size: 14px; margin-top: 5px;">Please check the Pokemon ID and try again.</div>
+        </div>
+
+        <div id="pokemon-details" style="display: none;">
+            <div id="card-frame" class="card-frame">
+                <div class="white-card">
+                    <div class="sprite-container">
+                        <img id="pokemon-sprite" class="pokemon-img" alt="Pokemon Sprite" />
+                    </div>
+
+                    <h2 class="name" id="pokemon-name"></h2>
+                    <p class="number" id="pokemon-id"></p>
+
+                    <div class="divider"></div>
+
+                    <div class="info-row">
+                        <span class="value" id="pokemon-height"></span>
+                        <div class="types" id="pokemon-types"></div>
+                        <span class="value" id="pokemon-weight"></span>
+                        <span class="label">HEIGHT</span>
+                        <span class="label" id="types-label"></span>
+                        <span class="label">WEIGHT</span>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="description" id="pokemon-description"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="js/controllers/pokemon-entry.js"></script>
+</body>
+</html>

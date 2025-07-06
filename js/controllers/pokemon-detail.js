@@ -1,10 +1,10 @@
-import { AppState } from './AppState.js';
-import { PokemonDetailDOMManager as DOMManager } from './PokemonDetailDOMManager.js';
-import { APIService } from './services/ApiService.js';
-import { AuthService } from './services/AuthService.js';
-import { PokemonService } from './services/PokemonService.js';
-import { StorageService } from './services/StorageService.js';
-import { Utils } from './utils/Utils.js';
+import { AppState } from '../AppState.js';
+import { PokemonDetailDOMManager as DOMManager } from '../dom/PokemonDetailDOMManager.js';
+import { APIService } from '../services/ApiService.js';
+import { AuthService } from '../services/AuthService.js';
+import { PokemonService } from '../services/PokemonService.js';
+import { StorageService } from '../services/StorageService.js';
+import { Utils } from '../utils/Utils.js';
 
 /**
  * Main controller for the Pokémon detail page.

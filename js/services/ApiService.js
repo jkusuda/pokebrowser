@@ -2,6 +2,24 @@ import { CONFIG } from '../config.js';
 
 // Service for handling API requests.
 export class APIService {
+    static async fetchAllPokemon(limit = 151) {
+        try {
+            const response = await fetch(`${CONFIG.POKEAPI_BASE_URL}?limit=${limit}`);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch Pokémon list: ${response.status}`);
+            }
+            const data = await response.json();
+            return data.results.map((p, index) => ({
+                id: index + 1,
+                name: p.name,
+                caught: false
+            }));
+        } catch (error) {
+            console.error('Error fetching all Pokémon:', error);
+            throw error;
+        }
+    }
+
     /**
      * Fetches Pokémon data from the PokéAPI.
      * @param {number} pokemonId - The ID of the Pokémon to fetch.

@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js';
-import { Utils } from './utils/Utils.js';
+import { CONFIG } from '../config.js';
+import { Utils } from '../utils/Utils.js';
 
 /**
  * Manages DOM manipulations for the Pokémon detail page.

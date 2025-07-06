@@ -10,55 +10,35 @@ import { Utils } from './utils/Utils.js';
  * Main controller for the Pokémon detail page.
  */
 class PokemonDetailApp {
-    /**
-     * Initializes the application.
-     */
     constructor() {
         this.state = new AppState();
         this.dom = new DOMManager();
         this.auth = new AuthService(this.state);
         this.pokemonService = new PokemonService(this.state);
-        this.isInitialized = false;
     }
 
-    /**
-     * Initializes the application state and fetches data.
-     */
     async initialize() {
-        if (this.isInitialized) return;
-
         try {
-            this.dom.showLoading();
+            this.dom.setViewState('loading');
             await this.initializeAuth();
-            
-            const pokemonParams = Utils.parseURLParams();
-            const collection = await StorageService.getPokemonCollection();
-            
-            const pokemon = collection.find(p => 
-                p.id.toString() === pokemonParams.id.toString() &&
-                p.caughtAt === pokemonParams.caughtAt &&
-                p.site === pokemonParams.site
-            );
 
-            if (pokemon) {
-                this.state.setPokemon(pokemon);
-                this.setInitialUI(pokemon);
-                this.dom.updateSprite(pokemon, pokemon.shiny);
-                await this.fetchApiData(pokemon.id);
-            } else {
-                // Fallback for pokemon not in collection, or direct access
-                this.state.setPokemon(pokemonParams);
-                this.setInitialUI(pokemonParams);
-                this.dom.updateSprite(pokemonParams, pokemonParams.shiny);
-                await this.fetchApiData(pokemonParams.id);
-            }
-            
+            const params = Utils.parseURLParams();
+            const collection = await StorageService.getPokemonCollection();
+            const pokemon = collection.find(p =>
+                p.id.toString() === params.id.toString() &&
+                p.caughtAt === params.caughtAt &&
+                p.site === params.site
+            ) || params;
+
+            this.state.setPokemon(pokemon);
+            this.updateUI(pokemon);
+            await this.fetchApiData(pokemon.id);
+
             this.setupEventListeners();
-            this.dom.showDetails();
-            this.isInitialized = true;
+            this.dom.setViewState('details');
         } catch (error) {
             console.error('Error initializing app:', error);
-            this.dom.showError(error.message);
+            this.dom.setViewState('error', error.message);
         }
     }
 
@@ -76,18 +56,11 @@ class PokemonDetailApp {
         }
     }
 
-    /**
-     * Sets the initial UI state.
-     * @param {Object} pokemon - The Pokémon data.
-     */
-    setInitialUI(pokemon) {
-        if (pokemon.name) {
-            this.dom.elements.pokemon_name.textContent = Utils.capitalizeFirst(pokemon.name);
-        }
-        if (pokemon.shiny) {
-            this.dom.elements.pokemon_name.textContent += ' ⭐';
-        }
+    updateUI(pokemon) {
+        const name = pokemon.name ? Utils.capitalizeFirst(pokemon.name) : 'Unknown';
+        this.dom.elements.pokemon_name.textContent = pokemon.shiny ? `${name} ⭐` : name;
         this.dom.elements.pokemon_id.textContent = `#${String(pokemon.id).padStart(3, '0')}`;
+        this.dom.updateSprite(pokemon, pokemon.shiny);
         this.dom.updateCatchInfo(pokemon);
     }
 
@@ -97,49 +70,54 @@ class PokemonDetailApp {
      */
     async fetchApiData(pokemonId) {
         try {
-            const pokemonData = await APIService.fetchPokemonData(pokemonId, this.state.getCache());
+            const cache = this.state.getCache();
+            const pokemonData = await APIService.fetchPokemonData(pokemonId, cache);
             this.state.setPokemonData(pokemonData);
             
-            // Update UI with API data, but don't overwrite essential info
+            // Update UI with API data
             this.dom.updateTypes(pokemonData);
+            this.dom.updateTypesLabel(pokemonData);
+            this.dom.updatePhysicalStats(pokemonData);
             this.dom.updateCandies(pokemonData);
+
+            // Fetch and update species data
+            const speciesData = await APIService.fetchSpeciesData(pokemonId, cache);
+            this.dom.updateDescription(speciesData);
+
         } catch (error) {
             console.error('Error fetching API data:', error);
             // Don't throw, as basic info is already displayed
         }
     }
 
-    /**
-     * Sets up event listeners for UI elements.
-     */
     setupEventListeners() {
-        this.dom.elements.evolve_btn?.addEventListener('click', () => alert('Evolution feature coming soon!'));
-        this.dom.elements.summon_btn?.addEventListener('click', () => alert('Summon feature coming soon!'));
-        this.dom.elements.release_btn?.addEventListener('click', () => this.handleRelease());
+        const { elements } = this.dom;
+        elements.evolve_btn?.addEventListener('click', () => this.showAlert('Evolution feature coming soon!'));
+        elements.summon_btn?.addEventListener('click', () => this.showAlert('Summon feature coming soon!'));
+        elements.release_btn?.addEventListener('click', () => this.handleRelease());
     }
 
-    /**
-     * Handles the release of a Pokémon.
-     */
+    showAlert(message) {
+        alert(message);
+    }
+
     async handleRelease() {
-        if (!confirm('Are you sure you want to release this Pokemon? This action cannot be undone.')) {
+        if (!confirm('Are you sure you want to release this Pokémon? This action cannot be undone.')) {
             return;
         }
 
+        const releaseButton = this.dom.elements.release_btn;
+        this.dom.setButtonState(releaseButton, true, 'Releasing...');
+
         try {
-            this.dom.setButtonState('release_btn', true, 'Releasing...');
-            const result = await this.pokemonService.releasePokemon(this.state.currentPokemon);
-            
-            if (result.success) {
-                alert('Pokemon released! 💔');
-                await Utils.delay(500);
-                window.close();
-            }
+            await this.pokemonService.releasePokemon(this.state.currentPokemon);
+            this.showAlert('Pokémon released! 💔');
+            await Utils.delay(500);
+            window.close();
         } catch (error) {
-            console.error('Error releasing Pokemon:', error);
-            alert(`Failed to release Pokemon: ${error.message}`);
-        } finally {
-            this.dom.setButtonState('release_btn', false, 'Release');
+            console.error('Error releasing Pokémon:', error);
+            this.showAlert(`Failed to release Pokémon: ${error.message}`);
+            this.dom.setButtonState(releaseButton, false, 'Release');
         }
     }
 }

@@ -9,8 +9,9 @@ export class APIService {
      * @returns {Promise<Object>} - The Pokémon data.
      */
     static async fetchPokemonData(pokemonId, cache) {
-        if (cache.has(pokemonId)) {
-            return cache.get(pokemonId);
+        const cacheKey = `pokemon_${pokemonId}`;
+        if (cache.has(cacheKey)) {
+            return cache.get(cacheKey);
         }
 
         try {
@@ -20,10 +21,32 @@ export class APIService {
             }
             
             const data = await response.json();
-            cache.set(pokemonId, data);
+            cache.set(cacheKey, data);
             return data;
         } catch (error) {
             console.error('Error fetching Pokemon data:', error);
+            throw error;
+        }
+    }
+
+    static async fetchSpeciesData(pokemonId, cache) {
+        const cacheKey = `species_${pokemonId}`;
+        if (cache.has(cacheKey)) {
+            return cache.get(cacheKey);
+        }
+
+        try {
+            const pokemonData = await this.fetchPokemonData(pokemonId, cache);
+            const response = await fetch(pokemonData.species.url);
+            if (!response.ok) {
+                throw new Error(`Species not found: ${response.status}`);
+            }
+
+            const data = await response.json();
+            cache.set(cacheKey, data);
+            return data;
+        } catch (error) {
+            console.error('Error fetching species data:', error);
             throw error;
         }
     }

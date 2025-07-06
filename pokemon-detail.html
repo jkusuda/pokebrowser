@@ -15,66 +15,77 @@
         </div>
 
         <!-- Error State -->
-        <div id="error-state" class="error" style="display: none;">
-            <div style="font-size: 24px; margin-bottom: 10px;">❌</div>
-            <div style="font-size: 18px; font-weight: bold;">Pokemon Not Found</div>
-            <div style="font-size: 14px; margin-top: 5px;">Please check the Pokemon ID and try again.</div>
+        <div id="error-state" class="error">
+            <div class="error-icon">❌</div>
+            <div class="error-title">Pokemon Not Found</div>
+            <div class="error-message">Please check the Pokemon ID and try again.</div>
         </div>
 
         <!-- Pokemon Details -->
-        <div id="pokemon-details" style="display: none;">
-            <!-- Header with Sprite -->
-            <div class="pokemon-header">
-                <div class="pokemon-name" id="pokemon-name">Pikachu</div>
-                <div class="pokemon-id" id="pokemon-id">#025</div>
-                <div class="pokemon-sprite-container">
-                    <img id="pokemon-sprite" class="pokemon-sprite" alt="Pokemon Sprite">
-                </div>
-            </div>
+        <div id="pokemon-details">
+            <div id="card-frame" class="card-frame">
+                <div class="white-card">
+                    <div class="sprite-container">
+                        <img id="pokemon-sprite" class="pokemon-img" alt="Pokemon Sprite" />
+                    </div>
 
-            <!-- Pokemon Card -->
-            <div class="pokemon-card">
-                <!-- Types Section -->
-                <div class="types-section">
-                    <div id="pokemon-types" class="types-container">
-                        <span class="type-badge type-electric">Electric</span>
+                    <h2 class="name" id="pokemon-name">Bulbasaur</h2>
+                    <p class="number" id="pokemon-id">#001</p>
+
+                    <div class="divider"></div>
+
+                    <div class="info-row">
+                        <!-- Height -->
+                        <span class="value" id="pokemon-height">0.7 m</span>
+                        <!-- Types -->
+                        <div class="types" id="pokemon-types">
+                            <!-- Types will be dynamically inserted here -->
+                        </div>
+                        <!-- Weight -->
+                        <span class="value" id="pokemon-weight">6.9 kg</span>
+
+                        <!-- Labels -->
+                        <span class="label">HEIGHT</span>
+                        <span class="label" id="types-label">GRASS / POISON</span>
+                        <span class="label">WEIGHT</span>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <p class="candy">
+                        <span id="candy-label">Bulbasaur Candy</span>: 
+                        <strong id="candy-count">12</strong>
+                    </p>
+
+                    <div class="evolve-section">
+                        <div class="evolve-row">
+                            <button class="btn evolve-left" id="evolve-btn">EVOLVE</button>
+                            <div class="evolve-right" id="evolve-cost">25 Candy Needed</div>
+                        </div>
+
+                        <button class="btn summon" id="summon-btn">SUMMON</button>
+                    </div>
+
+                    <div class="divider"></div>
+                    
+                    <div class="description" id="pokemon-description">
+                        "For some time after its birth, it uses the nutrients that are packed into the seed on its back in order to grow."
+                    </div>
+
+                    <div class="footer">
+                        <p>CAUGHT ON<br/>
+                        <a href="#" id="caught-site">www.github.com/jkusuda</a><br/>
+                        <span id="caught-date">7/5/2025</span></p>
+                    </div>
+                    
+                    <div class="release-container">
+                        <button class="btn release-button" id="release-btn">🗑️ RELEASE</button>
                     </div>
                 </div>
-
-                <!-- Candies Section -->
-                <div class="candies-section">
-                    <div class="section-title">Candies</div>
-                    <div class="candy-container">
-                        <div class="candy-count" id="candy-count">25</div>
-                        <div class="candy-label" id="candy-label">Pikachu Candy</div>
-                    </div>
-                </div>
-
-                <!-- Buttons Section -->
-                <div class="buttons-section">
-                    <div class="button-grid">
-                        <button class="pogo-button evolve-button" id="evolve-btn">
-                            🔄 Evolve
-                        </button>
-                        <button class="pogo-button summon-button" id="summon-btn">
-                            ⚡ Summon
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Caught Info -->
-                <div class="caught-section">
-                    <div class="caught-site" id="caught-site">Caught on Example Site</div>
-                    <div class="caught-date" id="caught-date">December 15, 2023</div>
-                </div>
-                <div class="release-button-container">
-                        <button class="pogo-button release-button" id="release-btn">
-                            🗑️ Release
-                        </button>
-                    </div>
             </div>
         </div>
     </div>
+
     <script src="js/supabase-client.js"></script>
     <script type="module" src="js/pokemon-detail.js"></script>
 </body>

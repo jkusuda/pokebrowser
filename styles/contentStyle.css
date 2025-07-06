@@ -104,7 +104,7 @@
   cursor: pointer;
   font-weight: bold;
   font-size: 11px; /* Reduced from 12px */
-  font-family: 'Courier New', monospace;
+  font-family: 'Helvetica', 'sans-serif';
   transition: all 0.2s ease;
   min-width: 50px; /* Reduced from 60px */
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);

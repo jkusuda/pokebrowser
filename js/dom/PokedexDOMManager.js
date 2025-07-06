@@ -27,6 +27,8 @@ export class PokedexDOMManager {
         const sprite = entry.querySelector('.pokedex-sprite');
         const id = entry.querySelector('.pokedex-id');
         const name = entry.querySelector('.pokedex-name');
+        const candyCount = entry.querySelector('.candy-count');
+        const candyContainer = entry.querySelector('.pokedex-candy');
 
         sprite.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`;
         sprite.alt = pokemon.name;
@@ -36,6 +38,12 @@ export class PokedexDOMManager {
             entry.classList.add('caught');
             sprite.style.filter = 'none';
             name.textContent = Utils.capitalizeFirst(pokemon.name);
+            
+            // Display candy count (default to 0 if not provided)
+            const candyAmount = pokemon.candyCount || 0;
+            candyCount.textContent = candyAmount;
+            candyContainer.style.display = 'flex';
+            
             entry.addEventListener('click', () => {
                 const width = 400;
                 const height = 600;
@@ -54,6 +62,7 @@ export class PokedexDOMManager {
             entry.classList.add('uncaught');
             sprite.style.filter = 'brightness(0)';
             name.textContent = '???';
+            candyContainer.style.display = 'none'; // Hide candy for uncaught Pokemon
         }
 
         return entry;

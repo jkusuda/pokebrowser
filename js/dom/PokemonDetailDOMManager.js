@@ -173,11 +173,23 @@ export class PokemonDetailDOMManager {
     /**
      * Updates the candy count for the Pokémon.
      * @param {Object} pokemonData - The Pokémon data.
+     * @param {number} candyCount - The actual candy count for this Pokémon.
      */
-    updateCandies(pokemonData) {
-        const candyCount = Math.floor(Math.random() * 100) + 1;
+    updateCandies(pokemonData, candyCount = 0) {
         this.elements.candy_count.textContent = candyCount;
         this.elements.candy_label.textContent = `${Utils.capitalizeFirst(pokemonData.name)} Candy`;
+        
+        // Update evolve cost display (assuming 25 candy needed for evolution)
+        const evolveCostElement = document.getElementById('evolve-cost');
+        if (evolveCostElement) {
+            const candyNeeded = Math.max(0, 25 - candyCount);
+            if (candyNeeded > 0) {
+                evolveCostElement.textContent = `${candyNeeded} Candy Needed`;
+            } else {
+                evolveCostElement.textContent = 'Ready to Evolve!';
+                evolveCostElement.style.color = '#4CAF50';
+            }
+        }
     }
 
     /**

@@ -17,7 +17,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["js/controllers/content.js", "js/animations.js"],
+      "js": ["js/supabase-client.js", "js/controllers/content.js", "js/animations.js"],
       "css": ["styles/contentStyle.css"]
     }
   ],
@@ -39,7 +39,12 @@
   
   "web_accessible_resources": [
     {
-      "resources": ["pokemon-detail.html", "auth.html", "grass-platform.webp", "pokeball-spritesheet.png"],
+      "resources": [
+        "pokemon-detail.html", 
+        "auth.html", 
+        "grass-platform.webp", 
+        "pokeball-spritesheet.png"
+      ],
       "matches": ["<all_urls>"]
     }
   ]

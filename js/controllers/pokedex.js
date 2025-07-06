@@ -26,6 +26,31 @@ class PokedexApp {
     setupEventListeners() {
         this.dom.elements.search.addEventListener('input', () => this.render());
         this.dom.elements.sort.addEventListener('change', () => this.render());
+        
+        // Refresh candy data when page becomes visible (e.g., after catching Pokemon)
+        document.addEventListener('visibilitychange', async () => {
+            if (!document.hidden) {
+                console.log('Page became visible, refreshing candy data...');
+                await this.refreshCandyData();
+            }
+        });
+        
+        // Also refresh when window gains focus
+        window.addEventListener('focus', async () => {
+            console.log('Window gained focus, refreshing candy data...');
+            await this.refreshCandyData();
+        });
+    }
+
+    async refreshCandyData() {
+        try {
+            console.log('🔄 Pokedex: Refreshing candy data...');
+            await this.service.refreshCandyData();
+            this.render(); // Re-render with updated candy counts
+            console.log('✅ Pokedex: Candy data refreshed successfully');
+        } catch (error) {
+            console.error('❌ Pokedex: Error refreshing candy data:', error);
+        }
     }
 }
 

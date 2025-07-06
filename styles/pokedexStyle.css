@@ -107,3 +107,21 @@ body {
 .pokedex-name {
     font-weight: bold;
 }
+
+.pokedex-candy {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 4px;
+    font-size: 0.8em;
+    color: #ff6b6b;
+}
+
+.candy-icon {
+    margin-right: 2px;
+    font-size: 0.9em;
+}
+
+.candy-count {
+    font-weight: bold;
+}

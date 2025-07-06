@@ -3,6 +3,7 @@ import { PokemonDetailDOMManager as DOMManager } from '../dom/PokemonDetailDOMMa
 import { APIService } from '../services/ApiService.js';
 import { AuthService } from '../services/AuthService.js';
 import { PokemonService } from '../services/PokemonService.js';
+import { CandyService } from '../services/CandyService.js';
 import { StorageService } from '../services/StorageService.js';
 import { Utils } from '../utils/Utils.js';
 
@@ -15,6 +16,7 @@ class PokemonDetailApp {
         this.dom = new DOMManager();
         this.auth = new AuthService(this.state);
         this.pokemonService = new PokemonService(this.state);
+        this.candyService = null;
     }
 
     async initialize() {
@@ -51,8 +53,19 @@ class PokemonDetailApp {
             this.state.setSupabase(client);
             const user = await this.auth.initializeAuth();
             this.state.setUser(user);
+            
+            // Log auth status for debugging
+            console.log('🔧 PokemonDetail: Auth initialized');
+            this.state.logAuthStatus();
+            
+            // Initialize candy service if user is logged in
+            if (user) {
+                console.log('🔧 PokemonDetail: Initializing CandyService for user:', user.email);
+                this.candyService = new CandyService(this.state);
+            }
         } catch (error) {
-            console.warn('Auth initialization failed:', error);
+            console.warn('❌ Auth initialization failed:', error);
+            this.state.logAuthStatus();
         }
     }
 
@@ -74,11 +87,22 @@ class PokemonDetailApp {
             const pokemonData = await APIService.fetchPokemonData(pokemonId, cache);
             this.state.setPokemonData(pokemonData);
             
+            // Load candy data if user is logged in
+            let candyCount = 0;
+            if (this.candyService) {
+                try {
+                    const candyData = await this.candyService.getCandyForUser();
+                    candyCount = candyData.get(pokemonId) || 0;
+                } catch (error) {
+                    console.error('Error loading candy data:', error);
+                }
+            }
+            
             // Update UI with API data
             this.dom.updateTypes(pokemonData);
             this.dom.updateTypesLabel(pokemonData);
             this.dom.updatePhysicalStats(pokemonData);
-            this.dom.updateCandies(pokemonData);
+            this.dom.updateCandies(pokemonData, candyCount);
 
             // Fetch and update species data
             const speciesData = await APIService.fetchSpeciesData(pokemonId, cache);

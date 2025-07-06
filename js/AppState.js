@@ -16,6 +16,7 @@ export class AppState {
         this.lastSyncHash = null;
         this.syncTimeout = null;
         this.isInitialized = false;
+        this.candyData = new Map(); // Map of pokemon_id -> candy_count
     }
 
     /**
@@ -92,7 +93,71 @@ export class AppState {
      * @returns {boolean} - True if a sync is possible, false otherwise.
      */
     canSync() {
-        return this.isLoggedIn() && this.supabase && navigator.onLine;
+        const canSync = this.isLoggedIn() && this.supabase && navigator.onLine;
+        
+        if (!canSync) {
+            const issues = [];
+            if (!this.isLoggedIn()) issues.push('not logged in');
+            if (!this.supabase) issues.push('supabase not initialized');
+            if (!navigator.onLine) issues.push('offline');
+            console.log(`🔍 canSync() = false. Issues: ${issues.join(', ')}`);
+        }
+        
+        return canSync;
+    }
+
+    /**
+     * Gets detailed authentication status for debugging.
+     * @returns {Object} - Detailed status information.
+     */
+    getAuthStatus() {
+        return {
+            isLoggedIn: this.isLoggedIn(),
+            hasSupabase: !!this.supabase,
+            isOnline: navigator.onLine,
+            canSync: this.canSync(),
+            userEmail: this.currentUser?.email || null,
+            isInitialized: this.isInitialized
+        };
+    }
+
+    /**
+     * Logs current authentication status for debugging.
+     */
+    logAuthStatus() {
+        const status = this.getAuthStatus();
+        console.log('🔍 AppState Authentication Status:', status);
+        return status;
+    }
+
+    /**
+     * Sets the candy data.
+     * @param {Map} candyData - The candy data map.
+     */
+    setCandyData(candyData) {
+        this.candyData = candyData;
+    }
+
+    /**
+     * Gets the candy count for a specific Pokémon.
+     * @param {number} pokemonId - The Pokémon ID.
+     * @returns {number} - The candy count (0 if none).
+     */
+    getCandyCount(pokemonId) {
+        return this.candyData.get(pokemonId) || 0;
+    }
+
+    /**
+     * Sets the candy count for a specific Pokémon.
+     * @param {number} pokemonId - The Pokémon ID.
+     * @param {number} count - The candy count.
+     */
+    setCandyCount(pokemonId, count) {
+        if (count <= 0) {
+            this.candyData.delete(pokemonId);
+        } else {
+            this.candyData.set(pokemonId, count);
+        }
     }
 
     /**
@@ -101,6 +166,7 @@ export class AppState {
     reset() {
         this.currentUser = null;
         this.lastSyncHash = null;
+        this.candyData.clear();
         this.clearSyncTimeout();
     }
 

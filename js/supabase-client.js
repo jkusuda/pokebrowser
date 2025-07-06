@@ -71,9 +71,25 @@ class SupabaseQueryBuilder {
         return this;
     }
 
+    /**
+     * Expects a single result instead of an array.
+     * @returns {this}
+     */
+    single() {
+        this.query.single = true;
+        return this;
+    }
+
     // CRUD operations
     async insert(data) { return this._request('POST', data, { 'Prefer': 'return=representation' }); }
     async update(data) { return this._request('PATCH', data, { 'Prefer': 'return=representation' }, true); }
+    async upsert(data, options = {}) { 
+        const headers = { 'Prefer': 'return=representation' };
+        if (options.onConflict) {
+            headers['Prefer'] += `,resolution=merge-duplicates`;
+        }
+        return this._request('POST', data, headers); 
+    }
     async delete() { return this._request('DELETE', null, { 'Prefer': 'return=representation' }, true); }
     async _execute() { return this._request('GET'); }
 
@@ -83,6 +99,12 @@ class SupabaseQueryBuilder {
     async _request(method, body, extraHeaders = {}, useFilters = false) {
         try {
             const headers = { ...(await this._getHeaders()), ...extraHeaders };
+            
+            // Add single object header if .single() was called
+            if (this.query.single) {
+                headers['Accept'] = 'application/vnd.pgrst.object+json';
+            }
+            
             let url = `${this.baseURL}/${this.table}`;
 
             if (method === 'GET') {
@@ -94,7 +116,14 @@ class SupabaseQueryBuilder {
             const response = await fetch(url, { method, headers, ...(body && { body: JSON.stringify(body) }) });
             const result = response.headers.get('content-type')?.includes('application/json') ? await response.json() : null;
 
-            if (!response.ok) throw new Error(result?.message || 'Request failed');
+            if (!response.ok) {
+                // Handle specific error for no rows found when using .single()
+                if (response.status === 406 && this.query.single) {
+                    return { data: null, error: { code: 'PGRST116', message: 'No rows found' } };
+                }
+                throw new Error(result?.message || 'Request failed');
+            }
+            
             return { data: result, error: null };
         } catch (error) {
             return { data: null, error };

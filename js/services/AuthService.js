@@ -97,10 +97,23 @@ export class AuthService {
     setupAuthStateListener(onAuthChange) {
         if (!this.state.supabase) return;
 
-        this.state.supabase.auth.onAuthStateChange((event, session) => {
+        this.state.supabase.auth.onAuthStateChange(async (event, session) => {
             console.log('Auth state changed:', event, session?.user?.email);
             const user = session?.user || null;
             this.state.setUser(user);
+            
+            // Notify background script of authentication state change
+            try {
+                if (chrome.runtime && chrome.runtime.sendMessage) {
+                    await chrome.runtime.sendMessage({
+                        type: 'AUTH_STATE_CHANGED',
+                        data: { session }
+                    });
+                }
+            } catch (error) {
+                console.error('❌ Failed to notify background script of auth change:', error);
+            }
+            
             onAuthChange(event, user);
         });
     }

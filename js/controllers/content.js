@@ -92,6 +92,22 @@ async function savePokemonAndShowSuccess(pokemon) {
       collection.push(caughtPokemon);
       
       await chrome.storage.local.set({ pokemonCollection: collection });
+
+      // Send message to background script to handle candy logic
+      if (chrome.runtime && chrome.runtime.sendMessage) {
+        try {
+          const response = await chrome.runtime.sendMessage({
+            type: 'POKEMON_CAUGHT',
+            data: { pokemon: caughtPokemon }
+          });
+          
+          if (response && response.success) {
+            console.log('✅ Pokemon caught and candy added!');
+          }
+        } catch (candyError) {
+          // Silently handle candy errors since the Pokemon catch still succeeded
+        }
+      }
     } else {
       console.warn('chrome.storage not available. Skipping save.');
     }

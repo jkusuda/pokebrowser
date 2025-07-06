@@ -51,7 +51,21 @@ class PopupApp {
 
         try {
             const user = await this.auth.initializeAuth();
+            
+            // Notify background script of current authentication state
             if (user) {
+                try {
+                    const { data: { session } } = await this.state.supabase.auth.getSession();
+                    if (session && chrome.runtime && chrome.runtime.sendMessage) {
+                        await chrome.runtime.sendMessage({
+                            type: 'AUTH_STATE_CHANGED',
+                            data: { session }
+                        });
+                    }
+                } catch (error) {
+                    console.error('❌ Failed to send initial auth state to background:', error);
+                }
+                
                 this.dom.showLoggedInState(user);
                 await this.handleInitialSync();
             } else {

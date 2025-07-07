@@ -24,13 +24,93 @@ chrome.runtime.onInstalled.addListener(async () => {
 async function initializeAuthState() {
     try {
         const result = await chrome.storage.local.get('auth_session');
+        console.log('🔍 Background: Checking for stored auth session:', result);
+        
         if (result.auth_session && result.auth_session.user) {
             currentUser = result.auth_session.user;
             authToken = result.auth_session.access_token;
-            console.log('✅ Background: User session restored');
+            console.log('✅ Background: User session restored for:', currentUser.email);
+        } else {
+            console.log('📭 Background: No stored auth session found');
         }
     } catch (error) {
         console.error('❌ Background: Error initializing auth state:', error);
+    }
+}
+
+// Simple history addition function
+async function addToHistory(pokemonId) {
+    if (!currentUser) {
+        console.log('❌ User not authenticated, skipping history addition');
+        return { success: false, error: 'User not authenticated' };
+    }
+
+    try {
+        console.log(`📚 Adding Pokemon ${pokemonId} to history for user ${currentUser.email}`);
+
+        // Add to Supabase history (using upsert to avoid duplicates)
+        console.log(`🔗 Making request to: ${CONFIG.SUPABASE_URL}/rest/v1/pokemon_history`);
+        console.log(`📝 Request body:`, { user_id: currentUser.id, pokemon_id: pokemonId });
+        
+        const response = await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/pokemon_history`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': CONFIG.SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${authToken || CONFIG.SUPABASE_ANON_KEY}`,
+                'Prefer': 'resolution=ignore-duplicates'
+            },
+            body: JSON.stringify({
+                user_id: currentUser.id,
+                pokemon_id: pokemonId,
+                first_caught_at: new Date().toISOString()
+            })
+        });
+
+        console.log(`📊 Response status: ${response.status} ${response.statusText}`);
+
+        if (response.ok) {
+            console.log(`✅ Added Pokemon ${pokemonId} to history`);
+            
+            // Also add to local storage
+            const { pokemonHistory = [] } = await chrome.storage.local.get(['pokemonHistory']);
+            if (!pokemonHistory.includes(pokemonId)) {
+                pokemonHistory.push(pokemonId);
+                await chrome.storage.local.set({ pokemonHistory });
+                console.log(`✅ Added Pokemon ${pokemonId} to local history`);
+            }
+            
+            return { success: true };
+        } else {
+            const errorText = await response.text();
+            console.error(`❌ Failed to add to history (${response.status}): ${errorText}`);
+            
+            // Still try to add to local storage as fallback
+            const { pokemonHistory = [] } = await chrome.storage.local.get(['pokemonHistory']);
+            if (!pokemonHistory.includes(pokemonId)) {
+                pokemonHistory.push(pokemonId);
+                await chrome.storage.local.set({ pokemonHistory });
+                console.log(`✅ Added Pokemon ${pokemonId} to local history (fallback)`);
+            }
+            
+            return { success: true }; // Don't fail the operation for history issues
+        }
+    } catch (error) {
+        console.error('❌ Error adding to history:', error);
+        
+        // Try to add to local storage as fallback
+        try {
+            const { pokemonHistory = [] } = await chrome.storage.local.get(['pokemonHistory']);
+            if (!pokemonHistory.includes(pokemonId)) {
+                pokemonHistory.push(pokemonId);
+                await chrome.storage.local.set({ pokemonHistory });
+                console.log(`✅ Added Pokemon ${pokemonId} to local history (fallback)`);
+            }
+        } catch (localError) {
+            console.error('❌ Error adding to local history:', localError);
+        }
+        
+        return { success: true }; // Don't fail the operation for history issues
     }
 }
 
@@ -128,19 +208,37 @@ async function addCandy(pokemonId, amount) {
  */
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     if (request.type === 'AUTH_STATE_CHANGED') {
+        console.log('🔐 Background: Received AUTH_STATE_CHANGED message');
+        console.log('🔍 Background: Session data:', request.data.session);
+        
         // Store or remove the authentication session from local storage.
         if (request.data.session) {
             await chrome.storage.local.set({ 'auth_session': request.data.session });
             currentUser = request.data.session.user;
             authToken = request.data.session.access_token;
+            console.log('✅ Background: Auth state updated for user:', currentUser.email);
         } else {
             await chrome.storage.local.remove('auth_session');
             currentUser = null;
             authToken = null;
+            console.log('🚪 Background: User logged out, auth state cleared');
         }
         sendResponse({ success: true });
         
     } else if (request.type === 'POKEMON_CAUGHT') {
+        console.log('🎯 Background: Received POKEMON_CAUGHT message');
+        console.log('🔍 Background: Current auth state - User:', currentUser ? currentUser.email : 'null', 'Token:', authToken ? 'present' : 'null');
+        
+        // Re-check auth state if not available
+        if (!currentUser) {
+            console.log('🔄 Background: Re-initializing auth state...');
+            await initializeAuthState();
+        }
+        
+        // Add to history first (this should always succeed)
+        await addToHistory(request.data.pokemon.id);
+        
+        // Then add candy
         const result = await addCandy(request.data.pokemon.id, 3);
         sendResponse(result);
         

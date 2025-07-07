@@ -3,16 +3,22 @@ import { APIService } from './ApiService.js';
 import { CONFIG } from '../config.js';
 import { AppState } from '../AppState.js';
 import { CandyService } from './CandyService.js';
+import { HistoryService } from './HistoryService.js';
 
 export class PokedexService {
     constructor(sharedAppState = null) {
         // Use shared AppState if provided, otherwise create new one
         this.appState = sharedAppState || new AppState();
         this.candyService = null;
-        this.initializeServices();
+        this.historyService = null;
+        this.servicesInitialized = false;
     }
 
     async initializeServices() {
+        if (this.servicesInitialized) {
+            return; // Already initialized
+        }
+
         try {
             // Only initialize Supabase if not already initialized
             if (!this.appState.supabase && CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY) {
@@ -25,15 +31,26 @@ export class PokedexService {
                 if (session) {
                     console.log('🔧 PokedexService: Found existing session for', session.user.email);
                     this.appState.setUser(session.user);
+                } else {
+                    console.log('🔧 PokedexService: No existing session found');
                 }
             }
 
-            // Initialize candy service if user is authenticated
-            if (this.appState.isLoggedIn() && !this.candyService) {
-                console.log('🔧 PokedexService: Initializing CandyService...');
-                this.candyService = new CandyService(this.appState);
+            // Initialize services if user is authenticated
+            if (this.appState.isLoggedIn()) {
+                if (!this.candyService) {
+                    console.log('🔧 PokedexService: Initializing CandyService...');
+                    this.candyService = new CandyService(this.appState);
+                }
+                if (!this.historyService) {
+                    console.log('🔧 PokedexService: Initializing HistoryService...');
+                    this.historyService = new HistoryService(this.appState);
+                }
+            } else {
+                console.log('🔧 PokedexService: User not authenticated, skipping service initialization');
             }
 
+            this.servicesInitialized = true;
             // Log current auth status for debugging
             this.appState.logAuthStatus();
         } catch (error) {
@@ -65,14 +82,26 @@ export class PokedexService {
             }
         }
 
+        // Load history data if user is logged in
+        let historyData = new Set();
+        if (this.historyService) {
+            try {
+                historyData = await this.historyService.getHistoryForUser();
+                console.log(`📚 Loaded history for ${historyData.size} Pokemon`);
+            } catch (error) {
+                console.error('Error loading history data:', error);
+            }
+        }
+
         this.allPokemon = this.allPokemon.map(p => {
             const caughtPokemon = userCollectionById.get(p.id);
             const candyCount = candyData.get(p.id) || 0;
+            const everOwned = historyData.has(p.id);
             
             if (caughtPokemon) {
-                return { ...p, ...caughtPokemon, caught: true, candyCount };
+                return { ...p, ...caughtPokemon, caught: true, everOwned: true, candyCount };
             } else {
-                return { ...p, candyCount };
+                return { ...p, caught: false, everOwned, candyCount };
             }
         });
 
@@ -82,9 +111,13 @@ export class PokedexService {
     getStats() {
         const total = this.userCollection.length;
         const unique = new Set(this.userCollection.map(p => p.id)).size;
+        
+        // Calculate completion based on ever-owned Pokemon (history)
+        const everOwnedCount = this.allPokemon ? this.allPokemon.filter(p => p.everOwned).length : 0;
         const totalPossible = 151;
-        const completion = totalPossible > 0 ? ((unique / totalPossible) * 100).toFixed(1) : 0;
-        return { total, unique, completion };
+        const completion = totalPossible > 0 ? ((everOwnedCount / totalPossible) * 100).toFixed(1) : 0;
+        
+        return { total, unique, completion, everOwned: everOwnedCount };
     }
 
     filterAndSort(query, sortBy) {
@@ -139,6 +172,49 @@ export class PokedexService {
             return this.allPokemon;
         } catch (error) {
             console.error('Error refreshing candy data:', error);
+            return this.allPokemon;
+        }
+    }
+
+    /**
+     * Refreshes history data for all Pokemon
+     */
+    async refreshHistoryData() {
+        if (!this.historyService) {
+            return;
+        }
+
+        try {
+            const historyData = await this.historyService.getHistoryForUser();
+            
+            // Update everOwned status for all Pokemon
+            this.allPokemon = this.allPokemon.map(p => ({
+                ...p,
+                everOwned: historyData.has(p.id)
+            }));
+            
+            return this.allPokemon;
+        } catch (error) {
+            console.error('Error refreshing history data:', error);
+            return this.allPokemon;
+        }
+    }
+
+    /**
+     * Refreshes both candy and history data for all Pokemon
+     */
+    async refreshAllData() {
+        try {
+            // Ensure services are initialized before refreshing
+            await this.initializeServices();
+            
+            await Promise.all([
+                this.refreshCandyData(),
+                this.refreshHistoryData()
+            ]);
+            return this.allPokemon;
+        } catch (error) {
+            console.error('Error refreshing all data:', error);
             return this.allPokemon;
         }
     }

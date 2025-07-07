@@ -10,7 +10,8 @@ export class PokemonEntryDOMManager {
         const elementIds = [
             'loading-state', 'error-state', 'pokemon-details', 'pokemon-name',
             'pokemon-id', 'pokemon-sprite', 'pokemon-types', 'pokemon-height', 
-            'pokemon-weight', 'types-label', 'pokemon-description', 'card-frame'
+            'pokemon-weight', 'types-label', 'pokemon-description', 'card-frame',
+            'first-caught-date'
         ];
 
         return elementIds.reduce((acc, id) => {
@@ -25,12 +26,13 @@ export class PokemonEntryDOMManager {
         this.elements.pokemon_details.style.display = state === 'details' ? 'block' : 'none';
     }
 
-    render(pokemonData, speciesData) {
+    render(pokemonData, speciesData, historyData = null) {
         this.updateBasicInfo(pokemonData);
         this.updateSprite(pokemonData);
         this.updateTypes(pokemonData);
         this.updatePhysicalStats(pokemonData);
         this.updateDescription(speciesData);
+        this.updateFirstCaught(historyData);
         this.updateBodyBackground(pokemonData);
     }
 
@@ -86,6 +88,23 @@ export class PokemonEntryDOMManager {
         const flavorTextEntry = speciesData.flavor_text_entries.find(entry => entry.language.name === 'en');
         if (flavorTextEntry) {
             this.elements.pokemon_description.textContent = `"${flavorTextEntry.flavor_text.replace(/[\n\f]/g, ' ')}"`;
+        }
+    }
+
+    updateFirstCaught(historyData) {
+        if (historyData && historyData.first_caught_at) {
+            // Format date and time (M/D/YYYY at H:MM AM/PM)
+            const date = new Date(historyData.first_caught_at);
+            const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+            const formattedTime = date.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit', 
+                hour12: true 
+            });
+            
+            this.elements.first_caught_date.textContent = `${formattedDate} at ${formattedTime}`;
+        } else {
+            this.elements.first_caught_date.textContent = 'Unknown date';
         }
     }
 

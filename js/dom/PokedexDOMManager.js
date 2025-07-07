@@ -34,16 +34,18 @@ export class PokedexDOMManager {
         sprite.alt = pokemon.name;
         id.textContent = `#${String(pokemon.id).padStart(3, '0')}`;
 
-        if (pokemon.caught) {
+        // Show as "caught" if ever owned (including previously owned)
+        if (pokemon.everOwned) {
             entry.classList.add('caught');
             sprite.style.filter = 'none';
             name.textContent = Utils.capitalizeFirst(pokemon.name);
             
-            // Display candy count (default to 0 if not provided)
+            // Display candy count for all ever-owned Pokemon (default to 0 if not provided)
             const candyAmount = pokemon.candyCount || 0;
             candyCount.textContent = candyAmount;
             candyContainer.style.display = 'flex';
             
+            // Allow clicking to view details for all ever-owned Pokemon
             entry.addEventListener('click', () => {
                 const width = 400;
                 const height = 600;
@@ -62,7 +64,7 @@ export class PokedexDOMManager {
             entry.classList.add('uncaught');
             sprite.style.filter = 'brightness(0)';
             name.textContent = '???';
-            candyContainer.style.display = 'none'; // Hide candy for uncaught Pokemon
+            candyContainer.style.display = 'none'; // Hide candy for never-owned Pokemon
         }
 
         return entry;

@@ -44,12 +44,12 @@ class PokedexApp {
 
     async refreshCandyData() {
         try {
-            console.log('🔄 Pokedex: Refreshing candy data...');
-            await this.service.refreshCandyData();
-            this.render(); // Re-render with updated candy counts
-            console.log('✅ Pokedex: Candy data refreshed successfully');
+            console.log('🔄 Pokedex: Refreshing candy and history data...');
+            await this.service.refreshAllData();
+            this.render(); // Re-render with updated candy counts and history
+            console.log('✅ Pokedex: Candy and history data refreshed successfully');
         } catch (error) {
-            console.error('❌ Pokedex: Error refreshing candy data:', error);
+            console.error('❌ Pokedex: Error refreshing data:', error);
         }
     }
 }

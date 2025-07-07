@@ -37,4 +37,40 @@ export class StorageService {
         await this.setPokemonCollection(updatedCollection);
         return updatedCollection.length < initialLength;
     }
+
+    /**
+     * Retrieves the Pokémon history from local storage.
+     * @returns {Promise<Array>} - Array of Pokemon IDs that were ever caught.
+     */
+    static async getPokemonHistory() {
+        const { pokemonHistory = [] } = await chrome.storage.local.get(['pokemonHistory']);
+        return pokemonHistory;
+    }
+
+    /**
+     * Saves the Pokémon history to local storage.
+     * @param {Array} history - Array of Pokemon IDs to save.
+     */
+    static async setPokemonHistory(history) {
+        await chrome.storage.local.set({ pokemonHistory: history });
+    }
+
+    /**
+     * Adds a Pokemon ID to the history in local storage.
+     * @param {number} pokemonId - The Pokemon ID to add to history.
+     * @returns {Promise<boolean>} - True if Pokemon was added, false if already existed.
+     */
+    static async addToHistory(pokemonId) {
+        const history = await this.getPokemonHistory();
+        
+        // Check if Pokemon is already in history
+        if (history.includes(pokemonId)) {
+            return false; // Already exists
+        }
+        
+        // Add to history and save
+        history.push(pokemonId);
+        await this.setPokemonHistory(history);
+        return true; // Successfully added
+    }
 }

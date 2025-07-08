@@ -42,7 +42,7 @@ export class PokemonEntryDOMManager {
     }
 
     updateSprite(pokemonData) {
-        const spriteUrl = `${CONFIG.SPRITE_BASE_URL}/${pokemonData.id}.png`;
+        const spriteUrl = `${CONFIG.ANIMATED_SPRITE_BASE_URL}/${pokemonData.id}.gif`;
         this.elements.pokemon_sprite.src = spriteUrl;
         this.elements.pokemon_sprite.alt = pokemonData.name;
     }

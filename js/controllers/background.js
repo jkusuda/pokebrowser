@@ -48,7 +48,35 @@ async function addToHistory(pokemonId) {
     try {
         console.log(`📚 Adding Pokemon ${pokemonId} to history for user ${currentUser.email}`);
 
-        // Add to Supabase history (using upsert to avoid duplicates)
+        // First, check if Pokemon is already in history to avoid duplicate key error
+        console.log(`🔍 Checking if Pokemon ${pokemonId} already exists in history`);
+        const checkResponse = await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/pokemon_history?user_id=eq.${currentUser.id}&pokemon_id=eq.${pokemonId}`, {
+            method: 'GET',
+            headers: {
+                'apikey': CONFIG.SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${authToken || CONFIG.SUPABASE_ANON_KEY}`,
+                'Accept': 'application/json'
+            }
+        });
+
+        if (checkResponse.ok) {
+            const existingRecords = await checkResponse.json();
+            if (existingRecords && existingRecords.length > 0) {
+                console.log(`📋 Pokemon ${pokemonId} already exists in history, skipping database insert`);
+                
+                // Still ensure it's in local storage
+                const { pokemonHistory = [] } = await chrome.storage.local.get(['pokemonHistory']);
+                if (!pokemonHistory.includes(pokemonId)) {
+                    pokemonHistory.push(pokemonId);
+                    await chrome.storage.local.set({ pokemonHistory });
+                    console.log(`✅ Added Pokemon ${pokemonId} to local history`);
+                }
+                
+                return { success: true, alreadyExists: true };
+            }
+        }
+
+        // Pokemon doesn't exist in history, safe to insert
         console.log(`🔗 Making request to: ${CONFIG.SUPABASE_URL}/rest/v1/pokemon_history`);
         console.log(`📝 Request body:`, { user_id: currentUser.id, pokemon_id: pokemonId });
         
@@ -57,8 +85,7 @@ async function addToHistory(pokemonId) {
             headers: {
                 'Content-Type': 'application/json',
                 'apikey': CONFIG.SUPABASE_ANON_KEY,
-                'Authorization': `Bearer ${authToken || CONFIG.SUPABASE_ANON_KEY}`,
-                'Prefer': 'resolution=ignore-duplicates'
+                'Authorization': `Bearer ${authToken || CONFIG.SUPABASE_ANON_KEY}`
             },
             body: JSON.stringify({
                 user_id: currentUser.id,

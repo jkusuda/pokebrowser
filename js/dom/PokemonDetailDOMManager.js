@@ -174,17 +174,23 @@ export class PokemonDetailDOMManager {
      * Updates the candy count for the Pokémon.
      * @param {Object} pokemonData - The Pokémon data.
      * @param {number} candyCount - The actual candy count for this Pokémon.
+     * @param {Object} evolutionInfo - Evolution information (cost, target, etc.)
+     * @param {string} baseCandyName - The name of the base Pokemon whose candy is used.
      */
-    updateCandies(pokemonData, candyCount = 0) {
+    updateCandies(pokemonData, candyCount = 0, evolutionInfo = null, baseCandyName = null) {
         this.elements.candy_count.textContent = candyCount;
-        this.elements.candy_label.textContent = `${Utils.capitalizeFirst(pokemonData.name)} Candy`;
         
-        // Update evolve cost display (assuming 25 candy needed for evolution)
+        // Use base candy name if provided, otherwise fall back to current Pokemon name
+        const candyName = baseCandyName || Utils.capitalizeFirst(pokemonData.name);
+        this.elements.candy_label.textContent = `${candyName} Candy`;
+        
+        // Update evolve cost display based on actual evolution data
         const evolveCostElement = document.getElementById('evolve-cost');
-        if (evolveCostElement) {
-            const candyNeeded = Math.max(0, 25 - candyCount);
+        if (evolveCostElement && evolutionInfo) {
+            const candyNeeded = Math.max(0, evolutionInfo.candyCost - candyCount);
             if (candyNeeded > 0) {
                 evolveCostElement.textContent = `${candyNeeded} Candy Needed`;
+                evolveCostElement.style.color = '#ff6b6b';
             } else {
                 evolveCostElement.textContent = 'Ready to Evolve!';
                 evolveCostElement.style.color = '#4CAF50';
@@ -214,5 +220,125 @@ export class PokemonDetailDOMManager {
                 button.textContent = text;
             }
         }
+    }
+
+    /**
+     * Updates the evolution section based on evolution availability.
+     * @param {boolean} canEvolve - Whether the Pokemon can evolve.
+     * @param {Object} evolutionInfo - Evolution information.
+     * @param {number} candyCount - Current candy count.
+     */
+    updateEvolutionSection(canEvolve, evolutionInfo = null, candyCount = 0) {
+        const evolveSection = document.querySelector('.evolve-section');
+        const evolveBtn = this.elements.evolve_btn;
+        const evolveCostElement = document.getElementById('evolve-cost');
+
+        if (!canEvolve) {
+            // Hide the entire evolution section for Pokemon that can't evolve
+            if (evolveSection) {
+                evolveSection.style.display = 'none';
+            }
+            return;
+        }
+
+        // Show evolution section and update content
+        if (evolveSection) {
+            evolveSection.style.display = 'block';
+        }
+
+        if (evolveBtn && evolutionInfo) {
+            const hasEnoughCandy = candyCount >= evolutionInfo.candyCost;
+            
+            // Keep button text as just "EVOLVE"
+            evolveBtn.textContent = 'EVOLVE';
+            
+            // Enable/disable button based on candy availability
+            this.setButtonState(evolveBtn, !hasEnoughCandy);
+            
+            // Update button styling based on availability
+            if (hasEnoughCandy) {
+                evolveBtn.classList.remove('disabled');
+                evolveBtn.style.opacity = '1';
+            } else {
+                evolveBtn.classList.add('disabled');
+                evolveBtn.style.opacity = '0.6';
+            }
+        }
+
+        // Update cost display
+        if (evolveCostElement && evolutionInfo) {
+            const candyNeeded = Math.max(0, evolutionInfo.candyCost - candyCount);
+            if (candyNeeded > 0) {
+                evolveCostElement.textContent = `${candyNeeded} more candy needed`;
+                evolveCostElement.style.color = '#ff6b6b';
+            } else {
+                evolveCostElement.textContent = `Costs ${evolutionInfo.candyCost} candy`;
+                evolveCostElement.style.color = '#4CAF50';
+            }
+        }
+    }
+
+    /**
+     * Updates the UI after a successful evolution.
+     * @param {Object} evolvedPokemon - The evolved Pokemon data.
+     * @param {Object} pokemonData - The API data for the evolved Pokemon.
+     */
+    updateAfterEvolution(evolvedPokemon, pokemonData) {
+        // Update basic info
+        const name = evolvedPokemon.name ? Utils.capitalizeFirst(evolvedPokemon.name) : 'Unknown';
+        this.elements.pokemon_name.textContent = evolvedPokemon.shiny ? `${name} ⭐` : name;
+        this.elements.pokemon_id.textContent = `#${String(evolvedPokemon.id).padStart(3, '0')}`;
+        
+        // Update sprite
+        this.updateSprite(evolvedPokemon, evolvedPokemon.shiny);
+        
+        // Update types and other data if available
+        if (pokemonData) {
+            this.updateTypes(pokemonData);
+            this.updateTypesLabel(pokemonData);
+            this.updatePhysicalStats(pokemonData);
+        }
+    }
+
+    /**
+     * Shows an evolution success message.
+     * @param {string} fromName - Original Pokemon name.
+     * @param {string} toName - Evolved Pokemon name.
+     */
+    showEvolutionSuccess(fromName, toName) {
+        // Create a temporary success message
+        const successMessage = document.createElement('div');
+        successMessage.className = 'evolution-success';
+        successMessage.innerHTML = `
+            <div class="success-content">
+                <div class="success-icon">🎉</div>
+                <div class="success-text">${fromName} evolved into ${toName}!</div>
+            </div>
+        `;
+        
+        // Add styles
+        successMessage.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(76, 175, 80, 0.95);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 1000;
+            font-weight: bold;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        `;
+        
+        document.body.appendChild(successMessage);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            if (successMessage.parentNode) {
+                successMessage.parentNode.removeChild(successMessage);
+            }
+        }, 3000);
     }
 }

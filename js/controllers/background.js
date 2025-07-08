@@ -141,6 +141,78 @@ async function addToHistory(pokemonId) {
     }
 }
 
+// Simple candy deduction function
+async function deductCandy(pokemonId, amount) {
+    if (!currentUser) {
+        console.log('❌ User not authenticated, skipping candy deduction');
+        return { success: false, error: 'User not authenticated' };
+    }
+
+    try {
+        console.log(`🍬 Deducting ${amount} candies for Pokemon ${pokemonId} from user ${currentUser.email}`);
+
+        // Step 1: Get current candy count
+        const getCurrentResponse = await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/candies?user_id=eq.${currentUser.id}&pokemon_id=eq.${pokemonId}`, {
+            method: 'GET',
+            headers: {
+                'apikey': CONFIG.SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${authToken || CONFIG.SUPABASE_ANON_KEY}`,
+                'Accept': 'application/vnd.pgrst.object+json'
+            }
+        });
+
+        let currentCount = 0;
+        let recordExists = false;
+
+        if (getCurrentResponse.ok) {
+            const existingRecord = await getCurrentResponse.json();
+            if (existingRecord && existingRecord.candy_count !== undefined) {
+                currentCount = existingRecord.candy_count;
+                recordExists = true;
+                console.log(`📊 Current candy count: ${currentCount}`);
+            }
+        }
+
+        // Check if we have enough candy
+        if (currentCount < amount) {
+            console.log(`❌ Insufficient candy: have ${currentCount}, need ${amount}`);
+            return { success: false, error: `Insufficient candy: have ${currentCount}, need ${amount}` };
+        }
+
+        const newCount = currentCount - amount;
+
+        // Step 2: Update existing record (should always exist if we got here)
+        if (recordExists) {
+            const updateResponse = await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/candies?user_id=eq.${currentUser.id}&pokemon_id=eq.${pokemonId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': CONFIG.SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${authToken || CONFIG.SUPABASE_ANON_KEY}`
+                },
+                body: JSON.stringify({
+                    candy_count: newCount,
+                    updated_at: new Date().toISOString()
+                })
+            });
+
+            if (updateResponse.ok) {
+                console.log(`✅ Deducted ${amount} candy, new count: ${newCount} for Pokemon ${pokemonId}`);
+                return { success: true, newCount };
+            } else {
+                const errorText = await updateResponse.text();
+                throw new Error(`Update failed: ${errorText}`);
+            }
+        } else {
+            console.log(`❌ No candy record found for Pokemon ${pokemonId}`);
+            return { success: false, error: 'No candy record found' };
+        }
+    } catch (error) {
+        console.error('❌ Error deducting candy:', error);
+        return { success: false, error: error.message };
+    }
+}
+
 // Simple candy addition function
 async function addCandy(pokemonId, amount) {
     if (!currentUser) {
@@ -271,6 +343,14 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
         
     } else if (request.type === 'POKEMON_RELEASED') {
         const result = await addCandy(request.data.pokemon.id, 1);
+        sendResponse(result);
+        
+    } else if (request.type === 'POKEMON_EVOLVED') {
+        console.log('🔄 Background: Received POKEMON_EVOLVED message');
+        console.log('🔍 Background: Evolution data:', request.data);
+        
+        // Deduct candy for evolution
+        const result = await deductCandy(request.data.pokemon.id, request.data.candyCost);
         sendResponse(result);
         
     } else {

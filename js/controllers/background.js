@@ -1,10 +1,6 @@
-// background.js - Manages the service worker and persists authentication state.
+// background.js - Manages the service worker and handles message routing
 
-// Configuration constants
-const CONFIG = {
-    SUPABASE_URL: 'https://mzoxfiqdhbitwoyspnfm.supabase.co',
-    SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16b3hmaXFkaGJpdHdveXNwbmZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3OTIyMjIsImV4cCI6MjA2NjM2ODIyMn0.YbxebGzAZne6i3kZFfZPp1U3F-ewYIHy8gaaw9q1zkM'
-};
+import { CONFIG } from '../config.js';
 
 let currentUser = null;
 let authToken = null;
@@ -38,6 +34,39 @@ async function initializeAuthState() {
     }
 }
 
+// Ensure authentication is ready with retry logic
+async function ensureAuthReady(maxRetries = 5, retryDelay = 1000) {
+    console.log('🔄 Background: Ensuring auth is ready...');
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        console.log(`🔍 Background: Auth check attempt ${attempt}/${maxRetries}`);
+        
+        // Check if we already have auth state
+        if (currentUser && authToken) {
+            console.log('✅ Background: Auth state already available');
+            return true;
+        }
+        
+        // Try to initialize auth state
+        await initializeAuthState();
+        
+        // Check again after initialization
+        if (currentUser && authToken) {
+            console.log(`✅ Background: Auth state ready after ${attempt} attempts`);
+            return true;
+        }
+        
+        // If not the last attempt, wait before retrying
+        if (attempt < maxRetries) {
+            console.log(`⏳ Background: Waiting ${retryDelay}ms before retry...`);
+            await new Promise(resolve => setTimeout(resolve, retryDelay));
+        }
+    }
+    
+    console.log('❌ Background: Failed to establish auth state after all retries');
+    return false;
+}
+
 // Simple history addition function
 async function addToHistory(pokemonId) {
     if (!currentUser) {
@@ -66,7 +95,7 @@ async function addToHistory(pokemonId) {
                 
                 // Still ensure it's in local storage
                 const { pokemonHistory = [] } = await chrome.storage.local.get(['pokemonHistory']);
-                if (!pokemonHistory.includes(pokemonId)) {
+                if (pokemonHistory && !pokemonHistory.includes(pokemonId)) {
                     pokemonHistory.push(pokemonId);
                     await chrome.storage.local.set({ pokemonHistory });
                     console.log(`✅ Added Pokemon ${pokemonId} to local history`);
@@ -328,11 +357,16 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
         console.log('🎯 Background: Received POKEMON_CAUGHT message');
         console.log('🔍 Background: Current auth state - User:', currentUser ? currentUser.email : 'null', 'Token:', authToken ? 'present' : 'null');
         
-        // Re-check auth state if not available
-        if (!currentUser) {
-            console.log('🔄 Background: Re-initializing auth state...');
-            await initializeAuthState();
+        // Ensure authentication is properly initialized before proceeding
+        const authReady = await ensureAuthReady();
+        
+        if (!authReady) {
+            console.log('❌ Background: Authentication failed, cannot process Pokemon catch');
+            sendResponse({ success: false, error: 'Authentication not available' });
+            return;
         }
+        
+        console.log('✅ Background: Authentication confirmed, processing Pokemon catch');
         
         // Add to history first (this should always succeed)
         await addToHistory(request.data.pokemon.id);

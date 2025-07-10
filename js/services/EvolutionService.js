@@ -27,6 +27,17 @@ export class EvolutionService {
      * @returns {Object|null} - Evolution info or null if cannot evolve.
      */
     getEvolutionInfo(pokemonId) {
+        // Special case for Eevee - return a standardized evolution info object
+        if (pokemonId === 133) {
+            const targetId = this.getEvolutionTarget(pokemonId);
+            return {
+                evolvesTo: targetId,
+                candyCost: 25,
+                name: POKEMON_NAMES[targetId] || `Pokemon ${targetId}`,
+                baseCandyId: 133
+            };
+        }
+
         return EVOLUTION_DATA[pokemonId] || null;
     }
 
@@ -36,6 +47,11 @@ export class EvolutionService {
      * @returns {number} - Candy cost, or 0 if cannot evolve.
      */
     getEvolutionCost(pokemonId) {
+        // Special case for Eevee - all evolutions cost 25 candy
+        if (pokemonId === 133) {
+            return 25;
+        }
+
         const evolutionInfo = this.getEvolutionInfo(pokemonId);
         return evolutionInfo ? evolutionInfo.candyCost : 0;
     }
@@ -46,6 +62,13 @@ export class EvolutionService {
      * @returns {number|null} - Target Pokemon ID or null if cannot evolve.
      */
     getEvolutionTarget(pokemonId) {
+        // Special case for Eevee - random evolution
+        if (pokemonId === 133) {
+            const eeveeEvolutions = [134, 135, 136]; // Vaporeon, Jolteon, Flareon
+            const randomIndex = Math.floor(Math.random() * eeveeEvolutions.length);
+            return eeveeEvolutions[randomIndex];
+        }
+
         const evolutionInfo = this.getEvolutionInfo(pokemonId);
         return evolutionInfo ? evolutionInfo.evolvesTo : null;
     }
@@ -56,6 +79,12 @@ export class EvolutionService {
      * @returns {string|null} - Evolution target name or null if cannot evolve.
      */
     getEvolutionTargetName(pokemonId) {
+        // Special case for Eevee - get name of randomly selected evolution
+        if (pokemonId === 133) {
+            const targetId = this.getEvolutionTarget(pokemonId);
+            return POKEMON_NAMES[targetId] || `Pokemon ${targetId}`;
+        }
+
         const evolutionInfo = this.getEvolutionInfo(pokemonId);
         return evolutionInfo ? evolutionInfo.name : null;
     }
@@ -107,9 +136,9 @@ export class EvolutionService {
                 };
             }
 
-            const evolutionInfo = this.getEvolutionInfo(pokemonId);
-            const evolvedPokemonId = evolutionInfo.evolvesTo;
-            const candyCost = evolutionInfo.candyCost;
+            // Get evolution target (handles Eevee's random evolution)
+            const evolvedPokemonId = this.getEvolutionTarget(pokemonId);
+            const candyCost = this.getEvolutionCost(pokemonId);
 
             // Create evolved Pokemon object
             const evolvedPokemon = {

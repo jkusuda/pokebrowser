@@ -125,31 +125,45 @@ export class HistoryService {
      * @returns {Promise<Object|null>} - The history record or null if not found
      */
     async getFirstCaughtData(pokemonId) {
-        if (!this.state.isLoggedIn()) {
-            console.log('❌ User not authenticated, cannot fetch first caught data');
+        // Quick check - if not authenticated, return null immediately
+        if (!this.state.isLoggedIn() || !this.state.supabase) {
+            console.log('❌ Not authenticated, cannot fetch first caught data');
             return null;
         }
 
         try {
             console.log(`📚 Fetching first caught data for Pokemon ${pokemonId}`);
+            console.log(`🔍 Query params: user_id=${this.state.currentUser.id}, pokemon_id=${pokemonId}`);
 
             const { data, error } = await this.state.supabase
                 .from('pokemon_history')
                 .select('*')
                 .eq('user_id', this.state.currentUser.id)
                 .eq('pokemon_id', pokemonId)
+                .order('first_caught_at', { ascending: true })
+                .limit(1)
                 .single();
+
+            console.log(`🔍 Raw query result - data:`, data, `error:`, error);
 
             if (error) {
                 if (error.code === 'PGRST116') {
-                    // No rows returned - Pokemon was never caught
                     console.log(`📭 No history found for Pokemon ${pokemonId}`);
                     return null;
                 }
-                throw error;
+                console.error('❌ Database error:', error);
+                return null;
+            }
+
+            // Check if data is null (no records found)
+            if (!data) {
+                console.log(`📭 No history record found for Pokemon ${pokemonId}`);
+                return null;
             }
 
             console.log(`✅ Found history for Pokemon ${pokemonId}:`, data);
+            console.log(`📅 First caught date field:`, data.first_caught_at);
+            console.log(`📅 Date type:`, typeof data.first_caught_at);
             return data;
         } catch (error) {
             console.error('❌ Error fetching first caught data:', error);

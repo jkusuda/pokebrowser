@@ -1,5 +1,7 @@
 import { Utils } from '../utils/Utils.js';
 import { StorageService } from './StorageService.js';
+import { SecurityValidator } from '../utils/SecurityValidator.js';
+import { CONFIG } from '../config.js';
 
 /**
  * Service for handling data synchronization between local storage and the cloud.
@@ -73,20 +75,38 @@ export class SyncService {
             const newPokemon = collection.filter(p => !existingKeys.has(`${p.id}|${p.site}|${new Date(p.caughtAt).getTime()}`));
 
             if (newPokemon.length > 0) {
-                const BATCH_SIZE = 25;
+                // Security: Validate batch size and rate limiting
+                const securityCheck = await SecurityValidator.validateRequest('sync', newPokemon, this.state.currentUser);
+                if (!securityCheck.valid) {
+                    throw new Error(`Security validation failed: ${securityCheck.error}`);
+                }
+
+                const BATCH_SIZE = Math.min(CONFIG.BATCH_SIZE, CONFIG.MAX_BATCH_SIZE);
                 const batchPromises = [];
                 for (let i = 0; i < newPokemon.length; i += BATCH_SIZE) {
-                    const batch = newPokemon.slice(i, i + BATCH_SIZE).map(p => ({
-                        user_id: this.state.currentUser.id,
-                        pokemon_id: p.id,
-                        name: p.name,
-                        species: p.species || p.name,
-                        level: p.level,
-                        shiny: p.shiny || false,
-                        site_caught: p.site,
-                        caught_at: p.caughtAt
-                    }));
-                    batchPromises.push(this.state.supabase.from('pokemon').insert(batch));
+                    const batch = newPokemon.slice(i, i + BATCH_SIZE).map(p => {
+                        // Security: Validate each Pokemon before sync
+                        const validation = SecurityValidator.validatePokemonData(p);
+                        if (!validation.isValid) {
+                            console.warn(`Skipping invalid Pokemon:`, validation.errors);
+                            return null;
+                        }
+                        
+                        return SecurityValidator.sanitizeForDatabase({
+                            user_id: this.state.currentUser.id,
+                            pokemon_id: p.id,
+                            name: p.name,
+                            species: p.species || p.name,
+                            level: p.level,
+                            shiny: p.shiny || false,
+                            site_caught: p.site,
+                            caught_at: p.caughtAt
+                        });
+                    }).filter(Boolean); // Remove null entries
+                    
+                    if (batch.length > 0) {
+                        batchPromises.push(this.state.supabase.from('pokemon').insert(batch));
+                    }
                 }
                 await Promise.all(batchPromises);
                 this.state.setLastSyncHash(currentHash);

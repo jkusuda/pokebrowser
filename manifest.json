@@ -17,13 +17,13 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["js/supabase-client.js", "js/controllers/content.js", "js/animations.js"],
-      "css": ["styles/contentStyle.css"]
+      "js": ["dist/content.js"],
+      "css": ["dist/styles/contentStyle.css"]
     }
   ],
   
   "action": {
-    "default_popup": "popup.html",
+    "default_popup": "dist/src/popup/index.html",
     "default_title": "Pokebrowser - View Collection"
   },
   
@@ -34,15 +34,16 @@
   },
   
   "background": {
-    "service_worker": "js/controllers/background.js",
+    "service_worker": "dist/background.js",
     "type": "module"
   },
   
   "web_accessible_resources": [
     {
       "resources": [
-        "pokemon-detail.html", 
-        "auth.html", 
+        "dist/src/pokemon-detail/index.html",
+        "dist/src/pokemon-entry/index.html",
+        "dist/src/auth/index.html", 
         "grass-platform.webp", 
         "pokeball-spritesheet.png"
       ],

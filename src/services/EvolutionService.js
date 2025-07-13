@@ -2,25 +2,19 @@ import { EVOLUTION_DATA, CANDY_FAMILY_MAP, POKEMON_NAMES } from '../shared/evolu
 import { StorageService } from './StorageService.js';
 import { SecurityValidator } from '../utils/SecurityValidator.js';
 
-/**
- * Evolution service that handles Pokemon evolution logic
- */
+// Handles Pokemon evolution logic and candy requirements
 export class EvolutionService {
     constructor(appState) {
         this.appState = appState;
     }
 
-    /**
-     * Check if a Pokemon can evolve
-     */
+    // Check if Pokemon has evolution available
     canEvolve(pokemonId) {
         const id = parseInt(pokemonId);
         return EVOLUTION_DATA.hasOwnProperty(id);
     }
 
-    /**
-     * Get evolution information for a Pokemon
-     */
+    // Get evolution details for Pokemon
     getEvolutionInfo(pokemonId) {
         const id = parseInt(pokemonId);
         const evolutionData = EVOLUTION_DATA[id];
@@ -39,26 +33,20 @@ export class EvolutionService {
         return evolutionData;
     }
 
-    /**
-     * Get the base candy ID for a Pokemon (what candy type it uses)
-     */
+    // Get which candy type Pokemon uses for evolution
     getBaseCandyId(pokemonId) {
         const id = parseInt(pokemonId);
         return CANDY_FAMILY_MAP[id] || id;
     }
 
-    /**
-     * Get the base candy name for a Pokemon
-     */
+    // Get display name for Pokemon's candy type
     getBaseCandyName(pokemonId) {
         const baseCandyId = this.getBaseCandyId(pokemonId);
         const pokemonName = POKEMON_NAMES[baseCandyId];
         return pokemonName ? `${pokemonName}` : 'Unknown';
     }
 
-    /**
-     * Validate evolution requirements using base candy
-     */
+    // Check if user has enough candy to evolve Pokemon
     validateEvolutionWithBaseCandy(pokemonId, currentCandy) {
         const evolutionInfo = this.getEvolutionInfo(pokemonId);
         
@@ -77,9 +65,7 @@ export class EvolutionService {
         return { success: true };
     }
 
-    /**
-     * Evolve a Pokemon
-     */
+    // Transform Pokemon into its evolved form
     async evolvePokemon(pokemon, currentCandy) {
         try {
             const pokemonId = parseInt(pokemon.id || pokemon.pokemon_id);

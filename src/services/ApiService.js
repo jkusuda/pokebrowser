@@ -1,7 +1,8 @@
 import { CONFIG } from '../shared/config.js';
 
-// Service for handling API requests.
+// Handles external API calls to PokeAPI
 export class APIService {
+    // Get list of all Pokemon from PokeAPI
     static async fetchAllPokemon(limit = 151) {
         try {
             const response = await fetch(`${CONFIG.POKEAPI_BASE_URL}?limit=${limit}`);
@@ -20,12 +21,7 @@ export class APIService {
         }
     }
 
-    /**
-     * Fetches Pokémon data from the PokéAPI.
-     * @param {number} pokemonId - The ID of the Pokémon to fetch.
-     * @param {Map} cache - The cache to store and retrieve data from.
-     * @returns {Promise<Object>} - The Pokémon data.
-     */
+    // Get detailed Pokemon data from PokeAPI with caching
     static async fetchPokemonData(pokemonId, cache) {
         const cacheKey = `pokemon_${pokemonId}`;
         if (cache.has(cacheKey)) {
@@ -47,6 +43,7 @@ export class APIService {
         }
     }
 
+    // Get Pokemon species data from PokeAPI with caching
     static async fetchSpeciesData(pokemonId, cache) {
         const cacheKey = `species_${pokemonId}`;
         if (cache.has(cacheKey)) {

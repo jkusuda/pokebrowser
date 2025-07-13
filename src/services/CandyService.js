@@ -1,25 +1,14 @@
 import { AuthDebugger } from '../utils/AuthDebugger.js';
 
-/**
- * Service for handling candy-related operations.
- * Note: Candy modifications (adding candy) are handled by the background script.
- * This service only handles reading candy data.
- */
+// Handles Pokemon candy data - reading only (background script handles modifications)
 export class CandyService {
-    /**
-     * @param {AppState} appState - The application state.
-     */
     constructor(appState) {
         this.state = appState;
         this.maxRetries = 3;
         this.retryDelay = 1000; // 1 second
     }
 
-    /**
-     * Waits for authentication to be ready with retry logic.
-     * @param {number} maxWaitTime - Maximum time to wait in milliseconds.
-     * @returns {Promise<boolean>} - True if authenticated, false if timeout.
-     */
+    // Wait for user authentication with timeout
     async waitForAuthentication(maxWaitTime = 5000) {
         const startTime = Date.now();
         
@@ -45,10 +34,7 @@ export class CandyService {
         return false;
     }
 
-    /**
-     * Retrieves all candy data for the current user.
-     * @returns {Promise<Map>} - A map of pokemon_id -> candy_count.
-     */
+    // Get all candy counts for user from database
     async getCandyForUser() {
         // Debug authentication state before attempting candy fetch
         AuthDebugger.logAuthState('CandyService.getCandyForUser - Start', this.state);
@@ -101,21 +87,14 @@ export class CandyService {
         }
     }
 
-    /**
-     * Gets the candy count for a specific Pokémon from local state.
-     * @param {number} pokemonId - The Pokémon ID.
-     * @returns {number} - The candy count (0 if none).
-     */
+    // Get candy count for specific Pokemon from local state
     getCandyCount(pokemonId) {
         const count = this.state.getCandyCount(pokemonId);
         console.log(`🍬 Candy count for Pokemon ${pokemonId}: ${count}`);
         return count;
     }
 
-    /**
-     * Refreshes candy data from the database.
-     * @returns {Promise<Map>} - Updated candy map.
-     */
+    // Reload candy data from database
     async refreshCandyData() {
         console.log('🔄 Refreshing candy data from database');
         return await this.getCandyForUser();

@@ -1,19 +1,14 @@
 import { CONFIG } from '../shared/config.js';
 import { supabase } from '../shared/supabase-client.js';
 
-// Service for handling authentication.
+// Handles user authentication and session management
 export class AuthService {
-    /**
-     * @param {AppState} appState - The application state.
-     */
+    // Initialize auth service with app state
     constructor(appState) {
         this.state = appState;
     }
 
-    /**
-     * Initializes the Supabase client.
-     * @returns {Promise<SupabaseClient>}
-     */
+    // Set up Supabase client for authentication
     async initializeSupabase() {
         if (!CONFIG.SUPABASE_URL || !CONFIG.SUPABASE_ANON_KEY) {
             throw new Error('Cloud sync not configured');
@@ -31,10 +26,7 @@ export class AuthService {
         return client;
     }
 
-    /**
-     * Initializes authentication and retrieves the current session.
-     * @returns {Promise<User|null>}
-     */
+    // Get current user session if exists
     async initializeAuth() {
         if (!this.state.supabase) return null;
 
@@ -53,10 +45,7 @@ export class AuthService {
         }
     }
 
-    /**
-     * Opens the authentication popup.
-     * @returns {Promise<User|null>}
-     */
+    // Open auth popup and wait for completion
     openAuthPopup() {
         const popup = window.open(chrome.runtime.getURL('dist/src/auth/index.html'), 'auth', 'width=400,height=500');
 
@@ -71,10 +60,7 @@ export class AuthService {
         });
     }
 
-    /**
-     * Handles user logout.
-     * @returns {Promise<{success: boolean}>}
-     */
+    // Sign out user and reset app state
     async handleLogout() {
         try {
             console.log('🔄 Starting logout process...');
@@ -103,10 +89,7 @@ export class AuthService {
         }
     }
 
-    /**
-     * Sets up a listener for authentication state changes.
-     * @param {Function} onAuthChange - The callback to execute on auth state change.
-     */
+    // Listen for auth state changes and notify background script
     setupAuthStateListener(onAuthChange) {
         if (!this.state.supabase) return;
 
@@ -137,9 +120,7 @@ export class AuthService {
         this.setupSessionRefresh();
     }
 
-    /**
-     * Sets up periodic session refresh to maintain authentication.
-     */
+    // Refresh session every 30 minutes to keep user logged in
     setupSessionRefresh() {
         if (!this.state.supabase) return;
 
@@ -168,10 +149,7 @@ export class AuthService {
         }, 30 * 60 * 1000); // 30 minutes
     }
 
-    /**
-     * Manually refreshes the current session.
-     * @returns {Promise<User|null>}
-     */
+    // Manually refresh user session
     async refreshSession() {
         if (!this.state.supabase) return null;
 

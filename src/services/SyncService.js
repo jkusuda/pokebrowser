@@ -1,33 +1,20 @@
 import { Utils } from '../utils/Utils.js';
 import { StorageService } from './StorageService.js';
 
-/**
- * Service for handling data synchronization between local storage and the cloud.
- */
+// Handles syncing Pokemon data between local storage and cloud database
 export class SyncService {
-    /**
-     * @param {AppState} appState - The application state.
-     */
     constructor(appState) {
         this.state = appState;
         this.syncInProgress = false;
     }
 
-    /**
-     * Performs an immediate synchronization.
-     * @param {Array} collection - The Pokémon collection to sync.
-     * @returns {Promise<Object>} - The result of the sync operation.
-     */
+    // Sync collection to cloud immediately without delay
     async immediateSync(collection) {
         if (!this.state.canSync()) return;
         return await this.syncToCloud(collection);
     }
 
-    /**
-     * Synchronizes the local collection to the cloud.
-     * @param {Array} collection - The Pokémon collection to sync.
-     * @returns {Promise<Object>} - The result of the sync operation.
-     */
+    // Upload local Pokemon collection to Supabase database
     async syncToCloud(collection) {
         if (!this.state.canSync() || !collection.length) return;
         if (this.syncInProgress) return;

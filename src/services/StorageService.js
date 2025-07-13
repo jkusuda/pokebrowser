@@ -1,29 +1,17 @@
-/**
- * Service for handling interactions with Chrome's local storage.
- */
+// Handles Chrome extension local storage operations
 export class StorageService {
-    /**
-     * Retrieves the Pokémon collection from local storage.
-     * @returns {Promise<Array>} - The Pokémon collection.
-     */
+    // Get user's Pokemon collection from local storage
     static async getPokemonCollection() {
         const { pokemonCollection = [] } = await chrome.storage.local.get(['pokemonCollection']);
         return pokemonCollection;
     }
 
-    /**
-     * Saves the Pokémon collection to local storage.
-     * @param {Array} collection - The Pokémon collection to save.
-     */
+    // Save Pokemon collection to local storage
     static async setPokemonCollection(collection) {
         await chrome.storage.local.set({ pokemonCollection: collection });
     }
 
-    /**
-     * Removes a Pokémon from the collection in local storage.
-     * @param {Object} pokemonToRemove - The Pokémon to remove.
-     * @returns {Promise<boolean>} - True if a Pokémon was removed, false otherwise.
-     */
+    // Remove specific Pokemon from local collection
     static async removePokemonFromCollection(pokemonToRemove) {
         const collection = await this.getPokemonCollection();
         const initialLength = collection.length;
@@ -38,28 +26,18 @@ export class StorageService {
         return updatedCollection.length < initialLength;
     }
 
-    /**
-     * Retrieves the Pokémon history from local storage.
-     * @returns {Promise<Array>} - Array of Pokemon IDs that were ever caught.
-     */
+    // Get Pokemon ownership history from local storage
     static async getPokemonHistory() {
         const { pokemonHistory = [] } = await chrome.storage.local.get(['pokemonHistory']);
         return pokemonHistory;
     }
 
-    /**
-     * Saves the Pokémon history to local storage.
-     * @param {Array} history - Array of Pokemon IDs to save.
-     */
+    // Save Pokemon history to local storage
     static async setPokemonHistory(history) {
         await chrome.storage.local.set({ pokemonHistory: history });
     }
 
-    /**
-     * Adds a Pokemon ID to the history in local storage.
-     * @param {number} pokemonId - The Pokemon ID to add to history.
-     * @returns {Promise<boolean>} - True if Pokemon was added, false if already existed.
-     */
+    // Add Pokemon ID to ownership history
     static async addToHistory(pokemonId) {
         const history = await this.getPokemonHistory();
         

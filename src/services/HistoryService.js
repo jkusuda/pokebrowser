@@ -1,25 +1,15 @@
 import { AuthDebugger } from '../utils/AuthDebugger.js';
 import { StorageService } from './StorageService.js';
 
-/**
- * Service for handling Pokemon history operations.
- * Tracks all Pokemon that have ever been caught by a user.
- */
+// Tracks Pokemon ownership history - which Pokemon user has ever caught
 export class HistoryService {
-    /**
-     * @param {AppState} appState - The application state.
-     */
     constructor(appState) {
         this.state = appState;
         this.maxRetries = 3;
         this.retryDelay = 1000; // 1 second
     }
 
-    /**
-     * Waits for authentication to be ready with retry logic.
-     * @param {number} maxWaitTime - Maximum time to wait in milliseconds.
-     * @returns {Promise<boolean>} - True if authenticated, false if timeout.
-     */
+    // Wait for user authentication with timeout
     async waitForAuthentication(maxWaitTime = 5000) {
         const startTime = Date.now();
         
@@ -45,10 +35,7 @@ export class HistoryService {
         return false;
     }
 
-    /**
-     * Retrieves all Pokemon history for the current user from Supabase.
-     * @returns {Promise<Set>} - A set of Pokemon IDs that were ever caught.
-     */
+    // Get all Pokemon IDs that user has ever caught
     async getHistoryForUser() {
         // Debug authentication state before attempting history fetch
         AuthDebugger.logAuthState('HistoryService.getHistoryForUser - Start', this.state);
@@ -104,11 +91,7 @@ export class HistoryService {
         }
     }
 
-    /**
-     * Check if a Pokemon was ever caught by the user
-     * @param {number} pokemonId - The Pokemon ID to check
-     * @returns {Promise<boolean>} - True if ever caught, false otherwise
-     */
+    // Check if user has ever caught this Pokemon
     async hasEverCaught(pokemonId) {
         try {
             const historySet = await this.getHistoryForUser();
@@ -119,11 +102,7 @@ export class HistoryService {
         }
     }
 
-    /**
-     * Get the first caught data for a specific Pokemon
-     * @param {number} pokemonId - The Pokemon ID to get data for
-     * @returns {Promise<Object|null>} - The history record or null if not found
-     */
+    // Get when Pokemon was first caught by user
     async getFirstCaughtData(pokemonId) {
         // Quick check - if not authenticated, return null immediately
         if (!this.state.isLoggedIn() || !this.state.supabase) {
@@ -171,11 +150,7 @@ export class HistoryService {
         }
     }
 
-    /**
-     * Adds a Pokemon to the user's history both locally and in Supabase.
-     * @param {number} pokemonId - The Pokemon ID to add to history.
-     * @returns {Promise<boolean>} - True if successfully added.
-     */
+    // Add Pokemon to user's ownership history
     async addToHistory(pokemonId) {
         try {
             console.log(`📚 Adding Pokemon ${pokemonId} to history`);
@@ -217,11 +192,7 @@ export class HistoryService {
         }
     }
 
-    /**
-     * Syncs local Pokemon history to Supabase.
-     * Called when user authenticates or comes online.
-     * @returns {Promise<boolean>} - True if sync successful.
-     */
+    // Upload local history to cloud when user logs in
     async syncLocalHistory() {
         if (!this.state.canSync()) {
             console.log('❌ Cannot sync history - not authenticated');
@@ -285,10 +256,7 @@ export class HistoryService {
         }
     }
 
-    /**
-     * Gets local Pokemon history as a fallback.
-     * @returns {Promise<Set>} - A set of Pokemon IDs from local storage.
-     */
+    // Get Pokemon history from local storage only
     async getLocalHistory() {
         try {
             const localHistory = await StorageService.getPokemonHistory();
@@ -299,10 +267,7 @@ export class HistoryService {
         }
     }
 
-    /**
-     * Gets the count of unique Pokemon ever caught.
-     * @returns {Promise<number>} - Count of unique Pokemon in history.
-     */
+    // Count how many unique Pokemon user has ever caught
     async getHistoryCount() {
         try {
             const history = await this.getHistoryForUser();
@@ -313,11 +278,7 @@ export class HistoryService {
         }
     }
 
-    /**
-     * Checks if a Pokemon has ever been caught.
-     * @param {number} pokemonId - The Pokemon ID to check.
-     * @returns {Promise<boolean>} - True if Pokemon was ever caught.
-     */
+    // Check if Pokemon exists in user's history (duplicate method)
     async hasEverCaught(pokemonId) {
         try {
             const history = await this.getHistoryForUser();

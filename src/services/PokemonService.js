@@ -7,10 +7,7 @@ import { HistoryService } from './HistoryService.js';
 import { SecurityValidator } from '../utils/SecurityValidator.js';
 import { supabase } from '../shared/supabase-client.js';
 
-/**
- * Unified Pokemon service that handles all Pokemon-related operations
- * Consolidates functionality from PokemonManager, PokedexService, and original PokemonService
- */
+// Main service for all Pokemon operations - catching, releasing, data management
 export class PokemonService {
     constructor(sharedAppState = null) {
         this.appState = sharedAppState || new AppState();
@@ -21,9 +18,7 @@ export class PokemonService {
         this.userCollection = [];
     }
 
-    /**
-     * Initialize all required services
-     */
+    // Set up dependent services and Supabase connection
     async initializeServices() {
         if (this.servicesInitialized) return;
 
@@ -58,9 +53,7 @@ export class PokemonService {
         }
     }
 
-    /**
-     * Load complete Pokedex data with user collection, candy, and history
-     */
+    // Load all Pokemon data with user collection, candy counts, and history
     async loadPokedex() {
         await this.initializeServices();
 
@@ -139,9 +132,7 @@ export class PokemonService {
         return this.allPokemon;
     }
 
-    /**
-     * Get collection statistics
-     */
+    // Calculate user's collection statistics
     getStats() {
         const total = this.userCollection.length;
         const unique = new Set(this.userCollection.map(p => p.id)).size;
@@ -151,9 +142,7 @@ export class PokemonService {
         return { total, unique, completion, everOwned: everOwnedCount };
     }
 
-    /**
-     * Filter and sort Pokemon data
-     */
+    // Filter Pokemon by search query and sort by specified criteria
     filterAndSort(query, sortBy) {
         let filtered = this.allPokemon;
 
@@ -214,9 +203,7 @@ export class PokemonService {
         return filtered;
     }
 
-    /**
-     * Catch a Pokemon and add it to the collection
-     */
+    // Add Pokemon to user's collection (cloud or local storage)
     async catchPokemon(pokemon) {
         try {
             const caughtPokemon = { 
@@ -306,9 +293,7 @@ export class PokemonService {
         }
     }
 
-    /**
-     * Release a Pokemon from the collection
-     */
+    // Remove Pokemon from collection and award candy
     async releasePokemon(pokemonToRelease) {
         try {
             // Remove from cloud if syncing is available
@@ -353,9 +338,7 @@ export class PokemonService {
         }
     }
 
-    /**
-     * Open Pokemon detail window
-     */
+    // Open Pokemon detail popup window
     openPokemonDetail(pokemon) {
         const url = chrome.runtime.getURL('dist/src/pokemon-detail/index.html');
         const params = new URLSearchParams({
@@ -375,9 +358,7 @@ export class PokemonService {
         });
     }
 
-    /**
-     * Refresh candy data for all Pokemon
-     */
+    // Update candy counts for all Pokemon from server
     async refreshCandyData() {
         if (!this.candyService) return this.allPokemon;
 
@@ -396,9 +377,7 @@ export class PokemonService {
         }
     }
 
-    /**
-     * Refresh history data for all Pokemon
-     */
+    // Update ownership history for all Pokemon from server
     async refreshHistoryData() {
         if (!this.historyService) return this.allPokemon;
 
@@ -417,9 +396,7 @@ export class PokemonService {
         }
     }
 
-    /**
-     * Refresh all data (candy and history) for all Pokemon
-     */
+    // Update both candy and history data for all Pokemon
     async refreshAllData() {
         try {
             await this.initializeServices();

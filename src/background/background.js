@@ -1,4 +1,4 @@
-// background.js - Manages the service worker and handles message routing
+// Extension service worker - handles Pokemon catching, candy management, and auth state
 
 import { CONFIG } from '../shared/config.js';
 import { CANDY_FAMILY_MAP } from '../shared/evolution-data.js';
@@ -6,11 +6,7 @@ import { CANDY_FAMILY_MAP } from '../shared/evolution-data.js';
 let currentUser = null;
 let authToken = null;
 
-/**
- * Gets the base candy ID for a Pokemon (what candy type it uses).
- * @param {number} pokemonId - The Pokemon ID.
- * @returns {number} - The base candy ID for this Pokemon's family.
- */
+// Get base candy ID for Pokemon evolution family
 function getBaseCandyId(pokemonId) {
     return CANDY_FAMILY_MAP[pokemonId] || pokemonId;
 }
@@ -26,7 +22,7 @@ chrome.runtime.onInstalled.addListener(async () => {
     await initializeAuthState();
 });
 
-// Initialize authentication state
+// Load stored auth session from local storage
 async function initializeAuthState() {
     try {
         const result = await chrome.storage.local.get('supabase_session');
@@ -46,7 +42,7 @@ async function initializeAuthState() {
     }
 }
 
-// Ensure authentication is ready with retry logic
+// Wait for auth state to be available with retries
 async function ensureAuthReady(maxRetries = 5, retryDelay = 1000) {
     console.log('🔄 Background: Ensuring auth is ready...');
     
@@ -79,7 +75,7 @@ async function ensureAuthReady(maxRetries = 5, retryDelay = 1000) {
     return false;
 }
 
-// Simple history addition function
+// Add Pokemon to user's ownership history in database
 async function addToHistory(pokemonId) {
     if (!currentUser) {
         console.log('❌ User not authenticated, skipping history addition');
@@ -179,7 +175,7 @@ async function addToHistory(pokemonId) {
     }
 }
 
-// Simple candy deduction function
+// Remove candy from user's account (for evolution)
 async function deductCandy(pokemonId, amount) {
     if (!currentUser) {
         console.log('❌ User not authenticated, skipping candy deduction');
@@ -251,7 +247,7 @@ async function deductCandy(pokemonId, amount) {
     }
 }
 
-// Simple candy addition function
+// Add candy to user's account (for catching/releasing)
 async function addCandy(pokemonId, amount) {
     if (!currentUser) {
         console.log('❌ User not authenticated, skipping candy addition');
@@ -340,9 +336,7 @@ async function addCandy(pokemonId, amount) {
     }
 }
 
-/**
- * Listens for messages from popup or content scripts.
- */
+// Handle messages from popup, content scripts, and other extension parts
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     if (request.type === 'AUTH_STATE_CHANGED') {
         console.log('🔐 Background: Received AUTH_STATE_CHANGED message');

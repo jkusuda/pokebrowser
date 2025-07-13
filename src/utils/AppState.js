@@ -1,15 +1,9 @@
-// AppState.js
-
-/**
- * Manages the application's state.
- */
+// Manages global application state across all extension contexts
 export class AppState {
     // Caches data to reduce redundant requests.
     static cache = new Map();
 
-    /**
-     * Initializes the application state.
-     */
+    // Initialize app state with default values
     constructor() {
         this.supabase = null;
         this.currentUser = null;
@@ -19,51 +13,33 @@ export class AppState {
         this.candyData = new Map(); // Map of pokemon_id -> candy_count
     }
 
-    /**
-     * Sets the Supabase client instance.
-     * @param {SupabaseClient} client - The Supabase client.
-     */
+    // Set Supabase database client
     setSupabase(client) {
         this.supabase = client;
     }
 
-    /**
-     * Sets the current user.
-     * @param {User} user - The current user.
-     */
+    // Set current authenticated user
     setUser(user) {
         console.log('Setting user:', user);
         this.currentUser = user;
     }
 
-    /**
-     * Sets the last synchronization hash.
-     * @param {string} hash - The last sync hash.
-     */
+    // Set last sync hash for change detection
     setLastSyncHash(hash) {
         this.lastSyncHash = hash;
     }
 
-    /**
-     * Sets the current Pokémon.
-     * @param {Object} pokemon - The current Pokémon.
-     */
+    // Set currently selected Pokemon
     setPokemon(pokemon) {
         this.currentPokemon = pokemon;
     }
 
-    /**
-     * Sets the Pokémon data.
-     * @param {Object} data - The Pokémon data.
-     */
+    // Set Pokemon API data
     setPokemonData(data) {
         this.pokemonData = data;
     }
 
-    /**
-     * Sets the synchronization timeout.
-     * @param {number} timeout - The timeout ID.
-     */
+    // Set sync timeout ID
     setSyncTimeout(timeout) {
         if (this.syncTimeout) {
             clearTimeout(this.syncTimeout);
@@ -71,9 +47,7 @@ export class AppState {
         this.syncTimeout = timeout;
     }
 
-    /**
-     * Clears the synchronization timeout.
-     */
+    // Clear sync timeout
     clearSyncTimeout() {
         if (this.syncTimeout) {
             clearTimeout(this.syncTimeout);
@@ -81,18 +55,12 @@ export class AppState {
         }
     }
 
-    /**
-     * Checks if a user is logged in.
-     * @returns {boolean} - True if a user is logged in, false otherwise.
-     */
+    // Check if user is authenticated
     isLoggedIn() {
         return !!this.currentUser;
     }
 
-    /**
-     * Checks if the application can perform a sync.
-     * @returns {boolean} - True if a sync is possible, false otherwise.
-     */
+    // Check if app can sync to cloud (user logged in, online, supabase ready)
     canSync() {
         const canSync = this.isLoggedIn() && this.supabase && navigator.onLine;
         
@@ -107,10 +75,7 @@ export class AppState {
         return canSync;
     }
 
-    /**
-     * Gets detailed authentication status for debugging.
-     * @returns {Object} - Detailed status information.
-     */
+    // Get detailed auth status for debugging
     getAuthStatus() {
         return {
             isLoggedIn: this.isLoggedIn(),
@@ -122,37 +87,24 @@ export class AppState {
         };
     }
 
-    /**
-     * Logs current authentication status for debugging.
-     */
+    // Log current auth status to console
     logAuthStatus() {
         const status = this.getAuthStatus();
         console.log('🔍 AppState Authentication Status:', status);
         return status;
     }
 
-    /**
-     * Sets the candy data.
-     * @param {Map} candyData - The candy data map.
-     */
+    // Set all candy data from server
     setCandyData(candyData) {
         this.candyData = candyData;
     }
 
-    /**
-     * Gets the candy count for a specific Pokémon.
-     * @param {number} pokemonId - The Pokémon ID.
-     * @returns {number} - The candy count (0 if none).
-     */
+    // Get candy count for specific Pokemon
     getCandyCount(pokemonId) {
         return this.candyData.get(pokemonId) || 0;
     }
 
-    /**
-     * Sets the candy count for a specific Pokémon.
-     * @param {number} pokemonId - The Pokémon ID.
-     * @param {number} count - The candy count.
-     */
+    // Set candy count for specific Pokemon
     setCandyCount(pokemonId, count) {
         if (count <= 0) {
             this.candyData.delete(pokemonId);
@@ -161,9 +113,7 @@ export class AppState {
         }
     }
 
-    /**
-     * Resets the application state.
-     */
+    // Reset all app state (used on logout)
     reset() {
         console.log('🔄 Resetting AppState...');
         this.currentUser = null;
@@ -181,10 +131,7 @@ export class AppState {
         console.log('✅ AppState reset complete');
     }
 
-    /**
-     * Retrieves the application cache.
-     * @returns {Map} - The application cache.
-     */
+    // Get static cache for API responses
     getCache() {
         return AppState.cache;
     }

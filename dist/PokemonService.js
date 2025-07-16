@@ -2,19 +2,12 @@ import { a as AuthDebugger, H as HistoryService, A as APIService, S as StorageSe
 import { C as CONFIG } from "./config.js";
 import { A as AppState, s as supabase } from "./supabase-client.js";
 class CandyService {
-  /**
-   * @param {AppState} appState - The application state.
-   */
   constructor(appState) {
     this.state = appState;
     this.maxRetries = 3;
     this.retryDelay = 1e3;
   }
-  /**
-   * Waits for authentication to be ready with retry logic.
-   * @param {number} maxWaitTime - Maximum time to wait in milliseconds.
-   * @returns {Promise<boolean>} - True if authenticated, false if timeout.
-   */
+  // Wait for user authentication with timeout
   async waitForAuthentication(maxWaitTime = 5e3) {
     const startTime = Date.now();
     while (Date.now() - startTime < maxWaitTime) {
@@ -32,10 +25,7 @@ class CandyService {
     console.log("⏰ Authentication wait timeout reached");
     return false;
   }
-  /**
-   * Retrieves all candy data for the current user.
-   * @returns {Promise<Map>} - A map of pokemon_id -> candy_count.
-   */
+  // Get all candy counts for user from database
   async getCandyForUser() {
     AuthDebugger.logAuthState("CandyService.getCandyForUser - Start", this.state);
     if (!this.state.canSync()) {
@@ -74,20 +64,13 @@ class CandyService {
       throw error;
     }
   }
-  /**
-   * Gets the candy count for a specific Pokémon from local state.
-   * @param {number} pokemonId - The Pokémon ID.
-   * @returns {number} - The candy count (0 if none).
-   */
+  // Get candy count for specific Pokemon from local state
   getCandyCount(pokemonId) {
     const count = this.state.getCandyCount(pokemonId);
     console.log(`🍬 Candy count for Pokemon ${pokemonId}: ${count}`);
     return count;
   }
-  /**
-   * Refreshes candy data from the database.
-   * @returns {Promise<Map>} - Updated candy map.
-   */
+  // Reload candy data from database
   async refreshCandyData() {
     console.log("🔄 Refreshing candy data from database");
     return await this.getCandyForUser();
@@ -302,9 +285,7 @@ class PokemonService {
     this.allPokemon = [];
     this.userCollection = [];
   }
-  /**
-   * Initialize all required services
-   */
+  // Set up dependent services and Supabase connection
   async initializeServices() {
     if (this.servicesInitialized) return;
     try {
@@ -332,9 +313,7 @@ class PokemonService {
       console.error("❌ Error initializing PokemonService:", error);
     }
   }
-  /**
-   * Load complete Pokedex data with user collection, candy, and history
-   */
+  // Load all Pokemon data with user collection, candy counts, and history
   async loadPokedex() {
     await this.initializeServices();
     const [allPokemon, userCollection] = await Promise.all([
@@ -399,9 +378,7 @@ class PokemonService {
     });
     return this.allPokemon;
   }
-  /**
-   * Get collection statistics
-   */
+  // Calculate user's collection statistics
   getStats() {
     const total = this.userCollection.length;
     const unique = new Set(this.userCollection.map((p) => p.id)).size;
@@ -409,9 +386,7 @@ class PokemonService {
     const completion = (everOwnedCount / 151 * 100).toFixed(1);
     return { total, unique, completion, everOwned: everOwnedCount };
   }
-  /**
-   * Filter and sort Pokemon data
-   */
+  // Filter Pokemon by search query and sort by specified criteria
   filterAndSort(query, sortBy) {
     let filtered = this.allPokemon;
     if (query) {
@@ -457,9 +432,7 @@ class PokemonService {
     }
     return filtered;
   }
-  /**
-   * Catch a Pokemon and add it to the collection
-   */
+  // Add Pokemon to user's collection (cloud or local storage)
   async catchPokemon(pokemon) {
     try {
       const caughtPokemon = {
@@ -521,9 +494,7 @@ class PokemonService {
       throw error;
     }
   }
-  /**
-   * Release a Pokemon from the collection
-   */
+  // Remove Pokemon from collection and award candy
   async releasePokemon(pokemonToRelease) {
     try {
       if (this.appState.canSync()) {
@@ -553,9 +524,7 @@ class PokemonService {
       throw error;
     }
   }
-  /**
-   * Open Pokemon detail window
-   */
+  // Open Pokemon detail popup window
   openPokemonDetail(pokemon) {
     const url = chrome.runtime.getURL("dist/src/pokemon-detail/index.html");
     const params = new URLSearchParams({
@@ -565,6 +534,9 @@ class PokemonService {
       site: pokemon.site,
       shiny: pokemon.shiny || false
     });
+    if (pokemon.supabaseId) {
+      params.set("supabaseId", pokemon.supabaseId);
+    }
     chrome.windows.create({
       url: `${url}?${params.toString()}`,
       type: "popup",
@@ -573,9 +545,7 @@ class PokemonService {
       focused: true
     });
   }
-  /**
-   * Refresh candy data for all Pokemon
-   */
+  // Update candy counts for all Pokemon from server
   async refreshCandyData() {
     if (!this.candyService) return this.allPokemon;
     try {
@@ -590,9 +560,7 @@ class PokemonService {
       return this.allPokemon;
     }
   }
-  /**
-   * Refresh history data for all Pokemon
-   */
+  // Update ownership history for all Pokemon from server
   async refreshHistoryData() {
     if (!this.historyService) return this.allPokemon;
     try {
@@ -607,9 +575,7 @@ class PokemonService {
       return this.allPokemon;
     }
   }
-  /**
-   * Refresh all data (candy and history) for all Pokemon
-   */
+  // Update both candy and history data for all Pokemon
   async refreshAllData() {
     try {
       await this.initializeServices();

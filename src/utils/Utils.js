@@ -11,13 +11,50 @@ export class Utils {
 
     static parseURLParams() {
         const urlParams = new URLSearchParams(window.location.search);
+        
+        // Decode the caughtAt parameter to handle URL encoding
+        let caughtAt = urlParams.get('caughtAt');
+        if (caughtAt) {
+            try {
+                // Handle URL-encoded timestamps
+                caughtAt = decodeURIComponent(caughtAt);
+                // Normalize timestamp for PostgreSQL compatibility
+                caughtAt = this.normalizeTimestamp(caughtAt);
+            } catch (error) {
+                console.warn('Error decoding caughtAt parameter:', error);
+            }
+        }
+        
         return {
             id: parseInt(urlParams.get('id')) || 25,
             name: urlParams.get('name'),
-            caughtAt: urlParams.get('caughtAt'),
+            caughtAt: caughtAt,
             site: urlParams.get('site'),
-            shiny: urlParams.get('shiny') === 'true'
+            shiny: urlParams.get('shiny') === 'true',
+            supabaseId: urlParams.get('supabaseId') // Include Supabase primary key if available
         };
+    }
+
+    // Normalize timestamp to PostgreSQL-compatible format
+    static normalizeTimestamp(timestamp) {
+        if (!timestamp) return timestamp;
+        
+        try {
+            // Parse the timestamp and convert to ISO string
+            const date = new Date(timestamp);
+            if (isNaN(date.getTime())) {
+                console.warn('Invalid timestamp:', timestamp);
+                return timestamp;
+            }
+            
+            // Return ISO string which PostgreSQL can handle
+            const normalized = date.toISOString();
+            console.log('🕐 Normalized timestamp:', { original: timestamp, normalized });
+            return normalized;
+        } catch (error) {
+            console.warn('Error normalizing timestamp:', error);
+            return timestamp;
+        }
     }
 
     // Formats a date string into a relative time format (e.g., "2 days ago").

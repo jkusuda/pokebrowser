@@ -4,27 +4,16 @@ import { P as PokemonService } from "../../PokemonService.js";
 import { U as Utils, S as StorageService } from "../../HistoryService.js";
 import { C as CONFIG } from "../../config.js";
 class SyncService {
-  /**
-   * @param {AppState} appState - The application state.
-   */
   constructor(appState2) {
     this.state = appState2;
     this.syncInProgress = false;
   }
-  /**
-   * Performs an immediate synchronization.
-   * @param {Array} collection - The Pokémon collection to sync.
-   * @returns {Promise<Object>} - The result of the sync operation.
-   */
+  // Sync collection to cloud immediately without delay
   async immediateSync(collection) {
     if (!this.state.canSync()) return;
     return await this.syncToCloud(collection);
   }
-  /**
-   * Synchronizes the local collection to the cloud.
-   * @param {Array} collection - The Pokémon collection to sync.
-   * @returns {Promise<Object>} - The result of the sync operation.
-   */
+  // Upload local Pokemon collection to Supabase database
   async syncToCloud(collection) {
     if (!this.state.canSync() || !collection.length) return;
     if (this.syncInProgress) return;
@@ -215,6 +204,8 @@ const PopupApp = ({ appState: appState2 }) => {
       if (error) throw error;
       setCollection(data.map((p) => ({
         id: p.pokemon_id,
+        supabaseId: p.id,
+        // Include Supabase primary key
         name: p.name,
         species: p.species,
         level: p.level,

@@ -1,16 +1,11 @@
 import { C as CONFIG } from "./config.js";
 import { s as supabase } from "./supabase-client.js";
 class AuthService {
-  /**
-   * @param {AppState} appState - The application state.
-   */
+  // Initialize auth service with app state
   constructor(appState) {
     this.state = appState;
   }
-  /**
-   * Initializes the Supabase client.
-   * @returns {Promise<SupabaseClient>}
-   */
+  // Set up Supabase client for authentication
   async initializeSupabase() {
     var _a;
     if (!CONFIG.SUPABASE_URL || !CONFIG.SUPABASE_ANON_KEY) {
@@ -26,10 +21,7 @@ class AuthService {
     this.state.setSupabase(client);
     return client;
   }
-  /**
-   * Initializes authentication and retrieves the current session.
-   * @returns {Promise<User|null>}
-   */
+  // Get current user session if exists
   async initializeAuth() {
     if (!this.state.supabase) return null;
     try {
@@ -45,10 +37,7 @@ class AuthService {
       throw error;
     }
   }
-  /**
-   * Opens the authentication popup.
-   * @returns {Promise<User|null>}
-   */
+  // Open auth popup and wait for completion
   openAuthPopup() {
     const popup = window.open(chrome.runtime.getURL("dist/src/auth/index.html"), "auth", "width=400,height=500");
     return new Promise((resolve) => {
@@ -61,10 +50,7 @@ class AuthService {
       }, CONFIG.AUTH_CHECK_INTERVAL);
     });
   }
-  /**
-   * Handles user logout.
-   * @returns {Promise<{success: boolean}>}
-   */
+  // Sign out user and reset app state
   async handleLogout() {
     try {
       console.log("🔄 Starting logout process...");
@@ -86,10 +72,7 @@ class AuthService {
       throw error;
     }
   }
-  /**
-   * Sets up a listener for authentication state changes.
-   * @param {Function} onAuthChange - The callback to execute on auth state change.
-   */
+  // Listen for auth state changes and notify background script
   setupAuthStateListener(onAuthChange) {
     if (!this.state.supabase) return;
     this.state.supabase.auth.onAuthStateChange(async (event, session) => {
@@ -113,9 +96,7 @@ class AuthService {
     });
     this.setupSessionRefresh();
   }
-  /**
-   * Sets up periodic session refresh to maintain authentication.
-   */
+  // Refresh session every 30 minutes to keep user logged in
   setupSessionRefresh() {
     if (!this.state.supabase) return;
     setInterval(async () => {
@@ -137,10 +118,7 @@ class AuthService {
       }
     }, 30 * 60 * 1e3);
   }
-  /**
-   * Manually refreshes the current session.
-   * @returns {Promise<User|null>}
-   */
+  // Manually refresh user session
   async refreshSession() {
     if (!this.state.supabase) return null;
     try {

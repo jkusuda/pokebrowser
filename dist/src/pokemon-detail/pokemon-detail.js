@@ -1,6 +1,6 @@
 import { j as jsxRuntimeExports, r as reactExports, A as AppState, c as client, R as React } from "../../supabase-client.js";
 import { T as TypeUtils } from "../../TypeUtils.js";
-import { S as StorageService, U as Utils, A as APIService } from "../../HistoryService.js";
+import { U as Utils, A as APIService } from "../../HistoryService.js";
 import { A as AuthService } from "../../AuthService.js";
 import { S as SecurityValidator, P as PokemonService, C as CandyService } from "../../PokemonService.js";
 import { E as EVOLUTION_DATA, C as CANDY_FAMILY_MAP, P as POKEMON_NAMES } from "../../evolution-data.js";
@@ -9,16 +9,12 @@ class EvolutionService {
   constructor(appState) {
     this.appState = appState;
   }
-  /**
-   * Check if a Pokemon can evolve
-   */
+  // Check if Pokemon has evolution available
   canEvolve(pokemonId) {
     const id = parseInt(pokemonId);
     return EVOLUTION_DATA.hasOwnProperty(id);
   }
-  /**
-   * Get evolution information for a Pokemon
-   */
+  // Get evolution details for Pokemon
   getEvolutionInfo(pokemonId) {
     const id = parseInt(pokemonId);
     const evolutionData = EVOLUTION_DATA[id];
@@ -30,24 +26,18 @@ class EvolutionService {
     }
     return evolutionData;
   }
-  /**
-   * Get the base candy ID for a Pokemon (what candy type it uses)
-   */
+  // Get which candy type Pokemon uses for evolution
   getBaseCandyId(pokemonId) {
     const id = parseInt(pokemonId);
     return CANDY_FAMILY_MAP[id] || id;
   }
-  /**
-   * Get the base candy name for a Pokemon
-   */
+  // Get display name for Pokemon's candy type
   getBaseCandyName(pokemonId) {
     const baseCandyId = this.getBaseCandyId(pokemonId);
     const pokemonName = POKEMON_NAMES[baseCandyId];
     return pokemonName ? `${pokemonName}` : "Unknown";
   }
-  /**
-   * Validate evolution requirements using base candy
-   */
+  // Check if user has enough candy to evolve Pokemon
   validateEvolutionWithBaseCandy(pokemonId, currentCandy) {
     const evolutionInfo = this.getEvolutionInfo(pokemonId);
     if (!evolutionInfo) {
@@ -62,12 +52,10 @@ class EvolutionService {
     }
     return { success: true };
   }
-  /**
-   * Evolve a Pokemon
-   */
+  // Transform Pokemon into its evolved form
   async evolvePokemon(pokemon, currentCandy) {
     try {
-      const pokemonId = parseInt(pokemon.id || pokemon.pokemon_id);
+      const pokemonId = parseInt(pokemon.pokemon_id);
       const evolutionInfo = this.getEvolutionInfo(pokemonId);
       if (!evolutionInfo) {
         throw new Error("This Pokemon cannot evolve!");
@@ -86,41 +74,32 @@ class EvolutionService {
       }
       const evolvedPokemon = {
         ...pokemon,
-        id: evolutionInfo.evolvesTo,
         pokemon_id: evolutionInfo.evolvesTo,
         name: evolutionInfo.name.toLowerCase(),
-        evolvedAt: (/* @__PURE__ */ new Date()).toISOString(),
-        evolvedFrom: pokemonId
+        evolved_at: (/* @__PURE__ */ new Date()).toISOString(),
+        evolved_from: pokemonId
       };
-      const collection = await StorageService.getPokemonCollection();
-      const pokemonIndex = collection.findIndex(
-        (p) => p.id.toString() === pokemon.id.toString() && p.caughtAt === pokemon.caughtAt && p.site === pokemon.site
-      );
-      if (pokemonIndex === -1) {
-        throw new Error("Pokemon not found in collection");
+      if (!this.appState.canSync()) {
+        throw new Error("You must be logged in to evolve Pokemon!");
       }
-      collection[pokemonIndex] = evolvedPokemon;
-      await chrome.storage.local.set({ pokemonCollection: collection });
-      if (this.appState.canSync()) {
-        try {
-          await this.appState.supabase.from("pokemon").eq("user_id", this.appState.currentUser.id).eq("pokemon_id", pokemonId).eq("site_caught", pokemon.site).eq("caught_at", pokemon.caughtAt).delete();
-          const { error } = await this.appState.supabase.from("pokemon").insert({
-            user_id: this.appState.currentUser.id,
-            pokemon_id: evolvedPokemon.id,
-            name: evolvedPokemon.name,
-            site_caught: evolvedPokemon.site,
-            caught_at: evolvedPokemon.caughtAt,
-            is_shiny: evolvedPokemon.shiny || false,
-            evolved_at: evolvedPokemon.evolvedAt,
-            evolved_from: evolvedPokemon.evolvedFrom
-          });
-          if (error) {
-            console.warn("Error updating cloud storage after evolution:", error);
-          }
-        } catch (cloudError) {
-          console.warn("Error with cloud sync during evolution:", cloudError);
-        }
+      if (!pokemon.id) {
+        throw new Error("Invalid Pokemon object: missing primary key (id)");
       }
+      if (!pokemon.user_id || pokemon.user_id !== this.appState.currentUser.id) {
+        throw new Error("Pokemon does not belong to the current user");
+      }
+      console.log("✅ Evolving Pokemon from Supabase:", pokemon);
+      const { error: updateError } = await this.appState.supabase.from("pokemon").update({
+        pokemon_id: evolvedPokemon.pokemon_id,
+        name: evolvedPokemon.name,
+        evolved_at: evolvedPokemon.evolved_at,
+        evolved_from: evolvedPokemon.evolved_from
+      }).eq("id", pokemon.id);
+      if (updateError) {
+        console.error("❌ Error updating Pokemon in Supabase:", updateError);
+        throw new Error("Failed to update Pokemon in database");
+      }
+      console.log("✅ Pokemon successfully evolved in Supabase");
       if (chrome.runtime && chrome.runtime.sendMessage) {
         try {
           const response = await chrome.runtime.sendMessage({
@@ -373,13 +352,34 @@ const PokemonDetailApp = () => {
       setViewState("loading");
       await initializeAuth();
       const params = Utils.parseURLParams();
-      const collection = await StorageService.getPokemonCollection();
-      const foundPokemon = collection.find(
-        (p) => p.id.toString() === params.id.toString() && p.caughtAt === params.caughtAt && p.site === params.site
-      ) || params;
-      setPokemon(foundPokemon);
-      services.state.setPokemon(foundPokemon);
-      await fetchApiData(foundPokemon.id);
+      console.log("🔍 Loading Pokemon with params:", {
+        id: params.id,
+        caughtAt: params.caughtAt,
+        site: params.site,
+        userLoggedIn: !!services.state.currentUser
+      });
+      if (!params.supabaseId) {
+        throw new Error("No Supabase ID found in URL. Cannot load Pokémon.");
+      }
+      if (!services.state.currentUser) {
+        throw new Error("You must be logged in to view Pokémon details.");
+      }
+      const { data: fetchedPokemon, error } = await services.state.supabase.from("pokemon").select("*").eq("id", params.supabaseId).single();
+      if (error || !fetchedPokemon) {
+        console.error("❌ Could not find Pokémon in Supabase:", error);
+        throw new Error("Could not find the specified Pokémon.");
+      }
+      if (fetchedPokemon.user_id !== services.state.currentUser.id) {
+        console.error("❌ Pokémon belongs to different user:", {
+          pokemonUserId: fetchedPokemon.user_id,
+          currentUserId: services.state.currentUser.id
+        });
+        throw new Error("You don't have permission to view this Pokémon.");
+      }
+      console.log("📝 Using Pokemon data from Supabase for display:", fetchedPokemon);
+      setPokemon(fetchedPokemon);
+      services.state.setPokemon(fetchedPokemon);
+      await fetchApiData(fetchedPokemon.pokemon_id);
       setViewState("details");
     } catch (error) {
       console.error("Error initializing Pokemon detail:", error);
@@ -432,12 +432,19 @@ const PokemonDetailApp = () => {
       const currentEvolutionInfo = pokemonCanEvolve ? services.evolution.getEvolutionInfo(pokemonId) : null;
       setCanEvolve(pokemonCanEvolve);
       setEvolutionInfo(currentEvolutionInfo);
+      console.log("🔧 Evolution status:", {
+        pokemonId,
+        userLoggedIn: !!services.state.currentUser,
+        pokemonCanEvolve,
+        hasEvolutionInfo: !!currentEvolutionInfo,
+        candyCount: currentCandyCount
+      });
     } catch (error) {
       console.error("Error fetching API data:", error);
     }
   };
   const handleEvolution = async () => {
-    const pokemonId = parseInt(pokemon.id || pokemon.pokemon_id);
+    const pokemonId = parseInt(pokemon.pokemon_id);
     if (!services.candy) {
       alert("You must be logged in to evolve Pokemon!");
       return;
@@ -479,25 +486,25 @@ This will cost ${currentEvolutionInfo.candyCost} candy and cannot be undone.`;
       setPokemon(result.evolvedPokemon);
       services.state.setPokemon(result.evolvedPokemon);
       const cache = services.state.getCache();
-      const evolvedPokemonData = await APIService.fetchPokemonData(result.evolvedPokemon.id, cache);
+      const evolvedPokemonData = await APIService.fetchPokemonData(result.evolvedPokemon.pokemon_id, cache);
       setPokemonData(evolvedPokemonData);
       services.state.setPokemonData(evolvedPokemonData);
       console.log("⏳ Waiting for candy deduction to process...");
       await new Promise((resolve) => setTimeout(resolve, 1500));
       console.log("🔄 Refreshing candy data after evolution...");
       const newCandyData = await services.candy.refreshCandyData();
-      const newBaseCandyId = services.evolution.getBaseCandyId(result.evolvedPokemon.id);
+      const newBaseCandyId = services.evolution.getBaseCandyId(result.evolvedPokemon.pokemon_id);
       const newCandyCount = newCandyData.get(newBaseCandyId) || 0;
-      const newBaseCandyName = services.evolution.getBaseCandyName(result.evolvedPokemon.id);
+      const newBaseCandyName = services.evolution.getBaseCandyName(result.evolvedPokemon.pokemon_id);
       setCandyCount(newCandyCount);
       setBaseCandyName(newBaseCandyName);
-      const newCanEvolve = services.evolution.canEvolve(result.evolvedPokemon.id);
-      const newEvolutionInfo = newCanEvolve ? services.evolution.getEvolutionInfo(result.evolvedPokemon.id) : null;
+      const newCanEvolve = services.evolution.canEvolve(result.evolvedPokemon.pokemon_id);
+      const newEvolutionInfo = newCanEvolve ? services.evolution.getEvolutionInfo(result.evolvedPokemon.pokemon_id) : null;
       setCanEvolve(newCanEvolve);
       setEvolutionInfo(newEvolutionInfo);
       console.log(`✅ UI updated with new candy count: ${newCandyCount} ${newBaseCandyName} candy`);
       try {
-        const evolvedSpeciesData = await APIService.fetchSpeciesData(result.evolvedPokemon.id, cache);
+        const evolvedSpeciesData = await APIService.fetchSpeciesData(result.evolvedPokemon.pokemon_id, cache);
         setSpeciesData(evolvedSpeciesData);
       } catch (speciesError) {
         console.warn("Could not fetch evolved Pokemon species data:", speciesError);

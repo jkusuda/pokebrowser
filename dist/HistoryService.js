@@ -8,13 +8,41 @@ class Utils {
   }
   static parseURLParams() {
     const urlParams = new URLSearchParams(window.location.search);
+    let caughtAt = urlParams.get("caughtAt");
+    if (caughtAt) {
+      try {
+        caughtAt = decodeURIComponent(caughtAt);
+        caughtAt = this.normalizeTimestamp(caughtAt);
+      } catch (error) {
+        console.warn("Error decoding caughtAt parameter:", error);
+      }
+    }
     return {
       id: parseInt(urlParams.get("id")) || 25,
       name: urlParams.get("name"),
-      caughtAt: urlParams.get("caughtAt"),
+      caughtAt,
       site: urlParams.get("site"),
-      shiny: urlParams.get("shiny") === "true"
+      shiny: urlParams.get("shiny") === "true",
+      supabaseId: urlParams.get("supabaseId")
+      // Include Supabase primary key if available
     };
+  }
+  // Normalize timestamp to PostgreSQL-compatible format
+  static normalizeTimestamp(timestamp) {
+    if (!timestamp) return timestamp;
+    try {
+      const date = new Date(timestamp);
+      if (isNaN(date.getTime())) {
+        console.warn("Invalid timestamp:", timestamp);
+        return timestamp;
+      }
+      const normalized = date.toISOString();
+      console.log("🕐 Normalized timestamp:", { original: timestamp, normalized });
+      return normalized;
+    } catch (error) {
+      console.warn("Error normalizing timestamp:", error);
+      return timestamp;
+    }
   }
   // Formats a date string into a relative time format (e.g., "2 days ago").
   static formatDate(dateString) {
@@ -43,26 +71,16 @@ class Utils {
   }
 }
 class StorageService {
-  /**
-   * Retrieves the Pokémon collection from local storage.
-   * @returns {Promise<Array>} - The Pokémon collection.
-   */
+  // Get user's Pokemon collection from local storage
   static async getPokemonCollection() {
     const { pokemonCollection = [] } = await chrome.storage.local.get(["pokemonCollection"]);
     return pokemonCollection;
   }
-  /**
-   * Saves the Pokémon collection to local storage.
-   * @param {Array} collection - The Pokémon collection to save.
-   */
+  // Save Pokemon collection to local storage
   static async setPokemonCollection(collection) {
     await chrome.storage.local.set({ pokemonCollection: collection });
   }
-  /**
-   * Removes a Pokémon from the collection in local storage.
-   * @param {Object} pokemonToRemove - The Pokémon to remove.
-   * @returns {Promise<boolean>} - True if a Pokémon was removed, false otherwise.
-   */
+  // Remove specific Pokemon from local collection
   static async removePokemonFromCollection(pokemonToRemove) {
     const collection = await this.getPokemonCollection();
     const initialLength = collection.length;
@@ -72,26 +90,16 @@ class StorageService {
     await this.setPokemonCollection(updatedCollection);
     return updatedCollection.length < initialLength;
   }
-  /**
-   * Retrieves the Pokémon history from local storage.
-   * @returns {Promise<Array>} - Array of Pokemon IDs that were ever caught.
-   */
+  // Get Pokemon ownership history from local storage
   static async getPokemonHistory() {
     const { pokemonHistory = [] } = await chrome.storage.local.get(["pokemonHistory"]);
     return pokemonHistory;
   }
-  /**
-   * Saves the Pokémon history to local storage.
-   * @param {Array} history - Array of Pokemon IDs to save.
-   */
+  // Save Pokemon history to local storage
   static async setPokemonHistory(history) {
     await chrome.storage.local.set({ pokemonHistory: history });
   }
-  /**
-   * Adds a Pokemon ID to the history in local storage.
-   * @param {number} pokemonId - The Pokemon ID to add to history.
-   * @returns {Promise<boolean>} - True if Pokemon was added, false if already existed.
-   */
+  // Add Pokemon ID to ownership history
   static async addToHistory(pokemonId) {
     const history = await this.getPokemonHistory();
     if (history.includes(pokemonId)) {
@@ -103,6 +111,7 @@ class StorageService {
   }
 }
 class APIService {
+  // Get list of all Pokemon from PokeAPI
   static async fetchAllPokemon(limit = 151) {
     try {
       const response = await fetch(`${CONFIG.POKEAPI_BASE_URL}?limit=${limit}`);
@@ -120,12 +129,7 @@ class APIService {
       throw error;
     }
   }
-  /**
-   * Fetches Pokémon data from the PokéAPI.
-   * @param {number} pokemonId - The ID of the Pokémon to fetch.
-   * @param {Map} cache - The cache to store and retrieve data from.
-   * @returns {Promise<Object>} - The Pokémon data.
-   */
+  // Get detailed Pokemon data from PokeAPI with caching
   static async fetchPokemonData(pokemonId, cache) {
     const cacheKey = `pokemon_${pokemonId}`;
     if (cache.has(cacheKey)) {
@@ -144,6 +148,7 @@ class APIService {
       throw error;
     }
   }
+  // Get Pokemon species data from PokeAPI with caching
   static async fetchSpeciesData(pokemonId, cache) {
     const cacheKey = `species_${pokemonId}`;
     if (cache.has(cacheKey)) {
@@ -239,19 +244,12 @@ class AuthDebugger {
   }
 }
 class HistoryService {
-  /**
-   * @param {AppState} appState - The application state.
-   */
   constructor(appState) {
     this.state = appState;
     this.maxRetries = 3;
     this.retryDelay = 1e3;
   }
-  /**
-   * Waits for authentication to be ready with retry logic.
-   * @param {number} maxWaitTime - Maximum time to wait in milliseconds.
-   * @returns {Promise<boolean>} - True if authenticated, false if timeout.
-   */
+  // Wait for user authentication with timeout
   async waitForAuthentication(maxWaitTime = 5e3) {
     const startTime = Date.now();
     while (Date.now() - startTime < maxWaitTime) {
@@ -269,10 +267,7 @@ class HistoryService {
     console.log("⏰ Authentication wait timeout reached");
     return false;
   }
-  /**
-   * Retrieves all Pokemon history for the current user from Supabase.
-   * @returns {Promise<Set>} - A set of Pokemon IDs that were ever caught.
-   */
+  // Get all Pokemon IDs that user has ever caught
   async getHistoryForUser() {
     AuthDebugger.logAuthState("HistoryService.getHistoryForUser - Start", this.state);
     if (!this.state.canSync()) {
@@ -313,11 +308,7 @@ class HistoryService {
       return await this.getLocalHistory();
     }
   }
-  /**
-   * Check if a Pokemon was ever caught by the user
-   * @param {number} pokemonId - The Pokemon ID to check
-   * @returns {Promise<boolean>} - True if ever caught, false otherwise
-   */
+  // Check if user has ever caught this Pokemon
   async hasEverCaught(pokemonId) {
     try {
       const historySet = await this.getHistoryForUser();
@@ -327,11 +318,7 @@ class HistoryService {
       return false;
     }
   }
-  /**
-   * Get the first caught data for a specific Pokemon
-   * @param {number} pokemonId - The Pokemon ID to get data for
-   * @returns {Promise<Object|null>} - The history record or null if not found
-   */
+  // Get when Pokemon was first caught by user
   async getFirstCaughtData(pokemonId) {
     if (!this.state.isLoggedIn() || !this.state.supabase) {
       console.log("❌ Not authenticated, cannot fetch first caught data");
@@ -363,11 +350,7 @@ class HistoryService {
       return null;
     }
   }
-  /**
-   * Adds a Pokemon to the user's history both locally and in Supabase.
-   * @param {number} pokemonId - The Pokemon ID to add to history.
-   * @returns {Promise<boolean>} - True if successfully added.
-   */
+  // Add Pokemon to user's ownership history
   async addToHistory(pokemonId) {
     try {
       console.log(`📚 Adding Pokemon ${pokemonId} to history`);
@@ -398,11 +381,7 @@ class HistoryService {
       return false;
     }
   }
-  /**
-   * Syncs local Pokemon history to Supabase.
-   * Called when user authenticates or comes online.
-   * @returns {Promise<boolean>} - True if sync successful.
-   */
+  // Upload local history to cloud when user logs in
   async syncLocalHistory() {
     if (!this.state.canSync()) {
       console.log("❌ Cannot sync history - not authenticated");
@@ -445,10 +424,7 @@ class HistoryService {
       return false;
     }
   }
-  /**
-   * Gets local Pokemon history as a fallback.
-   * @returns {Promise<Set>} - A set of Pokemon IDs from local storage.
-   */
+  // Get Pokemon history from local storage only
   async getLocalHistory() {
     try {
       const localHistory = await StorageService.getPokemonHistory();
@@ -458,10 +434,7 @@ class HistoryService {
       return /* @__PURE__ */ new Set();
     }
   }
-  /**
-   * Gets the count of unique Pokemon ever caught.
-   * @returns {Promise<number>} - Count of unique Pokemon in history.
-   */
+  // Count how many unique Pokemon user has ever caught
   async getHistoryCount() {
     try {
       const history = await this.getHistoryForUser();
@@ -471,11 +444,7 @@ class HistoryService {
       return 0;
     }
   }
-  /**
-   * Checks if a Pokemon has ever been caught.
-   * @param {number} pokemonId - The Pokemon ID to check.
-   * @returns {Promise<boolean>} - True if Pokemon was ever caught.
-   */
+  // Check if Pokemon exists in user's history (duplicate method)
   async hasEverCaught(pokemonId) {
     try {
       const history = await this.getHistoryForUser();

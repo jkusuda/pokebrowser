@@ -1,6 +1,7 @@
 import { EVOLUTION_DATA, CANDY_FAMILY_MAP, POKEMON_NAMES } from '../shared/evolution-data.js';
 import { StorageService } from './StorageService.js';
 import { SecurityValidator } from '../utils/SecurityValidator.js';
+import { Utils } from '../utils/Utils.js';
 
 // Handles Pokemon evolution logic and candy requirements
 export class EvolutionService {
@@ -68,7 +69,7 @@ export class EvolutionService {
     // Transform Pokemon into its evolved form
     async evolvePokemon(pokemon, currentCandy) {
         try {
-            const pokemonId = parseInt(pokemon.id || pokemon.pokemon_id);
+            const pokemonId = parseInt(pokemon.pokemon_id);
             const evolutionInfo = this.getEvolutionInfo(pokemonId);
             
             if (!evolutionInfo) {
@@ -95,63 +96,45 @@ export class EvolutionService {
             // Create evolved Pokemon
             const evolvedPokemon = {
                 ...pokemon,
-                id: evolutionInfo.evolvesTo,
                 pokemon_id: evolutionInfo.evolvesTo,
                 name: evolutionInfo.name.toLowerCase(),
-                evolvedAt: new Date().toISOString(),
-                evolvedFrom: pokemonId
+                evolved_at: new Date().toISOString(),
+                evolved_from: pokemonId
             };
 
-            // Update in storage
-            const collection = await StorageService.getPokemonCollection();
-            const pokemonIndex = collection.findIndex(p =>
-                p.id.toString() === pokemon.id.toString() &&
-                p.caughtAt === pokemon.caughtAt &&
-                p.site === pokemon.site
-            );
-
-            if (pokemonIndex === -1) {
-                throw new Error('Pokemon not found in collection');
+            // Check if user is logged in - evolution requires authentication
+            if (!this.appState.canSync()) {
+                throw new Error('You must be logged in to evolve Pokemon!');
             }
 
-            // Replace the old Pokemon with the evolved one
-            collection[pokemonIndex] = evolvedPokemon;
-            await chrome.storage.local.set({ pokemonCollection: collection });
-
-            // Update cloud storage if syncing is available
-            if (this.appState.canSync()) {
-                try {
-                    // Delete old Pokemon from cloud
-                    await this.appState.supabase
-                        .from('pokemon')
-                        .eq('user_id', this.appState.currentUser.id)
-                        .eq('pokemon_id', pokemonId)
-                        .eq('site_caught', pokemon.site)
-                        .eq('caught_at', pokemon.caughtAt)
-                        .delete();
-
-                    // Add evolved Pokemon to cloud
-                    const { error } = await this.appState.supabase
-                        .from('pokemon')
-                        .insert({
-                            user_id: this.appState.currentUser.id,
-                            pokemon_id: evolvedPokemon.id,
-                            name: evolvedPokemon.name,
-                            site_caught: evolvedPokemon.site,
-                            caught_at: evolvedPokemon.caughtAt,
-                            is_shiny: evolvedPokemon.shiny || false,
-                            evolved_at: evolvedPokemon.evolvedAt,
-                            evolved_from: evolvedPokemon.evolvedFrom
-                        });
-
-                    if (error) {
-                        console.warn('Error updating cloud storage after evolution:', error);
-                    }
-                } catch (cloudError) {
-                    console.warn('Error with cloud sync during evolution:', cloudError);
-                    // Don't fail the evolution if cloud sync fails
-                }
+            // Validate that we have a valid Pokemon object with required fields
+            if (!pokemon.id) {
+                throw new Error('Invalid Pokemon object: missing primary key (id)');
             }
+
+            if (!pokemon.user_id || pokemon.user_id !== this.appState.currentUser.id) {
+                throw new Error('Pokemon does not belong to the current user');
+            }
+
+            console.log('✅ Evolving Pokemon from Supabase:', pokemon);
+
+            // Update Pokemon in Supabase database using primary key (much more reliable)
+            const { error: updateError } = await this.appState.supabase
+                .from('pokemon')
+                .update({
+                    pokemon_id: evolvedPokemon.pokemon_id,
+                    name: evolvedPokemon.name,
+                    evolved_at: evolvedPokemon.evolved_at,
+                    evolved_from: evolvedPokemon.evolved_from
+                })
+                .eq('id', pokemon.id); // Use the primary key from the pokemon object
+
+            if (updateError) {
+                console.error('❌ Error updating Pokemon in Supabase:', updateError);
+                throw new Error('Failed to update Pokemon in database');
+            }
+
+            console.log('✅ Pokemon successfully evolved in Supabase');
 
             // Send message to background script for candy deduction
             if (chrome.runtime && chrome.runtime.sendMessage) {

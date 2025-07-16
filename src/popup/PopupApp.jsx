@@ -60,6 +60,7 @@ const PopupApp = ({ appState }) => {
       if (error) throw error;
       setCollection(data.map(p => ({
         id: p.pokemon_id,
+        supabaseId: p.id, // Include Supabase primary key
         name: p.name,
         species: p.species,
         level: p.level,

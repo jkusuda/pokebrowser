@@ -349,6 +349,11 @@ export class PokemonService {
             shiny: pokemon.shiny || false
         });
 
+        // Include Supabase ID if available (for logged-in users)
+        if (pokemon.supabaseId) {
+            params.set('supabaseId', pokemon.supabaseId);
+        }
+
         chrome.windows.create({
             url: `${url}?${params.toString()}`,
             type: 'popup',

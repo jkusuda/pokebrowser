@@ -45,20 +45,51 @@ const PokemonDetailApp = () => {
       // Initialize authentication
       await initializeAuth();
       
-      // Get Pokemon from URL params and storage
+      // Get Pokemon from URL params - always use these for display
       const params = Utils.parseURLParams();
-      const collection = await StorageService.getPokemonCollection();
-      const foundPokemon = collection.find(p =>
-        p.id.toString() === params.id.toString() &&
-        p.caughtAt === params.caughtAt &&
-        p.site === params.site
-      ) || params;
+      
+      console.log('🔍 Loading Pokemon with params:', {
+        id: params.id,
+        caughtAt: params.caughtAt,
+        site: params.site,
+        userLoggedIn: !!services.state.currentUser
+      });
+      
+      if (!params.supabaseId) {
+        throw new Error("No Supabase ID found in URL. Cannot load Pokémon.");
+      }
 
-      setPokemon(foundPokemon);
-      services.state.setPokemon(foundPokemon);
+      // Check if user is logged in before trying to fetch from Supabase
+      if (!services.state.currentUser) {
+        throw new Error("You must be logged in to view Pokémon details.");
+      }
+
+      const { data: fetchedPokemon, error } = await services.state.supabase
+        .from('pokemon')
+        .select('*')
+        .eq('id', params.supabaseId)
+        .single();
+
+      if (error || !fetchedPokemon) {
+        console.error('❌ Could not find Pokémon in Supabase:', error);
+        throw new Error("Could not find the specified Pokémon.");
+      }
+
+      // Verify ownership after fetching (security check)
+      if (fetchedPokemon.user_id !== services.state.currentUser.id) {
+        console.error('❌ Pokémon belongs to different user:', {
+          pokemonUserId: fetchedPokemon.user_id,
+          currentUserId: services.state.currentUser.id
+        });
+        throw new Error("You don't have permission to view this Pokémon.");
+      }
+      
+      console.log('📝 Using Pokemon data from Supabase for display:', fetchedPokemon);
+      setPokemon(fetchedPokemon);
+      services.state.setPokemon(fetchedPokemon);
 
       // Fetch API data
-      await fetchApiData(foundPokemon.id);
+      await fetchApiData(fetchedPokemon.pokemon_id);
       
       setViewState('details');
     } catch (error) {
@@ -118,12 +149,20 @@ const PokemonDetailApp = () => {
       setCandyCount(currentCandyCount);
       setBaseCandyName(currentBaseCandyName);
       
-      // Check evolution availability
+      // Check evolution availability - show evolution UI regardless of login status
       const pokemonCanEvolve = services.evolution.canEvolve(pokemonId);
       const currentEvolutionInfo = pokemonCanEvolve ? services.evolution.getEvolutionInfo(pokemonId) : null;
       
       setCanEvolve(pokemonCanEvolve);
       setEvolutionInfo(currentEvolutionInfo);
+      
+      console.log('🔧 Evolution status:', {
+        pokemonId,
+        userLoggedIn: !!services.state.currentUser,
+        pokemonCanEvolve,
+        hasEvolutionInfo: !!currentEvolutionInfo,
+        candyCount: currentCandyCount
+      });
       
     } catch (error) {
       console.error('Error fetching API data:', error);
@@ -132,7 +171,7 @@ const PokemonDetailApp = () => {
   };
 
   const handleEvolution = async () => {
-    const pokemonId = parseInt(pokemon.id || pokemon.pokemon_id);
+    const pokemonId = parseInt(pokemon.pokemon_id);
     
     // Check if user is authenticated
     if (!services.candy) {
@@ -191,7 +230,7 @@ const PokemonDetailApp = () => {
 
       // Fetch new API data for evolved Pokemon
       const cache = services.state.getCache();
-      const evolvedPokemonData = await APIService.fetchPokemonData(result.evolvedPokemon.id, cache);
+      const evolvedPokemonData = await APIService.fetchPokemonData(result.evolvedPokemon.pokemon_id, cache);
       setPokemonData(evolvedPokemonData);
       services.state.setPokemonData(evolvedPokemonData);
 
@@ -201,15 +240,15 @@ const PokemonDetailApp = () => {
       
       console.log('🔄 Refreshing candy data after evolution...');
       const newCandyData = await services.candy.refreshCandyData();
-      const newBaseCandyId = services.evolution.getBaseCandyId(result.evolvedPokemon.id);
+      const newBaseCandyId = services.evolution.getBaseCandyId(result.evolvedPokemon.pokemon_id);
       const newCandyCount = newCandyData.get(newBaseCandyId) || 0;
-      const newBaseCandyName = services.evolution.getBaseCandyName(result.evolvedPokemon.id);
+      const newBaseCandyName = services.evolution.getBaseCandyName(result.evolvedPokemon.pokemon_id);
       
       setCandyCount(newCandyCount);
       setBaseCandyName(newBaseCandyName);
       
-      const newCanEvolve = services.evolution.canEvolve(result.evolvedPokemon.id);
-      const newEvolutionInfo = newCanEvolve ? services.evolution.getEvolutionInfo(result.evolvedPokemon.id) : null;
+      const newCanEvolve = services.evolution.canEvolve(result.evolvedPokemon.pokemon_id);
+      const newEvolutionInfo = newCanEvolve ? services.evolution.getEvolutionInfo(result.evolvedPokemon.pokemon_id) : null;
       
       setCanEvolve(newCanEvolve);
       setEvolutionInfo(newEvolutionInfo);
@@ -218,7 +257,7 @@ const PokemonDetailApp = () => {
 
       // Fetch and update species data for evolved Pokemon
       try {
-        const evolvedSpeciesData = await APIService.fetchSpeciesData(result.evolvedPokemon.id, cache);
+        const evolvedSpeciesData = await APIService.fetchSpeciesData(result.evolvedPokemon.pokemon_id, cache);
         setSpeciesData(evolvedSpeciesData);
       } catch (speciesError) {
         console.warn('Could not fetch evolved Pokemon species data:', speciesError);

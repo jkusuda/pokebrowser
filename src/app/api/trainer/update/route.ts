@@ -15,8 +15,26 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { trainerName, avatarId } = body;
 
-    if (!trainerName || !avatarId) {
-       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    if (
+      typeof trainerName !== "string" ||
+      trainerName.length < 1 ||
+      trainerName.length > 24
+    ) {
+      return NextResponse.json(
+        { error: "trainerName must be a string between 1 and 24 characters" },
+        { status: 400 }
+      );
+    }
+
+    if (
+      typeof avatarId !== "string" ||
+      avatarId.length < 1 ||
+      avatarId.length > 8
+    ) {
+      return NextResponse.json(
+        { error: "avatarId must be a string between 1 and 8 characters" },
+        { status: 400 }
+      );
     }
 
     await updateTrainerProfile(supabase, user.id, { trainerName, avatarId });
@@ -25,7 +43,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error("Trainer update API error:", error);
     return NextResponse.json(
-      { error: error?.message || "Internal server error" },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

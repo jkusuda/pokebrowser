@@ -1,29 +1,11 @@
-// --- Authentication Relay ---
-// Listens for postMessage events from the main web application and relays session tokens
-// to the extension's background script to keep them synchronized.
-window.addEventListener("message", (event) => {
-  if (event.source !== window) return;
+// Auth relay lives in auth-bridge.ts, which is registered as a separate
+// content script scoped to the Pokebrowser origin only.
+//
+// Wrapped in an IIFE — content scripts share the same isolated-world global
+// scope per-extension, so top-level `var`s would collide with auth-bridge.ts
+// after minification.
 
-  try {
-    if (event.data?.type === "POKEBROWSE_AUTH_SUCCESS") {
-      const { access_token, refresh_token } = event.data.payload ?? {};
-      if (access_token && refresh_token) {
-        chrome.runtime.sendMessage({
-          type: "POKEBROWSE_AUTH_TOKENS",
-          payload: { access_token, refresh_token },
-        });
-      }
-    }
-
-    if (event.data?.type === "POKEBROWSE_AUTH_SIGNOUT") {
-      chrome.runtime.sendMessage({ type: "POKEBROWSE_AUTH_SIGNOUT" });
-    }
-  } catch (e) {
-    // Debug hint: If tokens aren't sinking, the extension may have updated or reloaded recently.
-    console.debug("Pokebrowser: Extension context invalidated. Please reload the page.");
-  }
-});
-
+(() => {
 // --- Encounter Config ---
 const ENCOUNTER_CHANCE = 1.0;
 const SPRITE_BASE =
@@ -320,8 +302,7 @@ function getPopupCSS(grassUrl: string, pokeballUrl: string) {
 
 // Encounter UI Logic
 function showEncounterPopup(
-  encounter: { pokedexNumber: number; isShiny: boolean; name: string },
-  userId: string,
+  encounter: { pokedexNumber: number; isShiny: boolean; name: string; nonce: string },
   boxIsFull: boolean
 ) {
   if (document.getElementById("pokebrowse-encounter")) return;
@@ -404,10 +385,7 @@ function showEncounterPopup(
             {
               type: "PERFORM_CATCH",
               payload: {
-                userId,
-                pokedexNumber: encounter.pokedexNumber,
-                isShiny: encounter.isShiny,
-                name: encounter.name,
+                encounterNonce: encounter.nonce,
                 caughtOn: window.location.hostname,
               },
             },
@@ -449,7 +427,7 @@ async function tryEncounter() {
     if (!session?.loggedIn || !session.encounter) return;
 
     setTimeout(() => {
-      showEncounterPopup(session.encounter, session.userId, !!session.boxIsFull);
+      showEncounterPopup(session.encounter, !!session.boxIsFull);
     }, 1500);
   } catch (e) {
     console.debug("Pokebrowser: Extension context invalidated.");
@@ -459,3 +437,4 @@ async function tryEncounter() {
 if (!window.location.href.startsWith("http://localhost:3000")) {
   tryEncounter();
 }
+})();

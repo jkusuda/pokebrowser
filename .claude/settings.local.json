@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls C:\\\\Users\\\\kusud\\\\Documents\\\\GitHub\\\\pb-remastered\\\\src *)",
+      "mcp__claude_ai_Supabase__apply_migration"
+    ]
+  }
+}

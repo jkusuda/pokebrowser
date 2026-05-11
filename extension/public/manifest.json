@@ -19,6 +19,12 @@
             "run_at": "document_idle"
         }
     ],
+    "externally_connectable": {
+        "matches": [
+            "http://localhost:3000/*",
+            "https://pokebrowser.app/*"
+        ]
+    },
     "action": {
         "default_popup": "popup.html"
     },

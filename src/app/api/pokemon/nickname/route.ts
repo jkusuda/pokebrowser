@@ -15,8 +15,16 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { pokemonId, nickname } = body;
 
-    if (!pokemonId || typeof nickname !== "string") {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (typeof pokemonId !== "string" || !UUID_RE.test(pokemonId)) {
+      return NextResponse.json({ error: "pokemonId must be a valid UUID" }, { status: 400 });
+    }
+
+    if (typeof nickname !== "string" || nickname.length < 1 || nickname.length > 12) {
+      return NextResponse.json(
+        { error: "nickname must be a string between 1 and 12 characters" },
+        { status: 400 }
+      );
     }
 
     const { data: pokemon } = await supabase
@@ -36,7 +44,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error("Pokemon nickname API error:", error);
     return NextResponse.json(
-      { error: error?.message || "Internal server error" },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

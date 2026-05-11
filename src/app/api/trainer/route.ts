@@ -18,7 +18,7 @@ export async function GET() {
   } catch (error: any) {
     console.error("Trainer API error:", error);
     return NextResponse.json(
-      { error: error?.message || "Internal server error" },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

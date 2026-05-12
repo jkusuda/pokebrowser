@@ -1,5 +1,7 @@
 "use client";
 
+import { Card } from "@/components/ui/card";
+
 // Static achievements data — defined outside component to avoid recreation on every render
 const ACHIEVEMENTS = [
   { label: "Caught a Shiny", icon: "✨" },
@@ -10,7 +12,7 @@ const ACHIEVEMENTS = [
 
 export default function RecentAchievementsPanel() {
   return (
-    <div className={`bg-[#9dcd9d] rounded-[8px] border-4 border-black shadow-[4px_4px_0_black] flex flex-col p-4 w-full mt-4`}>
+    <Card variant="game" tone="grass" className="p-4 w-full mt-4 gap-0">
       <h2 className="font-bold text-black text-sm mb-4 tracking-wide">RECENT ACHIEVEMENTS</h2>
 
       <div className="grid grid-cols-2 gap-y-4 gap-x-2">
@@ -23,6 +25,6 @@ export default function RecentAchievementsPanel() {
           </div>
         ))}
       </div>
-    </div>
+    </Card>
   );
 }

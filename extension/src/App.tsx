@@ -1,15 +1,7 @@
 import { useAuth } from "./hooks/useAuth";
 import { useRecentCatches } from "./hooks/useRecentCatches";
-import { WEBSITE_URL } from "./lib/constants";
-
-const SPRITE_BASE =
-  "https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/versions/generation-v/black-white/animated";
-
-function getPokemonSprite(pokedexNumber: number, isShiny: boolean) {
-  return isShiny
-    ? `${SPRITE_BASE}/shiny/${pokedexNumber}.gif`
-    : `${SPRITE_BASE}/${pokedexNumber}.gif`;
-}
+import { CONFIG } from "./lib/config";
+import { getPokemonSprite } from "./lib/sprites";
 
 export default function App() {
   const { user, loading, signOut, openLogin } = useAuth();
@@ -64,7 +56,7 @@ export default function App() {
 
   /* ── Logged in ───────────────────────────────────────────────── */
   const openProfile = () => {
-    chrome.tabs.create({ url: `${WEBSITE_URL}/profile` });
+    chrome.tabs.create({ url: `${CONFIG.WEBSITE_URL}/profile` });
   };
 
   return (

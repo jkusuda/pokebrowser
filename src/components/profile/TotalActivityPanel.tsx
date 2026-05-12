@@ -1,5 +1,7 @@
 "use client";
 
+import { Card } from "@/components/ui/card";
+
 export type ActivityStats = {
   pokemonCaught: number;
   websitesVisited: number;
@@ -48,7 +50,7 @@ export default function TotalActivityPanel({ stats }: Props) {
   };
 
   return (
-    <div className={`bg-[#9dcd9d] rounded-[8px] border-4 border-black shadow-[4px_4px_0_black] flex flex-col p-3 w-full`}>
+    <Card variant="game" tone="grass" className="p-3 w-full gap-0">
       <h2 className="font-bold text-black text-sm mb-3 tracking-wide">TOTAL ACTIVITY</h2>
 
       <div className="flex gap-3 justify-between">
@@ -60,6 +62,6 @@ export default function TotalActivityPanel({ stats }: Props) {
           </div>
         ))}
       </div>
-    </div>
+    </Card>
   );
 }

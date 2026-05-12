@@ -1,13 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
-
-export interface RecentPokemon {
-  id: string;
-  pokedex_number: number;
-  nickname: string | null;
-  is_shiny: boolean;
-  caught_at: string;
-}
+import type { RecentPokemon } from "shared-types";
 
 export function useRecentCatches(userId: string | undefined, limit = 9) {
   const [catches, setCatches] = useState<RecentPokemon[]>([]);

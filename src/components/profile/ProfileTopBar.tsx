@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import netPng from "@/assets/net.png";
+import { Card } from "@/components/ui/card";
 
 type Page = "home" | "globalStats" | "pokedex" | "settings";
 
@@ -20,7 +21,7 @@ type Props = {
 
 export default function ProfileTopBar({ activePage, onPageChange }: Props) {
   return (
-    <div className={`w-full bg-[#9dcd9d] border-4 border-black rounded-[8px] p-3 flex items-center shadow-[4px_4px_0_black] mb-4 relative`}>
+    <Card variant="game" tone="grass" className="w-full p-3 flex-row items-center mb-4 relative gap-0">
       {/* Logo (left-anchored) */}
       <div className="absolute left-6 flex items-center gap-2">
         <Image src={netPng} alt="Net" width={32} height={32} className="opacity-80" />
@@ -39,6 +40,6 @@ export default function ProfileTopBar({ activePage, onPageChange }: Props) {
           </button>
         ))}
       </div>
-    </div>
+    </Card>
   );
 }

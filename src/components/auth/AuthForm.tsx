@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 type Tab = "login" | "signup";
 
@@ -82,14 +83,16 @@ export default function AuthForm() {
 
       <div className="p-6 flex flex-col gap-5">
         {/* Google OAuth */}
-        <button
+        <Button
+          variant="game"
+          tone="neutral"
           onClick={handleGoogle}
           disabled={loading}
-          className="flex items-center justify-center gap-3 w-full py-3 rounded-[8px] border-4 border-black bg-white font-black text-sm text-black uppercase shadow-[4px_4px_0_black] hover:translate-y-px hover:shadow-[2px_2px_0_black] active:shadow-[0px_0px_0_black] active:translate-y-[4px] transition-all disabled:opacity-50"
+          className="w-full gap-3 bg-white hover:bg-white text-sm [&_svg]:size-[18px]"
         >
           <GoogleIcon />
           Continue with Google
-        </button>
+        </Button>
 
         {/* Divider */}
         <div className="flex items-center gap-3">
@@ -134,13 +137,15 @@ export default function AuthForm() {
             <p className="font-bold text-xs text-[#2d5a27] text-center bg-[#9dcd9d] border-2 border-[#2d5a27] p-2 rounded">{success}</p>
           )}
 
-          <button
+          <Button
             type="submit"
             disabled={loading}
-            className="w-full py-3 mt-2 font-black tracking-widest text-[13px] text-black bg-[#9dcd9d] border-4 border-black rounded-[8px] shadow-[4px_4px_0_black] transition-all duration-75 hover:translate-y-[2px] hover:shadow-[2px_2px_0_black] active:shadow-[0px_0px_0_black] active:translate-y-[4px] uppercase disabled:opacity-50"
+            variant="game"
+            tone="mint"
+            className="w-full mt-2 text-[13px]"
           >
             {loading ? "..." : tab === "login" ? "LOGIN" : "CREATE ACCOUNT"}
-          </button>
+          </Button>
         </form>
       </div>
     </div>

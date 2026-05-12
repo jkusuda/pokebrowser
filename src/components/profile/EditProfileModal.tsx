@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { TRAINER_BASE } from "@/lib/pokemon";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 const AVATAR_OPTIONS = [
   "ash", "red", "ethan", "lyra", "kris", "brendan", "may", "lucas", "dawn", "hilbert", "hilda",
@@ -50,8 +52,10 @@ export default function EditProfileModal({ currentName, currentAvatarId, onClose
   return (
     <div className="fixed inset-0 z-300 flex items-center justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-      <div
-        className={`relative z-10 w-full max-w-lg mx-4 bg-[#e0f4d9] rounded-[8px] border-4 border-black shadow-[4px_4px_0_black] overflow-hidden`}
+      <Card
+        variant="game"
+        tone="cream"
+        className="relative z-10 w-full max-w-lg mx-4 overflow-hidden p-0 gap-0"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -107,22 +111,26 @@ export default function EditProfileModal({ currentName, currentAvatarId, onClose
 
           {/* Actions */}
           <div className="flex gap-4 mt-2">
-            <button
+            <Button
               onClick={onClose}
-              className={`flex-1 py-3 font-black text-[15px] tracking-wide text-black bg-[#9dcd9d] border-4 border-black rounded-[8px] shadow-[4px_4px_0_black] hover:-translate-y-1 active:translate-y-0 active:shadow-none transition-all`}
+              variant="game"
+              tone="mint"
+              className="flex-1 h-auto py-3 text-[15px] tracking-wide"
             >
               CANCEL
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleSave}
               disabled={loading || !trainerName.trim()}
-              className={`flex-1 py-3 font-black text-[15px] tracking-wide text-black bg-white border-4 border-black rounded-[8px] shadow-[4px_4px_0_black] hover:-translate-y-1 active:translate-y-0 active:shadow-none transition-all disabled:opacity-50 disabled:hover:translate-y-0 disabled:active:shadow-[4px_4px_0_black]`}
+              variant="game"
+              tone="neutral"
+              className="flex-1 h-auto py-3 text-[15px] tracking-wide bg-white hover:bg-white"
             >
               {loading ? "..." : "SAVE"}
-            </button>
+            </Button>
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

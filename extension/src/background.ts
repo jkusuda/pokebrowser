@@ -1,14 +1,6 @@
-import { SESSION_KEY } from "./lib/constants";
-import { createClient } from "@supabase/supabase-js";
-import { getPokemonBaseXp, getFamilyId, getPokemonName } from "pokemon-data";
-
-const SUPABASE_URL = "https://nxshczmwkznapzgprkcc.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54c2hjem13a3puYXB6Z3Bya2NjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNTIzMjUsImV4cCI6MjA4NzYyODMyNX0.c9o3R2Jp11rnd_jnVcpSW20SxOUeQNo6A36jpqkh-tE";
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: { persistSession: false, autoRefreshToken: true, detectSessionInUrl: false },
-});
+import { CONFIG } from "./lib/config";
+import { supabase } from "./lib/supabase";
+import { getPokemonBaseXp, getFamilyId, getPokemonName, getRandomPokemonId } from "pokemon-data";
 
 type StoredSession = { access_token: string; refresh_token: string };
 type PendingEncounter = {
@@ -20,11 +12,9 @@ type PendingEncounter = {
 };
 
 const PENDING_PREFIX = "pb_enc_";
-const PENDING_TTL_MS = 5 * 60 * 1000;
 const pendingKey = (userId: string) => `${PENDING_PREFIX}${userId}`;
 
 const LAST_CATCH_PREFIX = "pb_lastcatch_";
-const CATCH_COOLDOWN_MS = 1500;
 const lastCatchKey = (userId: string) => `${LAST_CATCH_PREFIX}${userId}`;
 
 /**
@@ -33,8 +23,8 @@ const lastCatchKey = (userId: string) => `${LAST_CATCH_PREFIX}${userId}`;
  * content script — derive it here.
  */
 async function authenticate(): Promise<{ userId: string } | null> {
-  const stored = await chrome.storage.local.get(SESSION_KEY);
-  const session = stored[SESSION_KEY] as StoredSession | undefined;
+  const stored = await chrome.storage.local.get(CONFIG.SESSION_KEY);
+  const session = stored[CONFIG.SESSION_KEY] as StoredSession | undefined;
   if (!session?.access_token || !session?.refresh_token) return null;
 
   const { data, error } = await supabase.auth.setSession(session);
@@ -43,7 +33,7 @@ async function authenticate(): Promise<{ userId: string } | null> {
   // If Supabase rotated the refresh token, persist the new pair.
   if (data.session && data.session.refresh_token !== session.refresh_token) {
     await chrome.storage.local.set({
-      [SESSION_KEY]: {
+      [CONFIG.SESSION_KEY]: {
         access_token: data.session.access_token,
         refresh_token: data.session.refresh_token,
       },
@@ -57,7 +47,7 @@ async function authenticate(): Promise<{ userId: string } | null> {
 // Chrome enforces the origin allowlist via manifest, but we re-check sender.origin
 // defensively.
 const ALLOWED_WEB_ORIGINS = new Set([
-  "http://localhost:3000",
+  CONFIG.WEBSITE_URL,
   "https://pokebrowser.app",
 ]);
 
@@ -79,13 +69,13 @@ chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => 
       sendResponse({ ok: false, error: "BAD_REQUEST" });
       return false;
     }
-    chrome.storage.local.set({ [SESSION_KEY]: { access_token, refresh_token } });
+    chrome.storage.local.set({ [CONFIG.SESSION_KEY]: { access_token, refresh_token } });
     sendResponse({ ok: true });
     return false;
   }
 
   if (message?.type === "POKEBROWSE_AUTH_SIGNOUT") {
-    chrome.storage.local.remove(SESSION_KEY);
+    chrome.storage.local.remove(CONFIG.SESSION_KEY);
     sendResponse({ ok: true });
     return false;
   }
@@ -114,11 +104,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         supabase.from("users").select("catch_limit").eq("id", userId).single(),
         supabase.from("pokemon").select("*", { count: "exact", head: true }).eq("user_id", userId),
       ]);
-      const catchLimit = user?.catch_limit ?? 200;
+      const catchLimit = user?.catch_limit ?? CONFIG.GAME.DEFAULT_CATCH_LIMIT;
       const boxIsFull = (pokemonCount ?? 0) >= catchLimit;
 
-      const pokedexNumber = Math.floor(Math.random() * 151) + 1;
-      const isShiny = Math.random() < 1 / 512;
+      const pokedexNumber = getRandomPokemonId(CONFIG.GAME.CURRENT_GENERATION);
+      const isShiny = Math.random() < CONFIG.GAME.SHINY_RATE;
       const name = getPokemonName(pokedexNumber);
       const nonce = crypto.randomUUID();
 
@@ -168,7 +158,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           sendResponse({ ok: false, error: "NO_PENDING_ENCOUNTER" });
           return;
         }
-        if (Date.now() - pending.createdAt > PENDING_TTL_MS) {
+        if (Date.now() - pending.createdAt > CONFIG.GAME.PENDING_ENCOUNTER_TTL_MS) {
           await chrome.storage.session.remove(key);
           sendResponse({ ok: false, error: "ENCOUNTER_EXPIRED" });
           return;
@@ -179,7 +169,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const rateKey = lastCatchKey(userId);
         const rateStored = await chrome.storage.session.get(rateKey);
         const lastAt = (rateStored[rateKey] as number | undefined) ?? 0;
-        if (Date.now() - lastAt < CATCH_COOLDOWN_MS) {
+        if (Date.now() - lastAt < CONFIG.GAME.CATCH_COOLDOWN_MS) {
           sendResponse({ ok: false, error: "RATE_LIMITED" });
           return;
         }

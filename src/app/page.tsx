@@ -7,6 +7,7 @@ import placeholderImg from "@/assets/placeholder.png";
 import whiteballIcon from "@/assets/whiteball.png";
 import LandingGallery from "@/components/landing/LandingGallery";
 import updatesData from "@/data/updates.json";
+import { Button } from "@/components/ui/button";
 
 export default function Home({
   searchParams,
@@ -30,8 +31,8 @@ async function HomeContent({
   const showModal = modal === "login" && !user;
   const isLoggedIn = !!user;
 
-  const navBtnClass =
-    "flex items-center gap-2 px-6 py-2 md:py-3 font-black tracking-widest text-[11px] md:text-[13px] text-black bg-[#e0f4d9] border-4 border-black rounded-[8px] shadow-[4px_4px_0_black] transition-all duration-75 hover:translate-y-px active:shadow-[2px_2px_0_black] uppercase no-underline";
+  const navBtnClasses =
+    "h-auto py-2 md:py-3 text-[11px] md:text-[13px] no-underline [&_svg]:size-[18px]";
 
   const sectionTitleClass = "font-black tracking-widest text-4xl md:text-6xl text-white uppercase text-center mb-12";
 
@@ -42,31 +43,37 @@ async function HomeContent({
       {/* Fixed Sticky Navbar */}
       <nav className="fixed top-0 left-0 right-0 flex justify-end items-center z-50 p-4 md:p-6 pointer-events-none">
         <div className="flex gap-4 pointer-events-auto">
-          <Link href="/download" className={navBtnClass}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-            <span className="hidden sm:inline">DOWNLOAD</span>
-          </Link>
+          <Button asChild variant="game" tone="neutral" className={navBtnClasses}>
+            <Link href="/download">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              <span className="hidden sm:inline">DOWNLOAD</span>
+            </Link>
+          </Button>
 
           {isLoggedIn ? (
-            <Link href="/profile" className={navBtnClass}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-              <span className="hidden sm:inline">VIEW PROFILE</span>
-            </Link>
+            <Button asChild variant="game" tone="neutral" className={navBtnClasses}>
+              <Link href="/profile">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+                <span className="hidden sm:inline">VIEW PROFILE</span>
+              </Link>
+            </Button>
           ) : (
-            <Link href="/?modal=login" className={navBtnClass}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-              <span className="hidden sm:inline">LOGIN</span>
-            </Link>
+            <Button asChild variant="game" tone="neutral" className={navBtnClasses}>
+              <Link href="/?modal=login">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+                <span className="hidden sm:inline">LOGIN</span>
+              </Link>
+            </Button>
           )}
         </div>
       </nav>

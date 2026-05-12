@@ -8,10 +8,11 @@ Pokebrowser is a Chrome extension + Next.js web app that spawns wild Pokémon en
 
 ## Monorepo Structure
 
-This is an npm workspace with three packages:
+This is an npm workspace with four packages:
 
 - **Root** — Next.js 16 web app (`src/`)
-- **`packages/pokemon-data`** — shared TypeScript library with static Gen 1 data (bundled as `pokemon-data` workspace package)
+- **`packages/pokemon-data`** — static Gen 1 data + generation helpers, consumed by both the web app and the extension
+- **`packages/shared-types`** — single source of truth for Supabase row types (`User`, `Pokemon`, `Candy`, `PokedexUnlock`, `Friend`, `RecentPokemon`). `src/types/index.ts` re-exports from here
 - **`extension/`** — Chrome extension built with Vite + React
 
 ## Commands
@@ -80,15 +81,24 @@ Defined by the TypeScript interfaces in `src/types/index.ts`:
 - `src/lib/supabase/middleware.ts` — session refresh middleware
 
 ### Shared Pokemon Data Package
-`pokemon-data` exports static lookup functions (`getPokemonData`, `getPokemonName`, `getFamilyId`, `getPokemonBaseXp`) used by both the web app and the extension background script. The data is a compile-time constant — no runtime fetches.
+`pokemon-data` exports:
+- Static lookup functions: `getPokemonData`, `getPokemonName`, `getFamilyId`, `getPokemonBaseXp`
+- Generation helpers (`packages/pokemon-data/src/generations.ts`): `GENERATIONS`, `getGenerationRange`, `getPokemonsByGeneration`, `getRandomPokemonId(generation)` — used by `background.ts` for encounter rolls
+
+The data is a compile-time constant — no runtime fetches.
 
 ### Extension Build
-Vite builds three separate entry points into `extension/dist/assets/`:
-- `popup.js` — the extension popup UI (React app)
-- `content.js` — injected into every page
-- `background.js` — service worker
+Two-pass Vite build (run together as `npm run build` in `extension/`):
+1. `vite build` (`vite.config.ts`) — builds `popup.js` (React app) and `background.js` (service worker) into `extension/dist/assets/`. Chunking is allowed here.
+2. `vite build --config vite.content.config.ts` — separate IIFE build for `content.js` with `inlineDynamicImports: true` and `emptyOutDir: false`. Content scripts can't load chunks at runtime, so this entry point must be fully bundled.
 
 The `extension/public/` directory (manifest, sprites) is copied verbatim into `dist/`. To test locally, load `extension/dist/` as an unpacked extension in `chrome://extensions`.
+
+Extension source layout under `extension/src/lib/`:
+- `config.ts` — Zod-validated env vars + `CONFIG.GAME` constants (see Key Constants below)
+- `animation.ts` — Pokemon catch/release animation primitives (`runCatchAnimation`, `playAnimation`, `playFrameSequence`, `waitForAnimationEnd`)
+- `sprites.ts` — `getPokemonSprite(pokedexNumber, isShiny)` — shared by `content.ts` and the popup
+- `supabase.ts` — Supabase client wired to `CONFIG.SUPABASE_URL` / `CONFIG.SUPABASE_KEY`
 
 ## Security Practices
 
@@ -110,9 +120,39 @@ UUID validation regex: `/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-
 
 Invalid input returns HTTP 400 with a descriptive message (safe to expose since it contains no server internals).
 
+## UI / Design System
+
+The web app uses **shadcn/ui** (new-york style, Tailwind v4, neutral base) layered with a Pokebrowser "chunky neo-brutalist" game look. Adding shadcn components: `npx shadcn@latest add <component>` (config in `components.json`).
+
+### Tokens (`src/app/globals.css`)
+- `@theme` block defines the Pokebrowser palette as Tailwind utilities (`bg-pb-grass`, `bg-pb-pine`, `shadow-pb`, etc.). Sources of truth for the green palette: `--color-pb-bg #e0f4d9`, `--color-pb-leaf #ecf5e8`, `--color-pb-grass #9dcd9d`, `--color-pb-grass-deep #8abf8a`, `--color-pb-pine #4a8a44`, `--color-pb-forest #2d5a27`, `--color-pb-poppy #c0392b`.
+- `:root` + `@theme inline` blocks wire shadcn HSL tokens (`--primary`, `--card`, etc.) to the Pokebrowser palette so default shadcn components inherit the game look.
+- `@layer components` defines `.text-emboss`, `.text-emboss-sm`, `.text-emboss-lg` — embossed white uppercase text with stroke + drop-shadow. Use these instead of inline `WebkitTextStroke` + `textShadow` styles in new code.
+
+### Components
+- `src/components/ui/button.tsx` — CVA variants: `default | outline | ghost | link | game`. The `game` variant pairs with `tone`: `primary` (pb-grass-deep + white), `danger` (red), `neutral` (pb-bg + black), `forest` (pb-pine + white), `mint` (pb-grass + black). Sizes `sm | md | lg | icon`. `asChild` works via Radix `Slot` for wrapping `<Link>`.
+- `src/components/ui/card.tsx` — CVA variants: `default | game`. The `game` variant supports `tone` (`cream | white | leaf | glass | grass`), `size` (`sm | md | lg` — controls padding + gap), and `shadow` (`sm | md | lg | none`). Composable subcomponents: `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `CardFooter`.
+- `src/lib/utils.ts` — `cn(...inputs)` helper (clsx + tailwind-merge); always use this when composing classNames so overrides resolve correctly.
+- `/style-guide` (`src/app/style-guide/page.tsx`) — side-by-side visual reference of every Button/Card variant next to the inline-styled originals. Update it when you add a new variant.
+
+### When to use a variant vs. inline classes
+Use Button/Card variants for chunky game-style panels and buttons (border-4, hard-offset shadow, embossed text). Leave inline classes for one-off palettes that don't fit (the teal Pokedex device chrome, dynamic type-color cards in `PokemonDetailsPanel`, flat color-block tab selectors). Don't add a new tone/variant just to support one usage — override with `className` instead.
+
 ## Key Constants
-- `extension/src/lib/constants.ts`: `WEBSITE_URL` (currently `http://localhost:3000`) and `SESSION_KEY` (`pb_session`) — update `WEBSITE_URL` for production deployments.
-- Shiny rate: `1/512` (hardcoded in `background.ts`)
+
+### Web app
+- Shiny rate: `1/512`
 - Catch limit starts at 200 and grows by 200 per level-up
-- XP per level: 1000 (`getLevelFromXP` in `background.ts`)
-- Current Pokémon pool: Gen 1 only (dex #1–151)
+- XP per level: 1000
+
+### Extension (`extension/src/lib/config.ts`)
+All extension-side constants live in the Zod-validated `CONFIG` object:
+- `CONFIG.SUPABASE_URL`, `CONFIG.SUPABASE_KEY` — pulled from `VITE_SUPABASE_URL` / `VITE_SUPABASE_KEY` with inline fallback defaults
+- `CONFIG.WEBSITE_URL` — currently `http://localhost:3000`; update for production deployments
+- `CONFIG.SESSION_KEY` — `pb_session`, the `chrome.storage.local` key for the cached Supabase session
+- `CONFIG.GAME.SHINY_RATE` — `1/512`
+- `CONFIG.GAME.ENCOUNTER_RATE` — `1.0`
+- `CONFIG.GAME.CATCH_COOLDOWN_MS` — `1500`
+- `CONFIG.GAME.PENDING_ENCOUNTER_TTL_MS` — `5 * 60 * 1000`
+- `CONFIG.GAME.DEFAULT_CATCH_LIMIT` — `200`
+- `CONFIG.GAME.CURRENT_GENERATION` — `1` (drives `getRandomPokemonId` rolls in `background.ts`)

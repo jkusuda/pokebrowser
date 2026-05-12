@@ -1,7 +1,111 @@
 @import "tailwindcss";
 
+/* Pokebrowser theme tokens. */
 @theme {
   --font-sans: var(--font-base), ui-sans-serif, system-ui, sans-serif;
+
+  /* Pokebrowser palette — chunky neo-brutalist greens, sticker-style. */
+  --color-pb-bg: #e0f4d9;
+  --color-pb-leaf: #ecf5e8;
+  --color-pb-grass: #9dcd9d;
+  --color-pb-grass-hover: #b3d9b3;
+  --color-pb-grass-deep: #8abf8a;
+  --color-pb-pine: #4a8a44;
+  --color-pb-forest: #2d5a27;
+  --color-pb-poppy: #c0392b;
+  --color-pb-poppy-hover: #e74c3c;
+
+  --shadow-pb: 4px 4px 0 #000;
+  --shadow-pb-sm: 2px 2px 0 #000;
+  --shadow-pb-lg: 8px 8px 0 #000;
+
+  --radius-pb: 8px;
+}
+
+/* shadcn design tokens — wired into our palette so the default variant uses
+   Pokebrowser greens; the `game` variant on each component layers on the
+   chunky border + offset shadow. */
+:root {
+  --background: 102 52% 90%;
+  --foreground: 0 0% 0%;
+
+  --card: 102 52% 90%;
+  --card-foreground: 0 0% 0%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 0%;
+
+  --primary: 117 30% 65%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 102 33% 93%;
+  --secondary-foreground: 0 0% 0%;
+
+  --muted: 102 33% 93%;
+  --muted-foreground: 0 0% 30%;
+
+  --accent: 117 30% 65%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 6 63% 46%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 0 0% 0%;
+  --input: 0 0% 0%;
+  --ring: 117 36% 73%;
+
+  --radius: 0.5rem;
+}
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+}
+
+@layer components {
+  /* Embossed uppercase title used across the app:
+     `<h1 className="text-emboss">POKEBROWSE</h1>` */
+  .text-emboss {
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #fff;
+    -webkit-text-stroke: 1px #000;
+    text-shadow: 0 2px 0 #000;
+  }
+  .text-emboss-sm {
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #fff;
+    -webkit-text-stroke: 0.5px #000;
+    text-shadow: 0 1px 0 #000;
+  }
+  .text-emboss-lg {
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #fff;
+    -webkit-text-stroke: 2px #000;
+    text-shadow: 0 6px 0 #000;
+  }
 }
 
 @keyframes fadeInUp {

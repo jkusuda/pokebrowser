@@ -1,0 +1,101 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - heading "STYLE GUIDE" [level=1] [ref=e4]
+      - paragraph [ref=e5]: shadcn components on the left · inline-styled originals on the right
+    - generic [ref=e6]:
+      - heading "Buttons — Primary" [level=2] [ref=e7]
+      - generic [ref=e8]:
+        - generic [ref=e9]:
+          - paragraph [ref=e10]: shadcn <Button variant='game' tone='primary'>
+          - generic [ref=e11]:
+            - button "Catch" [ref=e12] [cursor=pointer]
+            - button "View Profile" [ref=e13] [cursor=pointer]
+            - button "Login / Sign Up" [ref=e14] [cursor=pointer]
+        - generic [ref=e15]:
+          - paragraph [ref=e16]: Original inline classes
+          - button "Login / Sign Up" [ref=e18] [cursor=pointer]
+    - generic [ref=e19]:
+      - heading "Buttons — Danger" [level=2] [ref=e20]
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - paragraph [ref=e23]: shadcn <Button variant='game' tone='danger'>
+          - generic [ref=e24]:
+            - button "Log Out" [ref=e25] [cursor=pointer]
+            - button "Release Pokémon" [ref=e26] [cursor=pointer]
+        - generic [ref=e27]:
+          - paragraph [ref=e28]: Original inline classes
+          - button "LOG OUT" [ref=e30] [cursor=pointer]
+    - generic [ref=e31]:
+      - heading "Buttons — Forest (deeper green)" [level=2] [ref=e32]
+      - generic [ref=e33]:
+        - generic [ref=e34]:
+          - paragraph [ref=e35]: shadcn <Button variant='game' tone='forest'>
+          - button "How It Works" [ref=e37] [cursor=pointer]
+        - generic [ref=e38]:
+          - paragraph [ref=e39]: Original
+          - button "How It Works" [ref=e41] [cursor=pointer]
+    - generic [ref=e42]:
+      - heading "Buttons — Neutral (cream w/ black text)" [level=2] [ref=e43]
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - paragraph [ref=e46]: shadcn <Button variant='game' tone='neutral'>
+          - button "DOWNLOAD" [ref=e48] [cursor=pointer]
+        - generic [ref=e49]:
+          - paragraph [ref=e50]: Original landing navbar button
+          - generic [ref=e52]: DOWNLOAD
+    - generic [ref=e53]:
+      - heading "Cards — Game variant (cream)" [level=2] [ref=e54]
+      - generic [ref=e55]:
+        - generic [ref=e56]:
+          - paragraph [ref=e57]: shadcn <Card variant='game'>
+          - generic [ref=e59]:
+            - generic [ref=e60]:
+              - heading "A wild Bulbasaur!" [level=3] [ref=e61]
+              - paragraph [ref=e62]: Lv. 5 · grass · poison
+            - generic [ref=e64]: sprite area
+            - generic [ref=e65]:
+              - button "Catch" [ref=e66] [cursor=pointer]
+              - button "Run" [ref=e67] [cursor=pointer]
+        - generic [ref=e68]:
+          - paragraph [ref=e69]: Original encounter popup (.card)
+          - generic [ref=e71]:
+            - generic [ref=e72]: A wild Bulbasaur!
+            - generic [ref=e73]: sprite area
+            - generic [ref=e74]:
+              - button "Catch" [ref=e75]
+              - button "Run" [ref=e76]
+    - generic [ref=e77]:
+      - heading "Cards — Large white with big shadow" [level=2] [ref=e78]
+      - generic [ref=e79]:
+        - generic [ref=e80]:
+          - paragraph [ref=e81]: <Card variant='game' tone='white' shadow='lg' size='lg'>
+          - generic [ref=e83]:
+            - heading "Version 1.2.0" [level=3] [ref=e85]
+            - list [ref=e87]:
+              - listitem [ref=e88]: Added Gen 1 evolution candies
+              - listitem [ref=e89]: Fixed shiny rate display
+        - generic [ref=e90]:
+          - paragraph [ref=e91]: Original update card
+          - generic [ref=e93]:
+            - heading "Version 1.2.0" [level=3] [ref=e94]
+            - list [ref=e95]:
+              - listitem [ref=e96]: Added Gen 1 evolution candies
+              - listitem [ref=e97]: Fixed shiny rate display
+    - generic [ref=e98]:
+      - heading "Embossed text utility" [level=2] [ref=e99]
+      - generic [ref=e100]:
+        - generic [ref=e101]:
+          - paragraph [ref=e102]: .text-emboss-* utility classes
+          - generic [ref=e104]:
+            - generic [ref=e105]: SMALL EMBOSS
+            - generic [ref=e106]: MEDIUM EMBOSS
+            - generic [ref=e107]: LARGE EMBOSS
+        - generic [ref=e108]:
+          - paragraph [ref=e109]: Inline equivalent (style + classes)
+          - generic [ref=e111]:
+            - generic [ref=e112]: SMALL EMBOSS
+            - generic [ref=e113]: MEDIUM EMBOSS
+            - generic [ref=e114]: LARGE EMBOSS
+  - button "Open Next.js Dev Tools" [ref=e120] [cursor=pointer]:
+    - img [ref=e121]

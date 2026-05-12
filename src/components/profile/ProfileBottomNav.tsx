@@ -4,6 +4,7 @@ import pokeballIcon from "@/assets/pokeball.png";
 import friendsIcon from "@/assets/friends.png";
 import awardsIcon from "@/assets/awards.png";
 import statsIcon from "@/assets/stats.png";
+import { Card } from "@/components/ui/card";
 
 // Static — defined outside component to avoid recreation on every render
 const NAV_ITEMS = [
@@ -24,7 +25,7 @@ type Props = {
 
 export default function ProfileBottomNav({ activeTab, onTabChange }: Props) {
   return (
-    <div className={`mt-4 w-full bg-[#9dcd9d] border-4 border-black rounded-[8px] p-4 flex gap-5 shadow-[4px_4px_0_black]`}>
+    <Card variant="game" tone="grass" className="mt-4 w-full p-4 flex-row gap-5">
       {NAV_ITEMS.map((item) => (
         <button
           key={item.tab}
@@ -40,6 +41,6 @@ export default function ProfileBottomNav({ activeTab, onTabChange }: Props) {
           </span>
         </button>
       ))}
-    </div>
+    </Card>
   );
 }

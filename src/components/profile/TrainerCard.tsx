@@ -4,6 +4,7 @@ import { useState } from "react";
 import EditProfileModal from "./EditProfileModal";
 import { User, Pokemon } from "@/types";
 import { TRAINER_BASE } from "@/lib/pokemon";
+import { Card } from "@/components/ui/card";
 
 const SPRITE_BASE = "https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon";
 
@@ -29,7 +30,7 @@ export default function TrainerCard({ user, favoritePokemon }: Props) {
 
   return (
     <>
-      <div className={`relative bg-[#9dcd9d] rounded-[8px] border-4 border-black flex flex-col shadow-[4px_4px_0_black] h-full p-4`}>
+      <Card variant="game" tone="grass" className="relative h-full p-4 gap-0">
 
         {/* Title */}
         <div className="flex justify-center mb-3 px-2">
@@ -91,7 +92,7 @@ export default function TrainerCard({ user, favoritePokemon }: Props) {
             </button>
           </div>
         </div>
-      </div>
+      </Card>
 
       {editOpen && (
         <EditProfileModal

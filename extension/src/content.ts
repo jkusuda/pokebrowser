@@ -5,96 +5,11 @@
 // scope per-extension, so top-level `var`s would collide with auth-bridge.ts
 // after minification.
 
+import { CONFIG } from "./lib/config";
+import { getPokemonSprite } from "./lib/sprites";
+import { runCatchAnimation } from "./lib/animation";
+
 (() => {
-// --- Encounter Config ---
-const ENCOUNTER_CHANCE = 1.0;
-const SPRITE_BASE =
-  "https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/versions/generation-v/black-white/animated";
-
-
-function getSpriteUrl(pokedexNumber: number, isShiny: boolean) {
-  return isShiny
-    ? `${SPRITE_BASE}/shiny/${pokedexNumber}.gif`
-    : `${SPRITE_BASE}/${pokedexNumber}.gif`;
-}
-
-// Animation Utilities
-
-function animEnd(el: Element): Promise<void> {
-  return new Promise((resolve) => el.addEventListener("animationend", () => resolve(), { once: true }));
-}
-
-// Resets and plays a CSS animation string on an element.
-function playCSS(el: HTMLElement, animation: string): Promise<void> {
-  el.style.animation = "none";
-  void el.offsetWidth;
-  el.style.animation = animation;
-  return animEnd(el);
-}
-
-// Steps through Y-offsets over a single sprite column layout.
-function frameTicker(
-  el: HTMLElement,
-  yOffsets: number[],
-  fps: number
-): Promise<void> {
-  return new Promise((resolve) => {
-    let i = 0;
-    const ms = 1000 / fps;
-    const tick = () => {
-      el.style.backgroundPosition = `0px ${yOffsets[i]}px`;
-      if (++i >= yOffsets.length) return resolve();
-      setTimeout(tick, ms);
-    };
-    tick();
-  });
-}
-
-// Spritesheet vertical layout definitions (Y-offsets).
-// Based on drawing 64x64px frames from a 1792x2048px original sheet.
-const PB_FRAME = {
-  spin: [0, -64, -128],
-  flash: [-192, -256, -320],
-  closed: [0],
-  shake: [-960, -1024, -1088, -1152, -1216],
-  success: [-1728, -1792, -1856, -1920, -1984],
-};
-
-async function runCatchAnimation(
-  pokeballEl: HTMLElement,
-  pokemonImg: HTMLElement
-): Promise<void> {
-  // Throw. Play CSS arc geometry and sprite spinning simultaneously.
-  pokeballEl.style.opacity = "1";
-  const throwArc = playCSS(pokeballEl, "pb-throw 0.8s ease-out forwards");
-
-  await frameTicker(pokeballEl, [...PB_FRAME.spin, ...PB_FRAME.spin, ...PB_FRAME.spin], 10);
-  await throwArc;
-
-  // Absorb. Bright white flash, make the pokemon image fade, then close.
-  pokeballEl.style.filter = "brightness(3) drop-shadow(0 0 20px white)";
-  await frameTicker(pokeballEl, PB_FRAME.flash, 8);
-  pokemonImg.style.opacity = "0";
-  pokeballEl.style.filter = "";
-  await frameTicker(pokeballEl, PB_FRAME.closed, 8);
-  await new Promise<void>((r) => setTimeout(r, 100));
-
-  // Shake loops.
-  for (let s = 0; s < 3; s++) {
-    const shakeDuration = 0.45 + s * 0.05;
-    const shakeArc = playCSS(pokeballEl, `pb-shake ${shakeDuration}s ease-in-out`);
-    await frameTicker(pokeballEl, PB_FRAME.shake, 10);
-    await shakeArc;
-    await frameTicker(pokeballEl, PB_FRAME.closed, 8);
-    await new Promise<void>((r) => setTimeout(r, 200));
-  }
-
-  // Confirmation sparkles.
-  pokeballEl.style.filter = "drop-shadow(0 0 8px rgba(255,255,255,0.6))";
-  await frameTicker(pokeballEl, PB_FRAME.success, 8);
-  await playCSS(pokeballEl, "pb-success 0.4s ease-out forwards");
-  pokeballEl.style.filter = "";
-}
 
 // Popup Styling
 function getPopupCSS(grassUrl: string, pokeballUrl: string) {
@@ -334,7 +249,7 @@ function showEncounterPopup(
       <div class="title">A wild ${encounter.name} appeared!</div>
       <div class="sprite-area">
         ${encounter.isShiny ? '<span class="shiny-badge">✦</span>' : ""}
-        <img class="pokemon" src="${getSpriteUrl(encounter.pokedexNumber, encounter.isShiny)}" alt="${encounter.name}" />
+        <img class="pokemon" src="${getPokemonSprite(encounter.pokedexNumber, encounter.isShiny)}" alt="${encounter.name}" />
         <div class="pokeball-canvas"></div>
         <div class="grass"></div>
       </div>
@@ -396,8 +311,8 @@ function showEncounterPopup(
               if (response?.ok) {
                 resultEl.textContent = `Gotcha! ${encounter.name} was caught!`;
               } else {
-                resultEl.textContent = response?.error === "CATCH_LIMIT_REACHED" 
-                  ? "Box is full!" 
+                resultEl.textContent = response?.error === "CATCH_LIMIT_REACHED"
+                  ? "Box is full!"
                   : "Something went wrong...";
               }
 
@@ -420,7 +335,7 @@ function showEncounterPopup(
 
 // Extension Initialization
 async function tryEncounter() {
-  if (Math.random() > ENCOUNTER_CHANCE) return;
+  if (Math.random() > CONFIG.GAME.ENCOUNTER_RATE) return;
 
   try {
     const session: any = await chrome.runtime.sendMessage({ type: "GET_SESSION" });
@@ -434,7 +349,7 @@ async function tryEncounter() {
   }
 }
 
-if (!window.location.href.startsWith("http://localhost:3000")) {
+if (!window.location.href.startsWith(CONFIG.WEBSITE_URL)) {
   tryEncounter();
 }
 })();

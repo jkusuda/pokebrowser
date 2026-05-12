@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../lib/supabase";
-import { WEBSITE_URL, SESSION_KEY } from "../lib/constants";
+import { CONFIG } from "../lib/config";
 import type { User } from "@supabase/supabase-js";
 
 export function useAuth() {
@@ -10,8 +10,8 @@ export function useAuth() {
   const checkAuth = useCallback(async () => {
     setLoading(true);
     try {
-      const result = await chrome.storage.local.get(SESSION_KEY);
-      const session = result[SESSION_KEY] as
+      const result = await chrome.storage.local.get(CONFIG.SESSION_KEY);
+      const session = result[CONFIG.SESSION_KEY] as
         | { access_token: string; refresh_token: string }
         | undefined;
 
@@ -38,7 +38,7 @@ export function useAuth() {
   // Listen for storage changes (when background writes new tokens)
   useEffect(() => {
     const listener = (changes: { [key: string]: chrome.storage.StorageChange }) => {
-      if (SESSION_KEY in changes) {
+      if (CONFIG.SESSION_KEY in changes) {
         checkAuth();
       }
     };
@@ -48,12 +48,12 @@ export function useAuth() {
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
-    await chrome.storage.local.remove(SESSION_KEY);
+    await chrome.storage.local.remove(CONFIG.SESSION_KEY);
     setUser(null);
   }, []);
 
   const openLogin = useCallback(() => {
-    chrome.tabs.create({ url: `${WEBSITE_URL}/login?extension=true` });
+    chrome.tabs.create({ url: `${CONFIG.WEBSITE_URL}/login?extension=true` });
   }, []);
 
   return { user, loading, signOut, openLogin, refresh: checkAuth };

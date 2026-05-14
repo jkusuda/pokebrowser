@@ -13,9 +13,13 @@ export default async function ProfilePage() {
     user: userData,
     pokemon,
     friends,
+    incomingRequests,
     pokedexUnlocks,
     favoritePokemon,
     candies,
+    achievementUnlocks,
+    tokens,
+    userStats,
   } = await getTrainerData(supabase, authUser.id);
 
   if (!userData) redirect("/?modal=login");
@@ -30,10 +34,14 @@ export default async function ProfilePage() {
         initialTab="collection"
         pokemon={pokemon}
         friends={friends}
+        incomingRequests={incomingRequests}
         pokedexUnlocks={pokedexUnlocks}
         user={userData}
         favoritePokemon={favoritePokemon}
         candies={candies}
+        achievementUnlocks={achievementUnlocks}
+        tokens={tokens}
+        userStats={userStats}
       />
     </div>
   );

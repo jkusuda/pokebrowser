@@ -3,10 +3,16 @@
 export type {
   User,
   Friend,
+  FriendWithUser,
+  IncomingRequest,
+  FriendProfile,
   Pokemon,
   Candy,
   PokedexUnlock,
   RecentPokemon,
+  UserStats,
+  AchievementUnlock,
+  Token,
 } from "shared-types";
 
 // Static Pokémon data — re-exported from the shared package

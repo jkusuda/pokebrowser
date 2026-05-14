@@ -42,6 +42,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# others
-/supabase
+# others — ignore generated supabase config but keep handwritten migrations
+/supabase/*
+!/supabase/migrations
 ARCHITECTURE.md

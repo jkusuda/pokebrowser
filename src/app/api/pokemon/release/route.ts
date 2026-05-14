@@ -33,8 +33,13 @@ export async function POST(request: Request) {
 
     await releasePokemon(supabase, pokemonId);
 
-    return NextResponse.json({ success: true });
-  } catch (error: any) {
+    // Fire achievement check in background — don't block or fail the response
+    const { data: newAchievements } = await supabase.rpc("check_action_achievements", {
+      p_trigger: "release",
+    });
+
+    return NextResponse.json({ success: true, newAchievements: newAchievements ?? [] });
+  } catch (error) {
     console.error("Pokemon release API error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

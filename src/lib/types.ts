@@ -1,3 +1,12 @@
+/** All type names present in Gen 1 Pokémon (including fairy/steel retroactively). */
+export const GEN1_TYPES = [
+  "normal", "fire", "water", "electric", "grass", "ice",
+  "fighting", "poison", "ground", "flying", "psychic", "bug",
+  "rock", "ghost", "dragon", "steel", "fairy",
+] as const;
+
+export type Gen1Type = typeof GEN1_TYPES[number];
+
 export function getTypeIconPath(typeName: string): string {
   const iconMap: Record<string, string> = {
     normal: 'https://archives.bulbagarden.net/media/upload/2/22/GO_Normal.png',

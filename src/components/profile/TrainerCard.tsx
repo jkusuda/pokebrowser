@@ -3,10 +3,8 @@
 import { useState } from "react";
 import EditProfileModal from "./EditProfileModal";
 import { User, Pokemon } from "@/types";
-import { TRAINER_BASE } from "@/lib/pokemon";
+import { TRAINER_BASE, getPokemonSprite, getBuddySpriteSize, getPokemonData } from "@/lib/pokemon";
 import { Card } from "@/components/ui/card";
-
-const SPRITE_BASE = "https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon";
 
 const NotePenIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -28,6 +26,9 @@ export default function TrainerCard({ user, favoritePokemon }: Props) {
   const [editOpen, setEditOpen] = useState(false);
   const level = user.level ?? 57;
 
+  const buddyData = favoritePokemon ? getPokemonData(favoritePokemon.pokedex_number) : null;
+  const buddySize = buddyData ? getBuddySpriteSize(buddyData.height) : 96;
+
   return (
     <>
       <Card variant="game" tone="grass" className="relative h-full p-4 gap-0">
@@ -45,21 +46,35 @@ export default function TrainerCard({ user, favoritePokemon }: Props) {
         {/* Inner card */}
         <div className={`flex-1 bg-[#e0f4d9] rounded-[8px] border-4 border-black relative flex flex-col shadow-inner overflow-hidden`}>
 
-          {/* Sprites */}
-          <div className="flex-1 relative flex items-center justify-center p-4">
+          {/* Sprites — both bottom-aligned; trainer centres when no buddy, shifts right when buddy present */}
+          <div className="flex-1 relative overflow-hidden">
             {favoritePokemon && (
               <img
-                src={`${SPRITE_BASE}/${favoritePokemon.pokedex_number}.png`}
-                alt={`Pokemon ${favoritePokemon.pokedex_number}`}
-                className="absolute left-2 bottom-16 w-32 h-32 object-contain z-10"
-                style={{ imageRendering: "pixelated" }}
+                src={getPokemonSprite(favoritePokemon.pokedex_number)}
+                alt={favoritePokemon.nickname ?? `#${favoritePokemon.pokedex_number}`}
+                className="absolute z-10"
+                style={{
+                  imageRendering: "pixelated",
+                  height: buddySize,
+                  width: "auto",
+                  left: 8,
+                  bottom: 64,
+                }}
               />
             )}
             <img
               src={`${TRAINER_BASE}/${user.avatar_id}.png`}
               alt={`Avatar ${user.avatar_id}`}
-              className="w-[18rem] h-72 object-contain relative z-20 ml-8 mb-4 pointer-events-none"
-              style={{ imageRendering: "pixelated" }}
+              className="absolute object-contain z-20 pointer-events-none"
+              style={{
+                imageRendering: "pixelated",
+                width: "18rem",
+                height: "18rem",
+                bottom: 64,
+                ...(favoritePokemon
+                  ? { right: 8 }
+                  : { left: "50%", transform: "translateX(-50%)" }),
+              }}
             />
           </div>
 

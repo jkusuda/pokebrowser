@@ -73,6 +73,21 @@ export default function CollectionTab({ pokemon, candies }: { pokemon: Pokemon[]
     }
   };
 
+  const handleSetBuddy = async (p: Pokemon) => {
+    const res = await fetch("/api/trainer/buddy", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pokemonId: p.id }),
+    });
+    if (res.ok) {
+      router.refresh();
+    } else {
+      const data = await res.json();
+      console.error("Set buddy error:", data.error);
+      alert("Failed to set buddy.");
+    }
+  };
+
   const handleRelease = async (p: Pokemon) => {
     if (window.confirm(`Are you sure you want to release ${p.nickname || `#${p.pokedex_number}`}? This cannot be undone.`)) {
       const res = await fetch("/api/pokemon/release", {
@@ -158,8 +173,8 @@ export default function CollectionTab({ pokemon, candies }: { pokemon: Pokemon[]
           <button
             className="text-left px-3 py-2 text-[10px] text-white hover:bg-[#444] rounded-sm transition-colors uppercase"
             onClick={() => {
-              console.log("Set buddy", contextMenu.pokemon);
               setContextMenu(null);
+              handleSetBuddy(contextMenu.pokemon);
             }}
           >
             Set Buddy

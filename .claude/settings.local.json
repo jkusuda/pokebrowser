@@ -5,7 +5,10 @@
       "mcp__claude_ai_Supabase__apply_migration",
       "Bash(npm run *)",
       "Bash(npm install *)",
-      "mcp__plugin_edmunds-claude-code_playwright__browser_evaluate"
+      "mcp__plugin_edmunds-claude-code_playwright__browser_evaluate",
+      "mcp__6db7723e-f974-4d49-bb13-413f89ea4cf9__list_tables",
+      "mcp__6db7723e-f974-4d49-bb13-413f89ea4cf9__execute_sql",
+      "Bash(npx tsc *)"
     ]
   }
 }

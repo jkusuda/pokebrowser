@@ -3,8 +3,8 @@
 import { Card } from "@/components/ui/card";
 
 export type ActivityStats = {
-  pokemonCaught: number;
-  websitesVisited: number;
+  pokemonCaught: number;   // lifetime catches from user_stats (falls back to box count)
+  websitesVisited: number; // unique sites from user_stats
   adventureStarted: string; // pre-formatted date string
 };
 

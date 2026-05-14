@@ -21,26 +21,37 @@ const btnClass = (isActive: boolean) =>
 type Props = {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  pendingFriendRequests?: number;
 };
 
-export default function ProfileBottomNav({ activeTab, onTabChange }: Props) {
+export default function ProfileBottomNav({ activeTab, onTabChange, pendingFriendRequests = 0 }: Props) {
   return (
     <Card variant="game" tone="grass" className="mt-4 w-full p-4 flex-row gap-5">
-      {NAV_ITEMS.map((item) => (
-        <button
-          key={item.tab}
-          onClick={() => onTabChange(item.tab)}
-          className={btnClass(activeTab === item.tab)}
-        >
-          <img src={item.icon} alt={item.label} className="w-16 h-16 mb-3 object-contain drop-shadow-md" />
-          <span
-            className="font-black tracking-widest text-[#ffffff] text-lg text-center leading-none"
-            style={{ WebkitTextStroke: "1.5px black", textShadow: "0px 2px 0px black" }}
+      {NAV_ITEMS.map((item) => {
+        const hasBadge = item.tab === "friends" && pendingFriendRequests > 0;
+        return (
+          <button
+            key={item.tab}
+            onClick={() => onTabChange(item.tab)}
+            className={`${btnClass(activeTab === item.tab)} relative`}
           >
-            {item.label}
-          </span>
-        </button>
-      ))}
+            <div className="relative">
+              <img src={item.icon} alt={item.label} className="w-16 h-16 mb-3 object-contain drop-shadow-md" />
+              {hasBadge && (
+                <span className="absolute -top-1 -right-1 min-w-[20px] h-5 flex items-center justify-center bg-red-500 text-white font-black text-[10px] rounded-full border-2 border-black px-1">
+                  {pendingFriendRequests}
+                </span>
+              )}
+            </div>
+            <span
+              className="font-black tracking-widest text-[#ffffff] text-lg text-center leading-none"
+              style={{ WebkitTextStroke: "1.5px black", textShadow: "0px 2px 0px black" }}
+            >
+              {item.label}
+            </span>
+          </button>
+        );
+      })}
     </Card>
   );
 }

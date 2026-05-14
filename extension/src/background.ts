@@ -1,6 +1,6 @@
 import { CONFIG } from "./lib/config";
 import { supabase } from "./lib/supabase";
-import { getPokemonBaseXp, getFamilyId, getPokemonName, getRandomPokemonId } from "pokemon-data";
+import { getPokemonBaseXp, getFamilyId, getPokemonName, getRandomPokemonId, getPokemonsByGeneration, getPokemonData } from "pokemon-data";
 
 type StoredSession = { access_token: string; refresh_token: string };
 type PendingEncounter = {
@@ -9,7 +9,23 @@ type PendingEncounter = {
   isShiny: boolean;
   name: string;
   createdAt: number;
+  tokenId?: string;
 };
+
+// Gen 1 legendary Pokémon ids
+const LEGENDARY_IDS = new Set([144, 145, 146, 150, 151]);
+
+/** Pick a random id from an array of Gen 1 Pokémon ids. */
+function pickRandom(ids: number[]): number {
+  return ids[Math.floor(Math.random() * ids.length)];
+}
+
+/** Return all Gen 1 Pokémon ids whose types include typeName. */
+function gen1IdsByType(typeName: string): number[] {
+  return getPokemonsByGeneration(1)
+    .filter((p) => p.types.includes(typeName.toLowerCase()))
+    .map((p) => p.id);
+}
 
 const PENDING_PREFIX = "pb_enc_";
 const pendingKey = (userId: string) => `${PENDING_PREFIX}${userId}`;
@@ -100,15 +116,68 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
       const { userId } = auth;
 
-      const [{ data: user }, { count: pokemonCount }] = await Promise.all([
+      const [{ data: user }, { count: pokemonCount }, { data: activeToken }] = await Promise.all([
         supabase.from("users").select("catch_limit").eq("id", userId).single(),
         supabase.from("pokemon").select("*", { count: "exact", head: true }).eq("user_id", userId),
+        supabase
+          .from("tokens")
+          .select("*")
+          .eq("user_id", userId)
+          .is("used_at", null)
+          .order("created_at", { ascending: true })
+          .limit(1)
+          .maybeSingle(),
       ]);
       const catchLimit = user?.catch_limit ?? CONFIG.GAME.DEFAULT_CATCH_LIMIT;
       const boxIsFull = (pokemonCount ?? 0) >= catchLimit;
 
-      const pokedexNumber = getRandomPokemonId(CONFIG.GAME.CURRENT_GENERATION);
-      const isShiny = Math.random() < CONFIG.GAME.SHINY_RATE;
+      // Roll encounter — use token if available
+      let pokedexNumber: number;
+      let isShiny: boolean;
+      let usedTokenId: string | undefined;
+
+      const token = activeToken as { id: string; token_type: string; type_filter: string | null } | null;
+
+      if (token) {
+        switch (token.token_type) {
+          case "legendary":
+            pokedexNumber = pickRandom([...LEGENDARY_IDS]);
+            isShiny = Math.random() < CONFIG.GAME.SHINY_RATE;
+            usedTokenId = token.id;
+            break;
+          case "mythical":
+            pokedexNumber = 151; // Mew
+            isShiny = Math.random() < CONFIG.GAME.SHINY_RATE;
+            usedTokenId = token.id;
+            break;
+          case "shiny":
+            pokedexNumber = getRandomPokemonId(CONFIG.GAME.CURRENT_GENERATION);
+            isShiny = true;
+            usedTokenId = token.id;
+            break;
+          case "type_pick":
+            if (token.type_filter) {
+              const ids = gen1IdsByType(token.type_filter);
+              pokedexNumber = ids.length > 0
+                ? pickRandom(ids)
+                : getRandomPokemonId(CONFIG.GAME.CURRENT_GENERATION);
+              isShiny = Math.random() < CONFIG.GAME.SHINY_RATE;
+              usedTokenId = token.id;
+            } else {
+              // type not chosen yet — fall through to normal roll
+              pokedexNumber = getRandomPokemonId(CONFIG.GAME.CURRENT_GENERATION);
+              isShiny = Math.random() < CONFIG.GAME.SHINY_RATE;
+            }
+            break;
+          default:
+            pokedexNumber = getRandomPokemonId(CONFIG.GAME.CURRENT_GENERATION);
+            isShiny = Math.random() < CONFIG.GAME.SHINY_RATE;
+        }
+      } else {
+        pokedexNumber = getRandomPokemonId(CONFIG.GAME.CURRENT_GENERATION);
+        isShiny = Math.random() < CONFIG.GAME.SHINY_RATE;
+      }
+
       const name = getPokemonName(pokedexNumber);
       const nonce = crypto.randomUUID();
 
@@ -118,6 +187,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         isShiny,
         name,
         createdAt: Date.now(),
+        tokenId: usedTokenId,
       };
       await chrome.storage.session.set({ [pendingKey(userId)]: pending });
 
@@ -206,6 +276,38 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const isNewSpecies = Boolean(
           (data as { is_new_species?: boolean } | null)?.is_new_species
         );
+
+        // Determine catch metadata for stat tracking
+        const pokemonData = getPokemonData(pokedexNumber);
+        const isLegendary = LEGENDARY_IDS.has(pokedexNumber);
+        const types: string[] = pokemonData?.types ?? [];
+
+        // Fire stat update + achievement checks in background (non-blocking)
+        supabase
+          .rpc("update_catch_stats", {
+            p_is_shiny: isShiny,
+            p_is_legendary: isLegendary,
+            p_types: types,
+            p_caught_on: caughtOn,
+          })
+          .then(({ error: statsError }) => {
+            if (statsError) {
+              console.warn("update_catch_stats failed (non-fatal):", statsError);
+            }
+          });
+
+        // Mark token as used if one was consumed in this encounter
+        if (pending.tokenId) {
+          supabase
+            .from("tokens")
+            .update({ used_at: new Date().toISOString() })
+            .eq("id", pending.tokenId)
+            .eq("user_id", userId)
+            .then(({ error: tokenError }) => {
+              if (tokenError) console.warn("Token mark-used failed (non-fatal):", tokenError);
+            });
+        }
+
         sendResponse({ ok: true, isNewSpecies });
       } catch (err) {
         console.error("PERFORM_CATCH failed", err);

@@ -40,8 +40,12 @@ export async function POST(request: Request) {
 
     await updatePokemonNickname(supabase, pokemonId, nickname);
 
-    return NextResponse.json({ success: true });
-  } catch (error: any) {
+    const { data: newAchievements } = await supabase.rpc("check_action_achievements", {
+      p_trigger: "nickname",
+    });
+
+    return NextResponse.json({ success: true, newAchievements: newAchievements ?? [] });
+  } catch (error) {
     console.error("Pokemon nickname API error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

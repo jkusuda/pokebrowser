@@ -13,3 +13,14 @@ export function getPokemonSprite(pokedexNumber: number): string {
 export function getPokedexSprite(pokedexNumber: number): string {
   return `https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/${pokedexNumber}.png`;
 }
+
+/**
+ * Sizes the buddy sprite relative to the trainer avatar.
+ * The trainer icon is ~230 px tall and represents 1.5 m, giving a scale of
+ * ~153 px/m. No upper cap — large Pokémon (Onix, Gyarados) will overflow the
+ * card and be clipped, which is intentional.
+ */
+export function getBuddySpriteSize(heightMetres: number): number {
+  const PX_PER_METRE = 230 / 1.5; // ≈ 153
+  return Math.max(32, Math.round(heightMetres * PX_PER_METRE));
+}

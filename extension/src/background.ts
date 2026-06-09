@@ -30,9 +30,6 @@ function gen1IdsByType(typeName: string): number[] {
 const PENDING_PREFIX = "pb_enc_";
 const pendingKey = (userId: string) => `${PENDING_PREFIX}${userId}`;
 
-const LAST_CATCH_PREFIX = "pb_lastcatch_";
-const lastCatchKey = (userId: string) => `${LAST_CATCH_PREFIX}${userId}`;
-
 /**
  * Restores the Supabase session from chrome.storage.local and returns the
  * authoritative user id from the JWT. Never trust a user id supplied by the
@@ -234,17 +231,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           return;
         }
 
-        // Rate-limit check happens after nonce validation so a malicious page
-        // spamming bad nonces can't trigger a cooldown for the real user.
-        const rateKey = lastCatchKey(userId);
-        const rateStored = await chrome.storage.session.get(rateKey);
-        const lastAt = (rateStored[rateKey] as number | undefined) ?? 0;
-        if (Date.now() - lastAt < CONFIG.GAME.CATCH_COOLDOWN_MS) {
-          sendResponse({ ok: false, error: "RATE_LIMITED" });
-          return;
-        }
-
-        // Single-use: consume the nonce before doing any writes.
+        // Rate-limit is enforced server-side in perform_catch; see migration
+        // server_side_catch_rate_limit. We just consume the nonce before the
+        // RPC so a single encounter can't be claimed twice.
         await chrome.storage.session.remove(key);
 
         const { pokedexNumber, isShiny, name } = pending;
@@ -265,13 +254,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             sendResponse({ ok: false, error: "CATCH_LIMIT_REACHED" });
             return;
           }
+          if (error.message?.includes("rate_limited")) {
+            sendResponse({ ok: false, error: "RATE_LIMITED" });
+            return;
+          }
           console.error("perform_catch RPC failed", error);
           sendResponse({ ok: false, error: "INTERNAL" });
           return;
         }
-
-        // Update cooldown only on a successful catch.
-        await chrome.storage.session.set({ [rateKey]: Date.now() });
 
         const isNewSpecies = Boolean(
           (data as { is_new_species?: boolean } | null)?.is_new_species

@@ -1,26 +1,19 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { removeFriendOrDecline } from "@/lib/queries";
-
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+import { requireUser, badRequest, internalError, UUID_RE } from "@/lib/api-helpers";
 
 export async function POST(request: Request) {
   try {
     const supabase = await createClient();
+    const auth = await requireUser(supabase);
+    if (auth.response) return auth.response;
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const body = await request.json();
-    const { friendshipId } = body;
-
+    const { friendshipId } = await request.json();
     if (typeof friendshipId !== "string" || !UUID_RE.test(friendshipId)) {
-      return NextResponse.json({ error: "friendshipId must be a valid UUID" }, { status: 400 });
+      return badRequest("friendshipId must be a valid UUID");
     }
 
-    // Verify the row exists and the current user is a party to it
     const { data: friendship } = await supabase
       .from("friends")
       .select("id, user_id, friend_id")
@@ -30,16 +23,13 @@ export async function POST(request: Request) {
     if (!friendship) {
       return NextResponse.json({ error: "Friendship not found" }, { status: 404 });
     }
-
-    if (friendship.user_id !== user.id && friendship.friend_id !== user.id) {
+    if (friendship.user_id !== auth.user.id && friendship.friend_id !== auth.user.id) {
       return NextResponse.json({ error: "You are not part of this friendship" }, { status: 403 });
     }
 
-    await removeFriendOrDecline(supabase, friendshipId, user.id);
-
+    await removeFriendOrDecline(supabase, friendshipId, auth.user.id);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("friends/remove error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return internalError("POST /api/friends/remove", error);
   }
 }

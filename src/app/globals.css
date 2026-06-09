@@ -15,6 +15,14 @@
   --color-pb-poppy: #c0392b;
   --color-pb-poppy-hover: #e74c3c;
 
+  /* Pokédex device palette — teal chrome, only used in PokedexOverlay. */
+  --color-pkd-shell: #364d4e;
+  --color-pkd-panel: #3a96b6;
+  --color-pkd-screen: #74eaf0;
+  --color-pkd-screen-light: #5ecddb;
+  --color-pkd-screen-dark: #0a1929;
+  --color-pkd-accent: #84feff;
+
   --shadow-pb: 4px 4px 0 #000;
   --shadow-pb-sm: 2px 2px 0 #000;
   --shadow-pb-lg: 8px 8px 0 #000;

@@ -4,6 +4,7 @@ import { useState } from "react";
 import EditProfileModal from "./EditProfileModal";
 import { User, Pokemon } from "@/types";
 import { TRAINER_BASE, getPokemonSprite, getBuddySpriteSize, getPokemonData } from "@/lib/pokemon";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 const NotePenIcon = () => (
@@ -35,16 +36,11 @@ export default function TrainerCard({ user, favoritePokemon }: Props) {
 
         {/* Title */}
         <div className="flex justify-center mb-3 px-2">
-          <h1
-            className="font-black tracking-widest text-xl text-white uppercase text-center"
-            style={{ WebkitTextStroke: "1.5px black", textShadow: "0 2px 0 black" }}
-          >
-            {user.trainer_name}
-          </h1>
+          <h1 className="text-emboss text-xl text-center">{user.trainer_name}</h1>
         </div>
 
         {/* Inner card */}
-        <div className={`flex-1 bg-[#e0f4d9] rounded-[8px] border-4 border-black relative flex flex-col shadow-inner overflow-hidden`}>
+        <div className="flex-1 bg-pb-bg rounded-[8px] border-4 border-black relative flex flex-col shadow-inner overflow-hidden">
 
           {/* Sprites — both bottom-aligned; trainer centres when no buddy, shifts right when buddy present */}
           <div className="flex-1 relative overflow-hidden">
@@ -92,19 +88,22 @@ export default function TrainerCard({ user, favoritePokemon }: Props) {
               </div>
               <div className="w-full h-4 bg-white border-[3px] border-black rounded-full overflow-hidden shadow-[2px_2px_0_rgba(0,0,0,0.5)]">
                 <div
-                  className="h-full bg-[#48bb78]"
+                  className="h-full bg-pb-pine"
                   style={{ width: `${Math.min(100, Math.max(0, (user.xp / (level * 1000)) * 100))}%` }}
                 />
               </div>
             </div>
 
-            <button
+            <Button
               onClick={() => setEditOpen(true)}
-              className={`shrink-0 mb-1 w-10 h-10 rounded-[8px] bg-[#e0f4d9] border-[3px] border-black flex items-center justify-center shadow-[2px_2px_0_black] hover:translate-y-px active:shadow-none transition-all cursor-pointer pointer-events-auto`}
+              variant="game"
+              tone="neutral"
+              size="icon"
+              className="shrink-0 mb-1 w-10 h-10 border-[3px] shadow-[2px_2px_0_black] pointer-events-auto [&_svg]:size-6"
               title="Edit Profile"
             >
               <NotePenIcon />
-            </button>
+            </Button>
           </div>
         </div>
       </Card>

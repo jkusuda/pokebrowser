@@ -22,8 +22,8 @@ export default function LoginPage() {
     <Suspense
       fallback={
         <div
-          className="flex min-h-screen items-center justify-center p-4 font-black tracking-widest text-white uppercase bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${loginbg.src})`, WebkitTextStroke: "1px black" }}
+          className="flex min-h-screen items-center justify-center p-4 text-emboss bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${loginbg.src})` }}
         >
           Loading...
         </div>

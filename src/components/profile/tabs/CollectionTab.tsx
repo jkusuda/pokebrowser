@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Pokemon, PokemonInfo, Candy } from "@/types";
 import { getPokemonSprite, getPokemonData, getFamilyId } from "@/lib/pokemon";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import PokemonDetailsPanel from "./PokemonDetailsPanel";
 
 const PANEL_TRANSITION_MS = 300;
@@ -118,7 +120,7 @@ export default function CollectionTab({ pokemon, candies }: { pokemon: Pokemon[]
   if (pokemon.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <p className={`font-black tracking-widest uppercase text-[9px] text-[#3a5a00]/40 text-center leading-relaxed`}>
+        <p className="font-black tracking-widest uppercase text-[9px] text-pb-forest/40 text-center leading-relaxed">
           NO POKÉMON YET<br />GO CATCH SOME!
         </p>
       </div>
@@ -143,10 +145,7 @@ export default function CollectionTab({ pokemon, candies }: { pokemon: Pokemon[]
                 style={{ imageRendering: "pixelated" }}
               />
               {p.nickname && (
-                <p
-                  className="font-black text-[14px] truncate w-[120%] text-center z-10"
-                  style={{ color: "white", WebkitTextStroke: "0.75px black" }}
-                >
+                <p className="text-emboss-sm text-[14px] normal-case tracking-normal truncate w-[120%] text-center z-10">
                   {p.nickname}
                 </p>
               )}
@@ -165,39 +164,49 @@ export default function CollectionTab({ pokemon, candies }: { pokemon: Pokemon[]
       />
 
       {contextMenu && (
-        <div
-          className={`font-black tracking-widest uppercase fixed z-50 bg-[#2a2a2a] border-2 border-[#555] rounded-md shadow-xl flex flex-col p-1 w-40 drop-shadow-2xl`}
+        <Card
+          variant="game"
+          tone="cream"
+          size="sm"
+          shadow="sm"
+          className="fixed z-50 w-40 p-1 gap-0 font-black tracking-widest uppercase"
           style={{ top: contextMenu.y, left: contextMenu.x }}
           onClick={(e) => e.stopPropagation()}
         >
-          <button
-            className="text-left px-3 py-2 text-[10px] text-white hover:bg-[#444] rounded-sm transition-colors uppercase"
+          <Button
+            variant="ghost"
+            size="sm"
+            className="justify-start h-auto px-3 py-2 text-[10px] text-black uppercase rounded-sm"
             onClick={() => {
               setContextMenu(null);
               handleSetBuddy(contextMenu.pokemon);
             }}
           >
             Set Buddy
-          </button>
-          <button
-            className="text-left px-3 py-2 text-[10px] text-white hover:bg-[#444] rounded-sm transition-colors uppercase"
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="justify-start h-auto px-3 py-2 text-[10px] text-black uppercase rounded-sm"
             onClick={() => {
               setContextMenu(null);
               handleChangeNickname(contextMenu.pokemon);
             }}
           >
             Change Nickname
-          </button>
-          <button
-            className="text-left px-3 py-2 text-[10px] text-red-400 hover:bg-[#444] hover:text-red-300 rounded-sm transition-colors uppercase"
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="justify-start h-auto px-3 py-2 text-[10px] text-red-600 hover:text-red-700 uppercase rounded-sm"
             onClick={() => {
               setContextMenu(null);
               handleRelease(contextMenu.pokemon);
             }}
           >
             Release
-          </button>
-        </div>
+          </Button>
+        </Card>
       )}
     </div>
   );

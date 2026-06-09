@@ -15,7 +15,7 @@ const NAV_ITEMS = [
 ];
 
 const btnClass = (isActive: boolean) =>
-  `flex-1 flex flex-col items-center justify-center py-5 px-4 rounded-[8px] border-[4px] border-black shadow-[4px_4px_0_black] transition-transform hover:-translate-y-1 hover:bg-[#8abf8a] active:translate-y-1 active:shadow-[1px_1px_0_black] ${isActive ? "bg-[#8abf8a]" : "bg-[#9dcd9d]"
+  `flex-1 flex flex-col items-center justify-center py-5 px-4 rounded-[8px] border-[4px] border-black shadow-[4px_4px_0_black] transition-transform hover:-translate-y-1 hover:bg-pb-grass-deep active:translate-y-1 active:shadow-[1px_1px_0_black] ${isActive ? "bg-pb-grass-deep" : "bg-pb-grass"
   }`;
 
 type Props = {
@@ -43,12 +43,7 @@ export default function ProfileBottomNav({ activeTab, onTabChange, pendingFriend
                 </span>
               )}
             </div>
-            <span
-              className="font-black tracking-widest text-[#ffffff] text-lg text-center leading-none"
-              style={{ WebkitTextStroke: "1.5px black", textShadow: "0px 2px 0px black" }}
-            >
-              {item.label}
-            </span>
+            <span className="text-emboss text-lg leading-none text-center">{item.label}</span>
           </button>
         );
       })}

@@ -1,30 +1,24 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { releasePokemon } from "@/lib/queries";
+import { requireUser, badRequest, internalError, UUID_RE } from "@/lib/api-helpers";
 
 export async function POST(request: Request) {
   try {
     const supabase = await createClient();
+    const auth = await requireUser(supabase);
+    if (auth.response) return auth.response;
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const body = await request.json();
-    const { pokemonId } = body;
-
-    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const { pokemonId } = await request.json();
     if (typeof pokemonId !== "string" || !UUID_RE.test(pokemonId)) {
-      return NextResponse.json({ error: "pokemonId must be a valid UUID" }, { status: 400 });
+      return badRequest("pokemonId must be a valid UUID");
     }
 
     const { data: pokemon } = await supabase
       .from("pokemon")
       .select("id")
       .eq("id", pokemonId)
-      .eq("user_id", user.id)
+      .eq("user_id", auth.user.id)
       .single();
 
     if (!pokemon) {
@@ -33,17 +27,12 @@ export async function POST(request: Request) {
 
     await releasePokemon(supabase, pokemonId);
 
-    // Fire achievement check in background — don't block or fail the response
     const { data: newAchievements } = await supabase.rpc("check_action_achievements", {
       p_trigger: "release",
     });
 
     return NextResponse.json({ success: true, newAchievements: newAchievements ?? [] });
   } catch (error) {
-    console.error("Pokemon release API error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return internalError("POST /api/pokemon/release", error);
   }
 }

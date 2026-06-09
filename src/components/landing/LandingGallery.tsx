@@ -7,7 +7,9 @@ import gallery2 from "@/assets/gallery2.png";
 import gallery3 from "@/assets/gallery3.png";
 
 const IMAGES = [gallery1, gallery2, gallery3];
-const INFINITE_IMAGES = Array(30).fill(IMAGES).flat();
+// Five repeats (15 cards) is enough to make the carousel feel endless from
+// any starting position without rendering 90 <Image fill> children up front.
+const INFINITE_IMAGES = Array(5).fill(IMAGES).flat();
 
 export default function LandingGallery() {
   const scrollRef = useRef<HTMLDivElement>(null);

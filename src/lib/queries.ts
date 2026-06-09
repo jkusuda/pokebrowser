@@ -86,15 +86,17 @@ export async function getTrainerData(supabase: SupabaseClient, userId: string) {
     .filter((f) => userById[f.user_id])
     .map((f) => ({ ...f, requester: userById[f.user_id] }));
 
-  // ── Step 4: resolve buddy pokemon if set ──────────────────────────────────
+  // ── Step 4: resolve buddy pokemon — always one of the user's own pokemon,
+  //   so look it up in the already-fetched list instead of round-tripping. ──
   const user = profileResult.data as User;
+  const pokemon = (pokemonResult.data as Pokemon[]) ?? [];
   const favoritePokemon = user.favorite_pokemon_id
-    ? ((await supabase.from("pokemon").select("*").eq("id", user.favorite_pokemon_id).single()).data as Pokemon)
+    ? pokemon.find((p) => p.id === user.favorite_pokemon_id) ?? null
     : null;
 
   return {
     user,
-    pokemon: (pokemonResult.data as Pokemon[]) ?? [],
+    pokemon,
     friends,
     incomingRequests,
     pokedexUnlocks: (pokedexResult.data as PokedexUnlock[]) ?? [],
@@ -105,6 +107,7 @@ export async function getTrainerData(supabase: SupabaseClient, userId: string) {
     userStats: (userStatsResult.data as UserStats | null) ?? null,
   };
 }
+
 
 export async function updateTrainerProfile(
   supabase: SupabaseClient,

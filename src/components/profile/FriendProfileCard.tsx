@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { FriendProfile, Pokemon } from "@/types";
 import { TRAINER_BASE, getPokemonSprite, getBuddySpriteSize, getPokemonData } from "@/lib/pokemon";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 const BackArrow = () => (
@@ -20,7 +21,7 @@ type Props = {
 
 function Shimmer({ className = "", style }: { className?: string; style?: React.CSSProperties }) {
   return (
-    <div className={`bg-[#48bb78]/40 animate-pulse rounded-lg ${className}`} style={style} />
+    <div className={`bg-pb-pine/40 animate-pulse rounded-lg ${className}`} style={style} />
   );
 }
 
@@ -57,30 +58,30 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
     <Card variant="game" tone="grass" className="relative h-full p-4 gap-0">
 
       {/* Back button — always available */}
-      <button
+      <Button
         onClick={onBack}
-        className="absolute top-3 left-3 z-30 w-8 h-8 rounded-[6px] bg-[#e0f4d9] border-[3px] border-black flex items-center justify-center shadow-[2px_2px_0_black] hover:translate-y-px active:shadow-none transition-all cursor-pointer"
+        variant="game"
+        tone="neutral"
+        size="icon"
+        className="absolute top-3 left-3 z-30 w-8 h-8 rounded-[6px] border-[3px] shadow-[2px_2px_0_black]"
         title="Back"
       >
         <BackArrow />
-      </button>
+      </Button>
 
       {/* Title */}
       <div className="flex justify-center mb-3 px-10 h-7 items-center">
         {loading ? (
           <Shimmer className="h-5 w-36 rounded-md" />
         ) : (
-          <h1
-            className="font-black tracking-widest text-xl text-white uppercase text-center truncate"
-            style={{ WebkitTextStroke: "1.5px black", textShadow: "0 2px 0 black" }}
-          >
+          <h1 className="text-emboss text-xl text-center truncate">
             {fullProfile?.trainer_name}
           </h1>
         )}
       </div>
 
       {/* Inner card */}
-      <div className="flex-1 bg-[#e0f4d9] rounded-[8px] border-4 border-black relative flex flex-col shadow-inner overflow-hidden">
+      <div className="flex-1 bg-pb-bg rounded-[8px] border-4 border-black relative flex flex-col shadow-inner overflow-hidden">
 
         {/* Sprites — both bottom-aligned; trainer centres when no buddy, shifts right when buddy present */}
         <div className="flex-1 relative overflow-hidden">
@@ -149,7 +150,7 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
                 </div>
                 <div className="w-full h-4 bg-white border-[3px] border-black rounded-full overflow-hidden shadow-[2px_2px_0_rgba(0,0,0,0.5)]">
                   <div
-                    className="h-full bg-[#48bb78] transition-all duration-500"
+                    className="h-full bg-pb-pine transition-all duration-500"
                     style={{ width: `${xpProgress}%` }}
                   />
                 </div>

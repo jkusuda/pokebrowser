@@ -1,28 +1,22 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { updatePrivacy } from "@/lib/queries";
+import { requireUser, badRequest, internalError } from "@/lib/api-helpers";
 
 export async function POST(request: Request) {
   try {
     const supabase = await createClient();
+    const auth = await requireUser(supabase);
+    if (auth.response) return auth.response;
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const body = await request.json();
-    const { isPrivate } = body;
-
+    const { isPrivate } = await request.json();
     if (typeof isPrivate !== "boolean") {
-      return NextResponse.json({ error: "isPrivate must be a boolean" }, { status: 400 });
+      return badRequest("isPrivate must be a boolean");
     }
 
-    await updatePrivacy(supabase, user.id, isPrivate);
-
+    await updatePrivacy(supabase, auth.user.id, isPrivate);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("trainer/privacy error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return internalError("POST /api/trainer/privacy", error);
   }
 }

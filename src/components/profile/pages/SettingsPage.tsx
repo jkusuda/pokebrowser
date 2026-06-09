@@ -54,12 +54,7 @@ export default function SettingsPage({ user }: Props) {
             alt="Settings"
             className="w-24 h-24 object-contain drop-shadow-md"
           />
-          <span
-            className="font-black text-2xl tracking-widest text-white text-center"
-            style={{ WebkitTextStroke: "1.5px black", textShadow: "0px 2px 0px black" }}
-          >
-            SETTINGS
-          </span>
+          <span className="text-emboss text-2xl text-center">SETTINGS</span>
         </div>
 
         {/* Divider */}
@@ -68,10 +63,10 @@ export default function SettingsPage({ user }: Props) {
         {/* Privacy toggle */}
         <div className="w-full flex items-center justify-between gap-4">
           <div className="flex flex-col gap-1">
-            <span className="font-black tracking-widest uppercase text-[11px] text-[#2d5a27]">
+            <span className="font-black tracking-widest uppercase text-[11px] text-pb-forest">
               Private Profile
             </span>
-            <span className="font-bold text-[10px] text-[#2d5a27]/60 leading-tight">
+            <span className="font-bold text-[10px] text-pb-forest/60 leading-tight">
               Prevent others from sending you friend requests
             </span>
           </div>
@@ -80,7 +75,7 @@ export default function SettingsPage({ user }: Props) {
             disabled={privacyLoading}
             className={`
               shrink-0 w-12 h-6 rounded-full border-[3px] border-black transition-all duration-200
-              ${isPrivate ? "bg-[#4a8a44]" : "bg-black/20"}
+              ${isPrivate ? "bg-pb-pine" : "bg-black/20"}
               ${privacyLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
               relative
             `}

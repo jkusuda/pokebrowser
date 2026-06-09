@@ -3,6 +3,7 @@
 import { useState } from "react";
 import AchievementCard from "@/components/achievements/AchievementCard";
 import TypePickerModal from "@/components/rewards/TypePickerModal";
+import { Button } from "@/components/ui/button";
 import {
   ACHIEVEMENTS_BY_CATEGORY,
   CATEGORY_LABELS,
@@ -132,18 +133,20 @@ export default function AchievementsTab({
       {/* Filter strip */}
       <div className="flex gap-2 flex-wrap">
         {(["all", "earned", "locked"] as const).map((f) => (
-          <button
+          <Button
             key={f}
+            variant="ghost"
+            size="sm"
             onClick={() => setFilter(f)}
             className={cn(
-              "px-3 py-1 rounded-full text-xs font-bold uppercase border-2 transition-all",
+              "h-auto px-3 py-1 rounded-full text-xs font-bold uppercase border-2",
               filter === f
-                ? "border-black bg-pb-pine text-white shadow-[2px_2px_0_black]"
+                ? "border-black bg-pb-pine text-white shadow-[2px_2px_0_black] hover:bg-pb-pine hover:text-white"
                 : "border-black/20 bg-white/60 text-black/50 hover:border-pb-pine"
             )}
           >
             {f === "earned" && unclaimedCount > 0 ? `Earned (${unclaimedCount})` : f.charAt(0).toUpperCase() + f.slice(1)}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -164,7 +167,7 @@ export default function AchievementsTab({
                    token.token_type === "mythical" ? "🔮" :
                    token.token_type === "shiny" ? "✨" : "💎"}
                 </span>
-                <span className="text-[10px] font-black uppercase text-white [text-shadow:0_1px_0_black]">
+                <span className="text-emboss-sm text-[10px]">
                   {token.token_type === "type_pick"
                     ? `${token.type_filter} type`
                     : token.token_type}
@@ -172,16 +175,18 @@ export default function AchievementsTab({
               </div>
             ))}
             {pendingTypeTokens.map((token) => (
-              <button
+              <Button
                 key={token.id}
+                variant="game"
+                size="sm"
                 onClick={() => setTypePickerToken(token)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 bg-amber-400 border-2 border-black rounded-lg shadow-[2px_2px_0_black] hover:bg-amber-500 transition-colors"
+                className="flex items-center gap-1.5 h-auto px-2.5 py-1.5 bg-amber-400 hover:bg-amber-500 active:bg-amber-500 border-2 rounded-lg shadow-[2px_2px_0_black] !text-black [-webkit-text-stroke:0px] [text-shadow:none]"
               >
                 <span className="text-base">💎</span>
-                <span className="text-[10px] font-black uppercase text-black">
+                <span className="text-[10px] font-black uppercase">
                   Choose Type ▼
                 </span>
-              </button>
+              </Button>
             ))}
           </div>
         </div>

@@ -12,10 +12,10 @@ type Props = { stats: ActivityStats };
 
 // Pokéball icon
 const PokeballIcon = () => (
-  <div className={`w-6 h-6 rounded-full bg-red-500 border-[3px] border-black overflow-hidden flex flex-col relative`}>
-    <div className="h-1/2 w-full bg-white absolute top-0" />
-    <div className="w-full h-[3px] bg-black absolute top-1/2 -mt-px" />
-    <div className={`w-2 h-2 rounded-full bg-white border-2 border-black absolute top-1/2 left-1/2 -mt-[4px] -ml-[4px] z-10`} />
+  <div className="w-6 h-6 rounded-full bg-white border-[3px] border-black overflow-hidden relative">
+    <div className="h-1/2 w-full bg-red-500 absolute top-0" />
+    <div className="w-full h-[3px] bg-black absolute top-1/2 -mt-px z-10" />
+    <div className="w-2 h-2 rounded-full bg-white border-2 border-black absolute top-1/2 left-1/2 -mt-[4px] -ml-[4px] z-20" />
   </div>
 );
 
@@ -38,7 +38,7 @@ const AdventureIcon = () => (
 
 const STAT_DEFS = [
   { key: "pokemonCaught", label: "Pokémon Caught", Icon: PokeballIcon },
-  { key: "websitesVisited", label: "Websites Visited", Icon: GlobeIcon },
+  { key: "websitesVisited", label: "Unique Sites Caught On", Icon: GlobeIcon },
   { key: "adventureStarted", label: "Adventure Started", Icon: AdventureIcon },
 ] as const;
 
@@ -55,7 +55,7 @@ export default function TotalActivityPanel({ stats }: Props) {
 
       <div className="flex gap-3 justify-between">
         {STAT_DEFS.map(({ key, label, Icon }) => (
-          <div key={key} className={`flex-1 bg-[#e0f4d9] rounded-[8px] border-4 border-black p-3 flex flex-col items-center shadow-inner justify-between`}>
+          <div key={key} className={`flex-1 bg-pb-bg rounded-[8px] border-4 border-black p-3 flex flex-col items-center shadow-inner justify-between`}>
             <div className="mb-2"><Icon /></div>
             <p className="text-black text-xs font-bold text-center leading-tight">{label}</p>
             <p className="text-black font-black text-lg mt-1">{values[key]}</p>

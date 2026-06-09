@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import netPng from "@/assets/net.png";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 type Page = "home" | "globalStats" | "pokedex" | "settings";
 
@@ -31,13 +33,18 @@ export default function ProfileTopBar({ activePage, onPageChange }: Props) {
       {/* Centered navigation buttons */}
       <div className="flex-1 flex items-center justify-center gap-8">
         {NAV_ITEMS.map(({ label, page }) => (
-          <button
+          <Button
             key={page}
+            variant="ghost"
+            size="sm"
             onClick={() => onPageChange(page)}
-            className={`text-black text-sm font-bold transition-colors hover:bg-[#8abf8a] px-4 py-1.5 rounded-[8px] ${activePage === page ? "bg-[#8abf8a]" : ""}`}
+            className={cn(
+              "text-black text-sm font-bold rounded-[8px] hover:bg-pb-grass-deep",
+              activePage === page && "bg-pb-grass-deep"
+            )}
           >
             {label}
-          </button>
+          </Button>
         ))}
       </div>
     </Card>

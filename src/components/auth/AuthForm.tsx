@@ -4,6 +4,9 @@ import { useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 type Tab = "login" | "signup";
 
@@ -63,21 +66,28 @@ export default function AuthForm() {
   }
 
   return (
-    <div className="bg-white rounded-[12px] border-4 border-black shadow-[8px_8px_0_black] overflow-hidden">
+    <Card
+      variant="game"
+      tone="white"
+      shadow="lg"
+      className="rounded-[12px] overflow-hidden p-0 gap-0"
+    >
       {/* Tabs */}
       <div className="flex border-b-4 border-black">
         {(["login", "signup"] as Tab[]).map((t) => (
-          <button
+          <Button
             key={t}
+            variant="ghost"
             onClick={() => { setTab(t); setError(null); setSuccess(null); }}
-            className={`flex-1 py-4 font-black text-[13px] tracking-widest transition-colors uppercase ${
+            className={cn(
+              "flex-1 h-auto py-4 font-black text-[13px] tracking-widest uppercase rounded-none",
               tab === t
-                ? "bg-[#9dcd9d] text-black"
-                : "bg-gray-50 text-gray-400 hover:text-black hover:bg-[#9dcd9d]/50"
-            }`}
+                ? "bg-pb-grass text-black hover:bg-pb-grass"
+                : "bg-gray-50 text-gray-400 hover:text-black hover:bg-pb-grass/50"
+            )}
           >
             {t === "login" ? "LOGIN" : "SIGN UP"}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -104,37 +114,34 @@ export default function AuthForm() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {tab === "signup" && (
-            <input
+            <Input
               type="text"
               placeholder="Trainer name"
               value={trainerName}
               onChange={(e) => setTrainerName(e.target.value)}
               required
-              className="w-full px-4 py-3 rounded-[8px] border-4 border-black font-bold text-sm text-black outline-none focus:border-[#9dcd9d] transition-colors"
             />
           )}
-          <input
+          <Input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-[8px] border-4 border-black font-bold text-sm text-black outline-none focus:border-[#9dcd9d] transition-colors"
           />
-          <input
+          <Input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-[8px] border-4 border-black font-bold text-sm text-black outline-none focus:border-[#9dcd9d] transition-colors"
           />
 
           {error && (
             <p className="font-bold text-xs text-red-600 text-center bg-red-100 border-2 border-red-600 p-2 rounded">{error}</p>
           )}
           {success && (
-            <p className="font-bold text-xs text-[#2d5a27] text-center bg-[#9dcd9d] border-2 border-[#2d5a27] p-2 rounded">{success}</p>
+            <p className="font-bold text-xs text-pb-forest text-center bg-pb-grass border-2 border-pb-forest p-2 rounded">{success}</p>
           )}
 
           <Button
@@ -148,7 +155,7 @@ export default function AuthForm() {
           </Button>
         </form>
       </div>
-    </div>
+    </Card>
   );
 }
 

@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { PokedexUnlock } from "@/types";
-import { getPokemonData } from "@/lib/pokemon";
-import { getPokedexSprite } from "@/lib/pokemon";
+import { getPokemonData, getPokedexSprite } from "@/lib/pokemon";
+import { errorMessage } from "@/lib/api-helpers";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -46,7 +47,7 @@ export default function CandySelectionModal({ pokedexUnlocks, pendingLevels }: P
       setSelected(null);
       setRemaining((r) => r - 1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      setError(errorMessage(err) || "Something went wrong");
     } finally {
       setSubmitting(false);
     }
@@ -61,12 +62,7 @@ export default function CandySelectionModal({ pokedexUnlocks, pendingLevels }: P
         {/* Header */}
         <div className="text-center mb-4 shrink-0">
           <div className="text-3xl mb-1">🍬</div>
-          <h2
-            className="font-black text-xl uppercase tracking-widest text-white"
-            style={{ WebkitTextStroke: "1px black", textShadow: "0 2px 0 black" }}
-          >
-            Level Up!
-          </h2>
+          <h2 className="text-emboss text-xl">Level Up!</h2>
           <p className="text-sm text-black/70 mt-1">
             Choose a Pokémon to receive <strong>10 candies</strong>.
           </p>
@@ -78,12 +74,12 @@ export default function CandySelectionModal({ pokedexUnlocks, pendingLevels }: P
         </div>
 
         {/* Search */}
-        <input
+        <Input
           type="text"
           placeholder="Search Pokémon..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full mb-3 px-3 py-2 text-sm border-2 border-black rounded-lg bg-white/80 placeholder-black/40 focus:outline-none focus:border-pb-pine shrink-0"
+          className="mb-3 px-3 py-2 text-sm border-2 bg-white/80 rounded-lg shrink-0"
         />
 
         {/* Pokémon grid */}

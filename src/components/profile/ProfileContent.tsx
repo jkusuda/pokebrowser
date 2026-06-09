@@ -14,9 +14,11 @@ import CandySelectionModal from "@/components/rewards/CandySelectionModal";
 import GlobalStatsPage from "./pages/GlobalStatsPage";
 import PokedexPage from "./pages/PokedexPage";
 import SettingsPage from "./pages/SettingsPage";
+import RefreshButton from "./RefreshButton";
 
 import { User, Pokemon, FriendWithUser, IncomingRequest, FriendProfile, PokedexUnlock, Candy, AchievementUnlock, Token, UserStats } from "@/types";
 import { Card } from "@/components/ui/card";
+import { useRealtimeRefresh } from "@/lib/hooks/useRealtimeRefresh";
 
 type Page = "home" | "globalStats" | "pokedex" | "settings";
 
@@ -46,6 +48,16 @@ function TabPanel({ children, className = "" }: { children: React.ReactNode; cla
   );
 }
 
+/** Embossed title bar used in every TabPanel. */
+function TabHeader({ title, right }: { title: string; right?: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between mb-4">
+      <h2 className="text-emboss text-xl">{title}</h2>
+      {right}
+    </div>
+  );
+}
+
 const FADE_MS = 150;
 
 export default function ProfileContent({
@@ -65,6 +77,8 @@ export default function ProfileContent({
   const [activePage, setActivePage] = useState<Page>("home");
   const [fading, setFading] = useState(false);
   const [selectedFriend, setSelectedFriend] = useState<FriendProfile | null>(null);
+
+  useRealtimeRefresh(user.id);
 
   const handlePageChange = (page: Page) => {
     if (page === activePage) return;
@@ -141,15 +155,17 @@ export default function ProfileContent({
 
             {activeTab === "collection" && (
               <TabPanel>
-                <div className="flex items-center justify-between mb-4">
-                  <h2
-                    className="font-black text-xl"
-                    style={{ WebkitTextStroke: "1px black", textShadow: "0 2px 0 black", color: "white" }}
-                  >
-                    COLLECTION
-                  </h2>
-                  <span className="font-bold text-sm text-black tracking-wide">{pokemon.length} / {user.catch_limit ?? 200}</span>
-                </div>
+                <TabHeader
+                  title="COLLECTION"
+                  right={
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-sm text-black tracking-wide">
+                        {pokemon.length} / {user.catch_limit ?? 200}
+                      </span>
+                      <RefreshButton />
+                    </div>
+                  }
+                />
                 <div className="flex-1 flex flex-col pr-2 min-h-0 relative">
                   <CollectionTab pokemon={pokemon} candies={candies} />
                 </div>
@@ -158,14 +174,7 @@ export default function ProfileContent({
 
             {activeTab === "friends" && (
               <TabPanel>
-                <div className="flex items-center mb-4">
-                  <h2
-                    className="font-black text-xl"
-                    style={{ WebkitTextStroke: "1px black", textShadow: "0 2px 0 black", color: "white" }}
-                  >
-                    FRIENDS
-                  </h2>
-                </div>
+                <TabHeader title="FRIENDS" />
                 <div className="overflow-y-auto pr-2 custom-scrollbar flex-1">
                   <FriendsTab
                     user={user}
@@ -179,14 +188,7 @@ export default function ProfileContent({
 
             {activeTab === "achievements" && (
               <TabPanel>
-                <div className="flex items-center mb-4">
-                  <h2
-                    className="font-black text-xl"
-                    style={{ WebkitTextStroke: "1px black", textShadow: "0 2px 0 black", color: "white" }}
-                  >
-                    ACHIEVEMENTS
-                  </h2>
-                </div>
+                <TabHeader title="ACHIEVEMENTS" />
                 <div className="overflow-y-auto pr-2 custom-scrollbar flex-1">
                   <AchievementsTab
                     achievementUnlocks={achievementUnlocks}

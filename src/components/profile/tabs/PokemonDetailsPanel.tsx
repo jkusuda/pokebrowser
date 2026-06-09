@@ -2,6 +2,9 @@ import { Pokemon, PokemonInfo, Candy } from "@/types";
 import { getPokemonSprite } from "@/lib/pokemon";
 import { getFamilyId } from "pokemon-data";
 import { getTypeColor, getTypeIconPath } from "@/lib/types";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface PokemonDetailsPanelProps {
   pokemon: Pokemon | null;
@@ -25,20 +28,24 @@ export default function PokemonDetailsPanel({
   const typeColors = getTypeColor(primaryType);
 
   return (
-    <div
-      className={`absolute top-2 bottom-2 right-2 w-[36%] rounded-[20px] shadow-lg transition-transform duration-300 z-20 overflow-hidden flex flex-col ${isVisible ? "translate-x-0" : "translate-x-[110%]"
-        }`}
+    <Card
+      className={cn(
+        "absolute top-2 bottom-2 right-2 w-[36%] rounded-[20px] shadow-lg transition-transform duration-300 z-20 overflow-hidden p-0 gap-0",
+        isVisible ? "translate-x-0" : "translate-x-[110%]"
+      )}
       style={{ backgroundColor: `${typeColors.background}cc` }}
     >
       {pokemon && (
         <div className="flex flex-col h-full relative">
           {/* Close button */}
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onClose}
-            className="absolute top-2 right-3 text-white/70 hover:text-white text-xl font-bold z-30"
+            className="absolute top-2 right-3 text-white/70 hover:text-white text-xl font-bold z-30 h-auto w-auto p-1"
           >
             &times;
-          </button>
+          </Button>
 
           {/* Spacer */}
           <div className="flex-1" />
@@ -53,7 +60,13 @@ export default function PokemonDetailsPanel({
             />
 
             {/* White info card */}
-            <div className="mx-3 mt-0 rounded-[16px] bg-white/90 shadow-sm p-3 pt-4 flex flex-col gap-2 shrink-0">
+            <Card
+              variant="game"
+              tone="white"
+              size="sm"
+              shadow="sm"
+              className="mx-3 mt-0 rounded-[16px] bg-white/90 pt-4 shrink-0"
+            >
               {/* Name + number */}
               <div className="text-center">
                 <h3 className="text-lg font-bold capitalize leading-tight">
@@ -108,32 +121,50 @@ export default function PokemonDetailsPanel({
                   <p className="text-gray-400 font-semibold text-[9px] uppercase tracking-wide">Height</p>
                 </div>
               </div>
-            </div>
+            </Card>
 
             {/* Candy row */}
-            <div className="mx-3 mt-1.5 rounded-[12px] bg-white/90 shadow-sm px-4 py-1.5 flex items-center justify-between shrink-0">
+            <Card
+              variant="game"
+              tone="white"
+              size="sm"
+              shadow="sm"
+              className="mx-3 mt-1.5 rounded-[12px] bg-white/90 flex-row items-center justify-between shrink-0"
+            >
               <span className="font-bold text-sm capitalize">
                 {familyInfo?.name?.replace(/-/g, " ") ?? pokemonInfo?.name?.replace(/-/g, " ") ?? "Pokémon"} Candy
               </span>
               <span className="font-bold text-sm text-gray-600">
                 {pokemon ? (candies?.find(c => c.pokedex_number === getFamilyId(pokemon.pokedex_number))?.count ?? 0) : "—"}
               </span>
-            </div>
+            </Card>
 
             {/* Evolve button */}
             {pokemonInfo?.evolvesTo != null ? (
-              <div className="mx-3 mt-1.5 rounded-[12px] bg-[#d4edbc] shadow-sm px-4 py-1.5 flex items-center justify-between shrink-0 opacity-60">
-                <span className="font-bold text-sm text-[#5a8a3c] uppercase tracking-wide">Evolve</span>
-                <span className="font-bold text-[#5a8a3c]/70 bg-white/60 px-3 py-0.5 rounded-full text-xs">
+              <Card
+                variant="game"
+                tone="leaf"
+                size="sm"
+                shadow="sm"
+                className="mx-3 mt-1.5 rounded-[12px] bg-pb-leaf flex-row items-center justify-between shrink-0 opacity-60"
+              >
+                <span className="font-bold text-sm text-pb-forest uppercase tracking-wide">Evolve</span>
+                <span className="font-bold text-pb-forest/70 bg-white/60 px-3 py-0.5 rounded-full text-xs">
                   {pokemonInfo.evolveCandyCost ?? "—"}
                 </span>
-              </div>
+              </Card>
             ) : (
               <div className="mx-3 mt-1.5 rounded-[12px] px-4 py-4 shrink-0" aria-hidden="true" />
             )}
 
             {/* Caught On footer */}
-            <div className="mx-3 mt-1.5 mb-2 rounded-[12px] bg-white/70 px-4 py-2 text-center shrink-0">
+            <Card
+              variant="game"
+              tone="white"
+              size="sm"
+              shadow="none"
+              className="mx-3 mt-1.5 mb-2 rounded-[12px] bg-white/70 text-center shrink-0"
+            >
               <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-widest mb-0.5">
                 Caught On
               </p>
@@ -149,10 +180,10 @@ export default function PokemonDetailsPanel({
                   })
                   : "Unknown"}
               </p>
-            </div>
+            </Card>
           </div>
         </div>
       )}
-    </div>
+    </Card>
   );
 }

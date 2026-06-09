@@ -8,6 +8,7 @@ import whiteballIcon from "@/assets/whiteball.png";
 import LandingGallery from "@/components/landing/LandingGallery";
 import updatesData from "@/data/updates.json";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 export default function Home({
   searchParams,
@@ -108,7 +109,7 @@ async function HomeContent({
 
         {/* Scroll Indicator */}
         <div className="absolute bottom-12 animate-bounce flex flex-col items-center gap-2">
-          <span className="font-black text-white text-xs tracking-widest" style={{ WebkitTextStroke: "1px black" }}>SCROLL</span>
+          <span className="text-emboss-sm text-xs">SCROLL</span>
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0px 2px 0px black)" }}>
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
@@ -119,18 +120,18 @@ async function HomeContent({
       <div className="relative z-10 flex flex-col text-black">
 
         {/* Changelog Section */}
-        <section className="w-full py-24 px-8 bg-[#ecf5e8] border-t-4 border-black flex flex-col items-center">
+        <section className="w-full py-24 px-8 bg-pb-leaf border-t-4 border-black flex flex-col items-center">
           <div className="max-w-4xl w-full">
-            <h2 className={sectionTitleClass} style={{ color: "#4a8a44", WebkitTextStroke: "2.5px black", textShadow: "0 6px 0 black" }}>
+            <h2 className={`${sectionTitleClass} text-emboss-lg text-pb-pine`}>
               LATEST UPDATES
             </h2>
-            <div className="bg-white border-4 border-black shadow-[8px_8px_0_black] rounded-xl p-8 md:p-12 space-y-8 max-w-2xl mx-auto">
+            <Card variant="game" tone="white" shadow="lg" className="rounded-xl p-8 md:p-12 gap-0 space-y-8 max-w-2xl mx-auto">
               {updatesData.updates.map((update, idx) => (
                 <div key={update.version}>
                   <h3 className={`font-black text-2xl uppercase border-b-4 pb-2 mb-4 ${idx === 0 ? "border-black" : "text-gray-300 border-gray-100"}`}>
                     Version {update.version}
                     {update.isNew && (
-                      <span className="text-[#4a8a44] ml-2 text-lg align-middle bg-[#ecf5e8] border-2 border-black rounded px-2 py-1 shadow-[2px_2px_0_black]">NEW</span>
+                      <span className="text-pb-pine ml-2 text-lg align-middle bg-pb-leaf border-2 border-black rounded px-2 py-1 shadow-[2px_2px_0_black]">NEW</span>
                     )}
                   </h3>
                   <ul className={`list-disc pl-6 space-y-3 font-bold text-lg ${idx === 0 ? "text-gray-700" : "text-gray-400"}`}>
@@ -140,15 +141,15 @@ async function HomeContent({
                   </ul>
                 </div>
               ))}
-            </div>
+            </Card>
           </div>
         </section>
 
         {/* What is Pokebrowser Section */}
-        <section className="w-full py-28 px-8 bg-[#68a060] border-t-8 border-black flex flex-col items-center">
+        <section className="w-full py-28 px-8 bg-pb-grass-deep border-t-8 border-black flex flex-col items-center">
           <div className="max-w-5xl w-full flex flex-col md:flex-row gap-12 items-center">
             <div className="flex-1">
-              <h2 className="font-black tracking-widest text-4xl md:text-5xl text-white uppercase mb-8" style={{ WebkitTextStroke: "2px black", textShadow: "0 6px 0 black" }}>
+              <h2 className="text-emboss-lg tracking-widest text-4xl md:text-5xl mb-8">
                 WHAT IS POKEBROWSER?
               </h2>
               <div className="bg-black/20 p-6 md:p-8 rounded-xl border-4 border-black">
@@ -173,13 +174,13 @@ async function HomeContent({
         </section>
 
         {/* How it Works Section */}
-        <section className="w-full py-28 px-8 bg-[#4a8a44] border-t-8 border-black flex flex-col items-center">
-          <h2 className={sectionTitleClass} style={{ WebkitTextStroke: "2.5px black", textShadow: "0 6px 0 black" }}>
+        <section className="w-full py-28 px-8 bg-pb-pine border-t-8 border-black flex flex-col items-center">
+          <h2 className={`${sectionTitleClass} text-emboss-lg`}>
             HOW IT WORKS
           </h2>
           <div className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mt-4">
-            <div className="bg-white border-4 border-black shadow-[8px_8px_0_black] rounded-xl p-8 md:p-10 flex flex-col items-center text-center relative mt-6 md:mt-0">
-              <div className="absolute -top-10 w-20 h-20 bg-[#68a060] border-4 border-black rounded-full text-white flex items-center justify-center shadow-[4px_4px_0_black]">
+            <Card variant="game" tone="white" shadow="lg" className="rounded-xl p-8 md:p-10 items-center text-center relative mt-6 md:mt-0">
+              <div className="absolute -top-10 w-20 h-20 bg-pb-grass-deep border-4 border-black rounded-full text-white flex items-center justify-center shadow-[4px_4px_0_black]">
                 <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                   <polyline points="7 10 12 15 17 10" />
@@ -188,9 +189,9 @@ async function HomeContent({
               </div>
               <h3 className="font-black text-2xl mt-6 mb-4 uppercase">Install</h3>
               <p className="font-bold text-gray-600 text-lg">Get the Pokebrowser extension for Chrome and log in to sync your progress.</p>
-            </div>
-            <div className="bg-white border-4 border-black shadow-[8px_8px_0_black] rounded-xl p-8 md:p-10 flex flex-col items-center text-center relative mt-16 md:mt-0">
-              <div className="absolute -top-10 w-20 h-20 bg-[#4a8a44] border-4 border-black rounded-full text-white flex items-center justify-center shadow-[4px_4px_0_black]">
+            </Card>
+            <Card variant="game" tone="white" shadow="lg" className="rounded-xl p-8 md:p-10 items-center text-center relative mt-16 md:mt-0">
+              <div className="absolute -top-10 w-20 h-20 bg-pb-pine border-4 border-black rounded-full text-white flex items-center justify-center shadow-[4px_4px_0_black]">
                 <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                   <line x1="3" y1="9" x2="21" y2="9" />
@@ -200,9 +201,9 @@ async function HomeContent({
               </div>
               <h3 className="font-black text-2xl mt-6 mb-4 uppercase">Browse</h3>
               <p className="font-bold text-gray-600 text-lg">Surf your favorite sites. Pokémon will randomly appear on pages as you scroll.</p>
-            </div>
-            <div className="bg-white border-4 border-black shadow-[8px_8px_0_black] rounded-xl p-8 md:p-10 flex flex-col items-center text-center relative mt-16 md:mt-0">
-              <div className="absolute -top-10 w-20 h-20 bg-[#2d5a27] border-4 border-black rounded-full text-white flex items-center justify-center shadow-[4px_4px_0_black]">
+            </Card>
+            <Card variant="game" tone="white" shadow="lg" className="rounded-xl p-8 md:p-10 items-center text-center relative mt-16 md:mt-0">
+              <div className="absolute -top-10 w-20 h-20 bg-pb-forest border-4 border-black rounded-full text-white flex items-center justify-center shadow-[4px_4px_0_black]">
                 <Image
                   src={whiteballIcon}
                   alt="Pokeball"
@@ -213,13 +214,13 @@ async function HomeContent({
               </div>
               <h3 className="font-black text-2xl mt-6 mb-4 uppercase">Catch</h3>
               <p className="font-bold text-gray-600 text-lg">Click on wild Pokémon to catch them, then view your collection on your profile!</p>
-            </div>
+            </Card>
           </div>
         </section>
 
         {/* Gallery Section */}
-        <section className="w-full py-28 bg-[#2d5a27] border-t-8 border-black overflow-hidden flex flex-col items-center">
-          <h2 className={sectionTitleClass} style={{ WebkitTextStroke: "2.5px black", textShadow: "0 6px 0 black" }}>
+        <section className="w-full py-28 bg-pb-forest border-t-8 border-black overflow-hidden flex flex-col items-center">
+          <h2 className={`${sectionTitleClass} text-emboss-lg`}>
             GALLERY
           </h2>
           <LandingGallery />
@@ -228,7 +229,7 @@ async function HomeContent({
         {/* Footer Section */}
         <footer className="w-full py-8 px-8 bg-[#2d3436] border-t-8 border-black flex flex-col items-center text-center text-white">
           <div className="max-w-4xl flex flex-col gap-4 items-center">
-            <h4 className="font-black text-xl text-white uppercase tracking-widest bg-black/40 px-4 py-2 rounded-lg border-2 border-white/10" style={{ textShadow: "0 2px 0 black" }}>POKEBROWSER</h4>
+            <h4 className="text-emboss-sm text-xl bg-black/40 px-4 py-2 rounded-lg border-2 border-white/10">POKEBROWSER</h4>
 
             <p className="font-bold text-xs md:text-sm text-gray-400 max-w-2xl leading-relaxed">
               Pokebrowser is a Fan Made, Non-commercial project and is not affiliated with, sponsored, or endorsed by Nintendo, GAME FREAK, or The Pokémon Company.

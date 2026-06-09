@@ -233,7 +233,7 @@ function showEncounterPopup(
   try {
     grassUrl = chrome.runtime.getURL("grass-platform.webp");
     pokeballUrl = chrome.runtime.getURL("pokeball-spritesheet.png");
-  } catch (e) {
+  } catch {
     console.debug("Pokebrowser: Extension context invalidated.");
     return;
   }
@@ -322,7 +322,7 @@ function showEncounterPopup(
               setTimeout(() => dismiss(), 2000);
             }
           );
-        } catch (e) {
+        } catch {
           console.debug("Pokebrowser: Extension context invalidated.");
           buttonsDiv.innerHTML = "";
           buttonsDiv.textContent = "Extension reloaded. Please refresh the page.";
@@ -333,18 +333,24 @@ function showEncounterPopup(
   }
 }
 
+type SessionResponse = {
+  loggedIn: boolean;
+  boxIsFull?: boolean;
+  encounter?: { pokedexNumber: number; isShiny: boolean; name: string; nonce: string };
+};
+
 // Extension Initialization
 async function tryEncounter() {
   if (Math.random() > CONFIG.GAME.ENCOUNTER_RATE) return;
 
   try {
-    const session: any = await chrome.runtime.sendMessage({ type: "GET_SESSION" });
+    const session = (await chrome.runtime.sendMessage({ type: "GET_SESSION" })) as SessionResponse | undefined;
     if (!session?.loggedIn || !session.encounter) return;
 
     setTimeout(() => {
-      showEncounterPopup(session.encounter, !!session.boxIsFull);
+      showEncounterPopup(session.encounter!, !!session.boxIsFull);
     }, 1500);
-  } catch (e) {
+  } catch {
     console.debug("Pokebrowser: Extension context invalidated.");
   }
 }

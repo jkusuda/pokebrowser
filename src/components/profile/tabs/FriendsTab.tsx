@@ -4,6 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, FriendWithUser, IncomingRequest, FriendProfile } from "@/types";
 import { TRAINER_BASE } from "@/lib/pokemon";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { errorMessage } from "@/lib/api-helpers";
+import { cn } from "@/lib/utils";
 
 type Props = {
   user: User;
@@ -12,17 +16,22 @@ type Props = {
   onFriendSelect: (profile: FriendProfile) => void;
 };
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+type SubTab = "friends" | "sent" | "pending";
+
+// ─── Tiny helpers ───────────────────────────────────────────────────────────
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="font-black tracking-widest uppercase text-[9px] text-[#3a5a00] mb-2">
+    <h3 className="font-black tracking-widest uppercase text-[9px] text-pb-forest mb-2">
       {children}
     </h3>
   );
 }
 
-// ─── Sub-components ──────────────────────────────────────────────────────────
+const EMPTY_STATE_CLS =
+  "font-black tracking-widest uppercase text-[9px] text-pb-forest/40 text-center leading-relaxed py-6";
+
+// ─── Friend code display ────────────────────────────────────────────────────
 
 function FriendCodeDisplay({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
@@ -36,19 +45,19 @@ function FriendCodeDisplay({ code }: { code: string }) {
   return (
     <div className="bg-white rounded-xl border-2 border-black/20 p-3 flex items-center justify-between gap-3">
       <div className="flex flex-col gap-0.5">
-        <span className="font-black tracking-widest uppercase text-[8px] text-[#3a5a00]/70">YOUR CODE</span>
-        <span className="font-black text-base tracking-widest text-[#2d5a27] font-mono">{code}</span>
+        <span className="font-black tracking-widest uppercase text-[8px] text-pb-forest/70">
+          YOUR CODE
+        </span>
+        <span className="font-black text-base tracking-widest text-pb-forest font-mono">{code}</span>
       </div>
-      <button
-        onClick={handleCopy}
-        className="shrink-0 px-3 py-1.5 rounded-lg border-2 border-black/30 bg-[#8abf8a] hover:bg-[#78b078] active:translate-y-px text-[9px] font-black tracking-widest uppercase text-white transition-all"
-        style={{ textShadow: "0 1px 0 rgba(0,0,0,0.4)" }}
-      >
+      <Button onClick={handleCopy} variant="game" tone="mint" size="sm" className="shrink-0">
         {copied ? "COPIED!" : "COPY"}
-      </button>
+      </Button>
     </div>
   );
 }
+
+// ─── Add friend form ────────────────────────────────────────────────────────
 
 function AddFriendForm() {
   const router = useRouter();
@@ -58,7 +67,7 @@ function AddFriendForm() {
   const [success, setSuccess] = useState(false);
 
   const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Auto-format: strip non-alphanum, uppercase, insert hyphen after 4 chars
+    // Auto-format: strip non-alphanum, uppercase, insert hyphen after 4 chars.
     const raw = e.target.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 8);
     const formatted = raw.length > 4 ? `${raw.slice(0, 4)}-${raw.slice(4)}` : raw;
     setCode(formatted);
@@ -80,7 +89,7 @@ function AddFriendForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ friendCode: code }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(data.error ?? "Failed to send request");
       } else {
@@ -88,8 +97,8 @@ function AddFriendForm() {
         setCode("");
         router.refresh();
       }
-    } catch {
-      setError("Something went wrong. Please try again.");
+    } catch (err) {
+      setError(errorMessage(err) || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -98,33 +107,33 @@ function AddFriendForm() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
       <div className="flex gap-2">
-        <input
+        <Input
           type="text"
           value={code}
           onChange={handleCodeChange}
           placeholder="XXXX-XXXX"
           maxLength={9}
-          className="flex-1 bg-white border-2 border-black/30 rounded-lg px-3 py-2 font-black text-sm tracking-widest uppercase text-[#2d5a27] placeholder:text-[#3a5a00]/30 outline-none focus:border-[#4a8a44] transition-colors font-mono"
           disabled={loading}
+          className="flex-1 py-2 px-3 border-2 border-black/30 text-pb-forest placeholder:text-pb-forest/30 font-mono tracking-widest uppercase rounded-lg"
         />
-        <button
+        <Button
           type="submit"
           disabled={loading || code.length !== 9}
-          className="shrink-0 px-4 py-2 rounded-lg border-2 border-black/40 bg-[#4a8a44] hover:bg-[#3a7a34] disabled:opacity-50 disabled:cursor-not-allowed text-[9px] font-black tracking-widest uppercase text-white transition-all active:translate-y-px"
-          style={{ textShadow: "0 1px 0 rgba(0,0,0,0.4)" }}
+          variant="game"
+          tone="forest"
+          size="sm"
+          className="shrink-0"
         >
           {loading ? "..." : "ADD"}
-        </button>
+        </Button>
       </div>
-      {error && (
-        <p className="font-bold text-[9px] text-red-600 tracking-wide">{error}</p>
-      )}
-      {success && (
-        <p className="font-bold text-[9px] text-[#3a5a00] tracking-wide">Friend request sent!</p>
-      )}
+      {error && <p className="font-bold text-[9px] text-red-600 tracking-wide">{error}</p>}
+      {success && <p className="font-bold text-[9px] text-pb-forest tracking-wide">Friend request sent!</p>}
     </form>
   );
 }
+
+// ─── Row variants ───────────────────────────────────────────────────────────
 
 function IncomingRequestRow({ req }: { req: IncomingRequest }) {
   const router = useRouter();
@@ -150,26 +159,32 @@ function IncomingRequestRow({ req }: { req: IncomingRequest }) {
         style={{ imageRendering: "pixelated" }}
       />
       <div className="flex-1 min-w-0">
-        <p className="font-bold text-sm text-[#3a5a00] truncate">{req.requester.trainer_name}</p>
-        <p className="font-black tracking-widest uppercase text-[7px] text-[#4a6600]">
+        <p className="font-bold text-sm text-pb-forest truncate">{req.requester.trainer_name}</p>
+        <p className="font-black tracking-widest uppercase text-[7px] text-pb-pine">
           LVL {req.requester.level}
         </p>
       </div>
       <div className="flex gap-1.5 shrink-0">
-        <button
+        <Button
           onClick={() => handle("accept")}
           disabled={loading !== null}
-          className="px-2.5 py-1 rounded-lg border-2 border-black/30 bg-[#4a8a44] hover:bg-[#3a7a34] disabled:opacity-50 text-[8px] font-black tracking-widest uppercase text-white transition-all"
+          variant="game"
+          tone="forest"
+          size="sm"
+          className="px-2.5 py-1 h-auto text-[8px] border-2 border-black/30 shadow-none"
         >
           {loading === "accept" ? "..." : "✓"}
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => handle("decline")}
           disabled={loading !== null}
-          className="px-2.5 py-1 rounded-lg border-2 border-black/30 bg-[#c0392b] hover:bg-[#a93226] disabled:opacity-50 text-[8px] font-black tracking-widest uppercase text-white transition-all"
+          variant="game"
+          tone="danger"
+          size="sm"
+          className="px-2.5 py-1 h-auto text-[8px] border-2 border-black/30 shadow-none"
         >
           {loading === "decline" ? "..." : "✕"}
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -192,27 +207,23 @@ function PendingSentRow({ friend }: { friend: FriendWithUser }) {
   return (
     <div className="flex items-center gap-3 p-3 bg-white rounded-xl border-2 border-black/10">
       <div className="flex-1 min-w-0">
-        <p className="font-bold text-sm text-[#3a5a00] truncate">{friend.friend.trainer_name}</p>
-        <p className="font-black tracking-widest uppercase text-[7px] text-[#4a6600]/70">PENDING</p>
+        <p className="font-bold text-sm text-pb-forest truncate">{friend.friend.trainer_name}</p>
+        <p className="font-black tracking-widest uppercase text-[7px] text-pb-pine/70">PENDING</p>
       </div>
-      <button
+      <Button
         onClick={handleCancel}
         disabled={loading}
-        className="shrink-0 px-2.5 py-1 rounded-lg border-2 border-black/20 bg-white/60 hover:bg-white/80 disabled:opacity-50 text-[8px] font-black tracking-widest uppercase text-[#3a5a00] transition-all"
+        variant="ghost"
+        size="sm"
+        className="shrink-0 px-2.5 py-1 h-auto rounded-lg border-2 border-black/20 bg-white/60 hover:bg-white/80 text-[8px] font-black tracking-widest uppercase text-pb-forest"
       >
         {loading ? "..." : "CANCEL"}
-      </button>
+      </Button>
     </div>
   );
 }
 
-function FriendRow({
-  friend,
-  onView,
-}: {
-  friend: FriendWithUser;
-  onView: () => void;
-}) {
+function FriendRow({ friend, onView }: { friend: FriendWithUser; onView: () => void }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -236,35 +247,31 @@ function FriendRow({
         style={{ imageRendering: "pixelated" }}
       />
       <div className="flex-1 min-w-0">
-        <p className="font-bold text-sm text-[#3a5a00] truncate">{friend.friend.trainer_name}</p>
-        <p className="font-black tracking-widest uppercase text-[7px] text-[#4a6600] mt-0.5">
+        <p className="font-bold text-sm text-pb-forest truncate">{friend.friend.trainer_name}</p>
+        <p className="font-black tracking-widest uppercase text-[7px] text-pb-pine mt-0.5">
           LVL {friend.friend.level}
         </p>
       </div>
-      <div className="flex gap-1.5 shrink-0">
-        <button
-          onClick={onView}
-          className="px-3 py-1.5 rounded-lg border-2 border-black/30 bg-[#4a8a44] hover:bg-[#3a7a34] text-[8px] font-black tracking-widest uppercase text-white transition-all active:translate-y-px"
-          style={{ textShadow: "0 1px 0 rgba(0,0,0,0.4)" }}
-        >
+      <div className="flex items-center gap-1.5 shrink-0">
+        <Button onClick={onView} variant="game" tone="forest" size="sm" className="px-3 py-1.5">
           VIEW
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={handleRemove}
           disabled={loading}
-          className="w-7 h-7 flex items-center justify-center rounded-lg border-2 border-black/20 bg-white/50 hover:bg-red-100 hover:border-red-300 disabled:opacity-50 text-[10px] font-black text-[#3a5a00] hover:text-red-600 transition-all"
+          variant="ghost"
+          size="icon"
+          className="w-7 h-7 rounded-lg border-2 border-black/20 bg-white/50 hover:bg-red-100 hover:border-red-300 text-[10px] font-black text-pb-forest hover:text-red-600"
           title="Remove friend"
         >
           ✕
-        </button>
+        </Button>
       </div>
     </div>
   );
 }
 
-type SubTab = "friends" | "sent" | "pending";
-
-// ─── Main component ──────────────────────────────────────────────────────────
+// ─── Main component ─────────────────────────────────────────────────────────
 
 export default function FriendsTab({ user, friends, incomingRequests, onFriendSelect }: Props) {
   const [subTab, setSubTab] = useState<SubTab>("friends");
@@ -273,7 +280,7 @@ export default function FriendsTab({ user, friends, incomingRequests, onFriendSe
   const pendingSent = friends.filter((f) => f.status === "pending");
 
   const handleView = (friend: FriendWithUser) => {
-    const profile: FriendProfile = {
+    onFriendSelect({
       id: friend.friend_id,
       friendship_id: friend.id,
       trainer_name: friend.friend.trainer_name,
@@ -283,8 +290,7 @@ export default function FriendsTab({ user, friends, incomingRequests, onFriendSe
       friend_code: friend.friend.friend_code,
       favorite_pokemon_id: friend.friend.favorite_pokemon_id,
       buddy: null,
-    };
-    onFriendSelect(profile);
+    });
   };
 
   const tabs: { key: SubTab; label: string; count: number; badge?: boolean }[] = [
@@ -295,13 +301,11 @@ export default function FriendsTab({ user, friends, incomingRequests, onFriendSe
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Friend code */}
       <div>
         <SectionLabel>Your Friend Code</SectionLabel>
         <FriendCodeDisplay code={user.friend_code} />
       </div>
 
-      {/* Add friend */}
       <div>
         <SectionLabel>Add Friend</SectionLabel>
         <AddFriendForm />
@@ -312,28 +316,32 @@ export default function FriendsTab({ user, friends, incomingRequests, onFriendSe
         {tabs.map((t) => {
           const isActive = subTab === t.key;
           return (
-            <button
+            <Button
               key={t.key}
+              variant="ghost"
+              size="sm"
               onClick={() => setSubTab(t.key)}
-              className={`relative flex items-center gap-1.5 px-3 py-1.5 text-[9px] font-black tracking-widest uppercase transition-all rounded-t-lg border-b-2 -mb-[2px] ${
+              className={cn(
+                "relative h-auto px-3 py-1.5 text-[9px] font-black tracking-widest uppercase rounded-t-lg rounded-b-none border-b-2 -mb-[2px]",
                 isActive
-                  ? "text-[#2d5a27] border-[#4a8a44] bg-black/5"
-                  : "text-[#3a5a00]/50 border-transparent hover:text-[#3a5a00]/80"
-              }`}
+                  ? "text-pb-forest border-pb-pine bg-black/5 hover:bg-black/5"
+                  : "text-pb-forest/50 border-transparent hover:text-pb-forest/80"
+              )}
             >
               {t.label}
               <span
-                className={`text-[8px] font-black px-1 py-0.5 rounded-full min-w-[16px] text-center leading-none transition-colors ${
+                className={cn(
+                  "text-[8px] font-black px-1 py-0.5 rounded-full min-w-[16px] text-center leading-none transition-colors",
                   t.badge
                     ? "bg-red-500 text-white"
                     : isActive
-                    ? "bg-[#4a8a44]/20 text-[#2d5a27]"
-                    : "bg-black/10 text-[#3a5a00]/50"
-                }`}
+                    ? "bg-pb-pine/20 text-pb-forest"
+                    : "bg-black/10 text-pb-forest/50"
+                )}
               >
                 {t.count}
               </span>
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -342,37 +350,27 @@ export default function FriendsTab({ user, friends, incomingRequests, onFriendSe
       <div className="flex flex-col gap-2">
         {subTab === "friends" && (
           accepted.length === 0 ? (
-            <p className="font-black tracking-widest uppercase text-[9px] text-[#3a5a00]/40 text-center leading-relaxed py-6">
+            <p className={EMPTY_STATE_CLS}>
               NO FRIENDS YET<br />ADD SOMEONE USING THEIR FRIEND CODE!
             </p>
           ) : (
-            accepted.map((f) => (
-              <FriendRow key={f.id} friend={f} onView={() => handleView(f)} />
-            ))
+            accepted.map((f) => <FriendRow key={f.id} friend={f} onView={() => handleView(f)} />)
           )
         )}
 
         {subTab === "sent" && (
           pendingSent.length === 0 ? (
-            <p className="font-black tracking-widest uppercase text-[9px] text-[#3a5a00]/40 text-center leading-relaxed py-6">
-              NO PENDING REQUESTS
-            </p>
+            <p className={EMPTY_STATE_CLS}>NO PENDING REQUESTS</p>
           ) : (
-            pendingSent.map((f) => (
-              <PendingSentRow key={f.id} friend={f} />
-            ))
+            pendingSent.map((f) => <PendingSentRow key={f.id} friend={f} />)
           )
         )}
 
         {subTab === "pending" && (
           incomingRequests.length === 0 ? (
-            <p className="font-black tracking-widest uppercase text-[9px] text-[#3a5a00]/40 text-center leading-relaxed py-6">
-              NO INCOMING REQUESTS
-            </p>
+            <p className={EMPTY_STATE_CLS}>NO INCOMING REQUESTS</p>
           ) : (
-            incomingRequests.map((req) => (
-              <IncomingRequestRow key={req.id} req={req} />
-            ))
+            incomingRequests.map((req) => <IncomingRequestRow key={req.id} req={req} />)
           )
         )}
       </div>

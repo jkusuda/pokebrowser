@@ -41,7 +41,7 @@ export default function TrainerStatsPanel({ userStats, pokedexCount, friendCount
 
   return (
     <Card variant="game" tone="grass" className="p-4 w-full mt-4 gap-0">
-      <h2 className="font-bold text-black text-sm mb-3 tracking-wide">TRAINER STATS</h2>
+      <h2 className="font-bold text-black text-sm mb-3 tracking-wide">STATS</h2>
 
       <div className="grid grid-cols-2 gap-2">
         {STAT_DEFS.map(({ label, value, sub }) => {
@@ -49,7 +49,7 @@ export default function TrainerStatsPanel({ userStats, pokedexCount, friendCount
           return (
             <div
               key={label}
-              className="bg-[#e0f4d9] rounded-lg border-2 border-black px-3 py-2 shadow-[1px_1px_0_black]"
+              className="bg-pb-bg rounded-lg border-2 border-black px-3 py-2 shadow-[1px_1px_0_black]"
             >
               <p className="text-black font-black text-sm leading-tight">{value(props)}</p>
               <p className="text-black/60 text-[10px] font-bold leading-tight">{label}</p>

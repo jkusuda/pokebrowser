@@ -37,6 +37,7 @@ export default function TypePickerModal({ tokenId, onClose, onSelected }: Props)
     }
   }
 
+
   return (
     /* Backdrop */
     <div
@@ -45,12 +46,7 @@ export default function TypePickerModal({ tokenId, onClose, onSelected }: Props)
     >
       <div className="bg-pb-bg border-4 border-black rounded-xl shadow-[6px_6px_0_black] p-6 max-w-sm w-full mx-4">
         {/* Header */}
-        <h2
-          className="font-black text-xl uppercase tracking-widest text-white text-center mb-1"
-          style={{ WebkitTextStroke: "1px black", textShadow: "0 2px 0 black" }}
-        >
-          Choose a Type
-        </h2>
+        <h2 className="text-emboss text-xl text-center mb-1">Choose a Type</h2>
         <p className="text-center text-xs text-black/60 mb-4">
           Your next encounter will be a Pokémon of this type.
         </p>

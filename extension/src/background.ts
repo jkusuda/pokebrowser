@@ -1,6 +1,7 @@
 import { CONFIG } from "./lib/config";
 import { supabase } from "./lib/supabase";
-import { getPokemonBaseXp, getFamilyId, getPokemonName, getRandomPokemonId, getPokemonsByGeneration, getPokemonData } from "pokemon-data";
+import { getFamilyId, getPokemonName, getRandomPokemonId, getPokemonsByGeneration, getPokemonData } from "pokemon-data";
+import type { ExtensionMessage, ExternalMessage } from "./types/messages";
 
 type StoredSession = { access_token: string; refresh_token: string };
 type PendingEncounter = {
@@ -13,7 +14,7 @@ type PendingEncounter = {
 };
 
 // Gen 1 legendary Pokémon ids
-const LEGENDARY_IDS = new Set([144, 145, 146, 150, 151]);
+const LEGENDARY_IDS = [144, 145, 146, 150, 151];
 
 /** Pick a random id from an array of Gen 1 Pokémon ids. */
 function pickRandom(ids: number[]): number {
@@ -29,6 +30,50 @@ function gen1IdsByType(typeName: string): number[] {
 
 const PENDING_PREFIX = "pb_enc_";
 const pendingKey = (userId: string) => `${PENDING_PREFIX}${userId}`;
+
+type EncounterToken = { id: string; token_type: string; type_filter: string | null };
+
+/**
+ * Rolls an encounter, letting the active token override the defaults.
+ * `usedTokenId` is only set when the token actually shaped the roll — a
+ * type_pick token whose type hasn't been chosen yet is left unconsumed.
+ */
+function rollEncounter(token: EncounterToken | null): {
+  pokedexNumber: number;
+  isShiny: boolean;
+  usedTokenId?: string;
+} {
+  let pokedexNumber = getRandomPokemonId(CONFIG.GAME.CURRENT_GENERATION);
+  let isShiny = Math.random() < CONFIG.GAME.SHINY_RATE;
+  let usedTokenId: string | undefined;
+
+  if (token) {
+    switch (token.token_type) {
+      case "legendary":
+        pokedexNumber = pickRandom(LEGENDARY_IDS);
+        usedTokenId = token.id;
+        break;
+      case "mythical":
+        pokedexNumber = 151; // Mew
+        usedTokenId = token.id;
+        break;
+      case "shiny":
+        isShiny = true;
+        usedTokenId = token.id;
+        break;
+      case "type_pick":
+        if (token.type_filter) {
+          const ids = gen1IdsByType(token.type_filter);
+          if (ids.length > 0) pokedexNumber = pickRandom(ids);
+          usedTokenId = token.id;
+        }
+        // type not chosen yet — keep the normal roll, token stays available
+        break;
+    }
+  }
+
+  return { pokedexNumber, isShiny, usedTokenId };
+}
 
 /**
  * Restores the Supabase session from chrome.storage.local and returns the
@@ -61,10 +106,10 @@ async function authenticate(): Promise<{ userId: string } | null> {
 // defensively.
 const ALLOWED_WEB_ORIGINS = new Set([
   CONFIG.WEBSITE_URL,
-  "https://pokebrowser.app",
+  "https://pokebrowser.net",
 ]);
 
-chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessageExternal.addListener((message: ExternalMessage, sender, sendResponse) => {
   if (!sender.origin || !ALLOWED_WEB_ORIGINS.has(sender.origin)) {
     sendResponse({ ok: false, error: "FORBIDDEN" });
     return false;
@@ -97,7 +142,7 @@ chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => 
   return false;
 });
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendResponse) => {
   // Only accept messages from our own content scripts or extension pages.
   if (sender.id !== chrome.runtime.id) {
     sendResponse({ ok: false, error: "INVALID_SENDER" });
@@ -129,51 +174,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const boxIsFull = (pokemonCount ?? 0) >= catchLimit;
 
       // Roll encounter — use token if available
-      let pokedexNumber: number;
-      let isShiny: boolean;
-      let usedTokenId: string | undefined;
-
-      const token = activeToken as { id: string; token_type: string; type_filter: string | null } | null;
-
-      if (token) {
-        switch (token.token_type) {
-          case "legendary":
-            pokedexNumber = pickRandom([...LEGENDARY_IDS]);
-            isShiny = Math.random() < CONFIG.GAME.SHINY_RATE;
-            usedTokenId = token.id;
-            break;
-          case "mythical":
-            pokedexNumber = 151; // Mew
-            isShiny = Math.random() < CONFIG.GAME.SHINY_RATE;
-            usedTokenId = token.id;
-            break;
-          case "shiny":
-            pokedexNumber = getRandomPokemonId(CONFIG.GAME.CURRENT_GENERATION);
-            isShiny = true;
-            usedTokenId = token.id;
-            break;
-          case "type_pick":
-            if (token.type_filter) {
-              const ids = gen1IdsByType(token.type_filter);
-              pokedexNumber = ids.length > 0
-                ? pickRandom(ids)
-                : getRandomPokemonId(CONFIG.GAME.CURRENT_GENERATION);
-              isShiny = Math.random() < CONFIG.GAME.SHINY_RATE;
-              usedTokenId = token.id;
-            } else {
-              // type not chosen yet — fall through to normal roll
-              pokedexNumber = getRandomPokemonId(CONFIG.GAME.CURRENT_GENERATION);
-              isShiny = Math.random() < CONFIG.GAME.SHINY_RATE;
-            }
-            break;
-          default:
-            pokedexNumber = getRandomPokemonId(CONFIG.GAME.CURRENT_GENERATION);
-            isShiny = Math.random() < CONFIG.GAME.SHINY_RATE;
-        }
-      } else {
-        pokedexNumber = getRandomPokemonId(CONFIG.GAME.CURRENT_GENERATION);
-        isShiny = Math.random() < CONFIG.GAME.SHINY_RATE;
-      }
+      const { pokedexNumber, isShiny, usedTokenId } = rollEncounter(
+        activeToken as EncounterToken | null
+      );
 
       const name = getPokemonName(pokedexNumber);
       const nonce = crypto.randomUUID();
@@ -238,13 +241,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         const { pokedexNumber, isShiny, name } = pending;
         const familyBaseId = getFamilyId(pokedexNumber);
-        const xpGained = getPokemonBaseXp(pokedexNumber, isShiny);
 
+        // XP is computed server-side inside perform_catch from the pokedex
+        // number + shiny flag, so it is not sent here.
         const { data, error } = await supabase.rpc("perform_catch", {
           p_pokedex_number: pokedexNumber,
           p_is_shiny: isShiny,
           p_family_base_id: familyBaseId,
-          p_xp_gained: xpGained,
           p_nickname: name,
           p_caught_on: caughtOn,
         });
@@ -269,7 +272,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         // Determine catch metadata for stat tracking
         const pokemonData = getPokemonData(pokedexNumber);
-        const isLegendary = LEGENDARY_IDS.has(pokedexNumber);
+        const isLegendary = LEGENDARY_IDS.includes(pokedexNumber);
         const types: string[] = pokemonData?.types ?? [];
 
         // Fire stat update + achievement checks in background (non-blocking)

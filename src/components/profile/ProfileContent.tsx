@@ -206,7 +206,7 @@ export default function ProfileContent({
 
         {/* Other pages — always mounted, hidden when inactive */}
         <div style={{ display: activePage === "globalStats" ? "flex" : "none" }} className="flex-1">
-          <GlobalStatsPage />
+          <GlobalStatsPage active={activePage === "globalStats"} />
         </div>
         <div style={{ display: activePage === "pokedex" ? "flex" : "none" }} className="flex-1 flex-col overflow-y-auto custom-scrollbar">
           <PokedexPage pokemon={pokemon} pokedexUnlocks={pokedexUnlocks} />

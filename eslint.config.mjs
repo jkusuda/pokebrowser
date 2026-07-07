@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Build artifacts of the workspace packages (linted by their own configs):
+    "extension/dist/**",
   ]),
 ]);
 

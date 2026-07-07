@@ -71,6 +71,10 @@ export default function SettingsPage({ user }: Props) {
             </span>
           </div>
           <button
+            type="button"
+            role="switch"
+            aria-checked={isPrivate}
+            aria-label="Private profile"
             onClick={handlePrivacyToggle}
             disabled={privacyLoading}
             className={`

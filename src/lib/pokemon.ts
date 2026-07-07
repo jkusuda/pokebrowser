@@ -1,8 +1,8 @@
 // Re-exports static Pokémon data from the shared package.
 // No more PokeAPI calls — all lookups are instant.
 
-export { getPokemonData, getPokemonName, getFamilyId } from "pokemon-data";
-export type { PokemonData } from "pokemon-data";
+export { getPokemonData, getPokemonName, getFamilyId, getLevelProgress, getLevelForXp, getXpForLevel } from "pokemon-data";
+export type { PokemonData, LevelProgress } from "pokemon-data";
 
 export const TRAINER_BASE = "https://play.pokemonshowdown.com/sprites/trainers";
 

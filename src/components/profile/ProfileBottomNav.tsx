@@ -26,12 +26,16 @@ type Props = {
 
 export default function ProfileBottomNav({ activeTab, onTabChange, pendingFriendRequests = 0 }: Props) {
   return (
-    <Card variant="game" tone="grass" className="mt-4 w-full p-4 flex-row gap-5">
+    <Card variant="game" tone="grass" className="mt-4 w-full p-4 flex-row gap-5" role="tablist" aria-label="Profile sections">
       {NAV_ITEMS.map((item) => {
         const hasBadge = item.tab === "friends" && pendingFriendRequests > 0;
         return (
           <button
             key={item.tab}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === item.tab}
+            aria-label={`${item.label} tab`}
             onClick={() => onTabChange(item.tab)}
             className={`${btnClass(activeTab === item.tab)} relative`}
           >

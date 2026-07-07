@@ -14,7 +14,7 @@ export async function POST(request: Request) {
       return badRequest("achievementId must be a non-empty string");
     }
 
-    const result = await claimAchievement(supabase, auth.user.id, achievementId);
+    const result = await claimAchievement(supabase, achievementId);
     return NextResponse.json({ success: true, ...result });
   } catch (error) {
     const msg = errorMessage(error);

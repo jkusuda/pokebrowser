@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -153,6 +154,13 @@ export default function AuthForm() {
           >
             {loading ? "..." : tab === "login" ? "LOGIN" : "CREATE ACCOUNT"}
           </Button>
+
+          <p className="text-[11px] text-gray-500 text-center font-bold leading-snug">
+            By continuing you agree to our{" "}
+            <Link href="/terms" className="text-pb-pine underline">Terms</Link>{" "}
+            and{" "}
+            <Link href="/privacy" className="text-pb-pine underline">Privacy Policy</Link>.
+          </p>
         </form>
       </div>
     </Card>

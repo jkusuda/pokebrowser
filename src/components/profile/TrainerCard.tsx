@@ -3,7 +3,7 @@
 import { useState } from "react";
 import EditProfileModal from "./EditProfileModal";
 import { User, Pokemon } from "@/types";
-import { TRAINER_BASE, getPokemonSprite, getBuddySpriteSize, getPokemonData } from "@/lib/pokemon";
+import { TRAINER_BASE, getPokemonSprite, getBuddySpriteSize, getPokemonData, getLevelProgress } from "@/lib/pokemon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -25,7 +25,7 @@ type Props = {
 
 export default function TrainerCard({ user, favoritePokemon }: Props) {
   const [editOpen, setEditOpen] = useState(false);
-  const level = user.level ?? 57;
+  const { level, current: xpInLevel, required: xpRequired } = getLevelProgress(user.xp ?? 0);
 
   const buddyData = favoritePokemon ? getPokemonData(favoritePokemon.pokedex_number) : null;
   const buddySize = buddyData ? getBuddySpriteSize(buddyData.height) : 96;
@@ -84,12 +84,12 @@ export default function TrainerCard({ user, favoritePokemon }: Props) {
             <div className="flex flex-col justify-center px-1 h-14 flex-1 pointer-events-auto mt-1">
               <div className="flex justify-between items-end mb-1">
                 <span className="font-black tracking-widest text-[10px] text-black leading-none uppercase">EXP</span>
-                <span className="font-black tracking-widest text-[10px] text-black leading-none">{user.xp} / {level * 1000}</span>
+                <span className="font-black tracking-widest text-[10px] text-black leading-none">{xpInLevel} / {xpRequired}</span>
               </div>
               <div className="w-full h-4 bg-white border-[3px] border-black rounded-full overflow-hidden shadow-[2px_2px_0_rgba(0,0,0,0.5)]">
                 <div
                   className="h-full bg-pb-pine"
-                  style={{ width: `${Math.min(100, Math.max(0, (user.xp / (level * 1000)) * 100))}%` }}
+                  style={{ width: `${Math.min(100, Math.max(0, (xpInLevel / xpRequired) * 100))}%` }}
                 />
               </div>
             </div>

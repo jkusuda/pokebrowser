@@ -8,7 +8,7 @@ const DEFAULTS = {
   SUPABASE_URL: "https://nxshczmwkznapzgprkcc.supabase.co",
   SUPABASE_ANON_KEY:
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54c2hjem13a3puYXB6Z3Bya2NjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNTIzMjUsImV4cCI6MjA4NzYyODMyNX0.c9o3R2Jp11rnd_jnVcpSW20SxOUeQNo6A36jpqkh-tE",
-  WEBSITE_URL: "http://localhost:3000",
+  WEBSITE_URL: "https://pokebrowser.net",
 } as const;
 
 const envSchema = z.object({
@@ -32,7 +32,7 @@ export const CONFIG = {
 
   GAME: {
     SHINY_RATE: 1 / 512,
-    ENCOUNTER_RATE: 1.0,
+    ENCOUNTER_RATE: 0.15,
     CATCH_COOLDOWN_MS: 1500,
     PENDING_ENCOUNTER_TTL_MS: 5 * 60 * 1000,
     DEFAULT_CATCH_LIMIT: 200,

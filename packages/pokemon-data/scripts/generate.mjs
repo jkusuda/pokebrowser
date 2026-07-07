@@ -91,14 +91,19 @@ async function fetchPokemonData(id) {
       if (nextSpeciesName) {
         // Resolve the next species' national dex number
         const nextSpecies = await fetchJSON(`${POKEAPI}/pokemon-species/${nextSpeciesName}`);
-        evolvesTo = nextSpecies.id;
 
-        const depth = getDepth(evoData.chain, pkmn.name) ?? 0;
-        const chainLength = getChainLength(evoData.chain);
-        if (chainLength === 3) {
-          evolveCandyCost = depth === 0 ? 25 : 100;
-        } else {
-          evolveCandyCost = 50;
+        // Only keep evolutions within the supported generation — cross-gen
+        // evolutions (Onix→Steelix, Scyther→Scizor, ...) don't exist in-game.
+        if (nextSpecies.id <= TOTAL) {
+          evolvesTo = nextSpecies.id;
+
+          const depth = getDepth(evoData.chain, pkmn.name) ?? 0;
+          const chainLength = getChainLength(evoData.chain);
+          if (chainLength === 3) {
+            evolveCandyCost = depth === 0 ? 25 : 100;
+          } else {
+            evolveCandyCost = 50;
+          }
         }
       }
     }

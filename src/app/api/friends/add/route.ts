@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { createFriendRequest } from "@/lib/queries";
+import { createFriendRequest, hasFriendCapacity, MAX_FRIENDS } from "@/lib/queries";
 import { requireUser, badRequest, internalError, FRIEND_CODE_RE } from "@/lib/api-helpers";
-
-const MAX_FRIENDS = 100;
 
 export async function POST(request: Request) {
   try {
@@ -50,13 +48,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: msg }, { status: 409 });
     }
 
-    const { count } = await supabase
-      .from("friends")
-      .select("id", { count: "exact", head: true })
-      .or(`user_id.eq.${auth.user.id},friend_id.eq.${auth.user.id}`)
-      .eq("status", "accepted");
-
-    if ((count ?? 0) >= MAX_FRIENDS) {
+    if (!(await hasFriendCapacity(supabase, auth.user.id))) {
       return NextResponse.json(
         { error: `You have reached the maximum number of friends (${MAX_FRIENDS})` },
         { status: 429 }

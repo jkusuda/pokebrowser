@@ -55,7 +55,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: "catch",
     trigger: "catch_count",
     threshold: 1,
-    storageReward: 10,
+    storageReward: 50,
     tokenReward: null,
   },
   {
@@ -65,7 +65,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: "catch",
     trigger: "catch_count",
     threshold: 10,
-    storageReward: 20,
+    storageReward: 100,
     tokenReward: null,
   },
   {
@@ -75,7 +75,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: "catch",
     trigger: "catch_count",
     threshold: 100,
-    storageReward: 50,
+    storageReward: 250,
     tokenReward: "type_pick",
   },
   {
@@ -85,7 +85,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: "catch",
     trigger: "catch_count",
     threshold: 1000,
-    storageReward: 100,
+    storageReward: 500,
     tokenReward: "legendary",
   },
 
@@ -97,7 +97,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: "website",
     trigger: "site_count",
     threshold: 10,
-    storageReward: 20,
+    storageReward: 100,
     tokenReward: null,
   },
   {
@@ -107,7 +107,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: "website",
     trigger: "site_count",
     threshold: 100,
-    storageReward: 50,
+    storageReward: 250,
     tokenReward: null,
   },
   {
@@ -117,7 +117,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: "website",
     trigger: "site_count",
     threshold: 1000,
-    storageReward: 100,
+    storageReward: 500,
     tokenReward: "legendary",
   },
 
@@ -149,7 +149,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: "social",
     trigger: "friend_count",
     threshold: 1,
-    storageReward: 10,
+    storageReward: 50,
     tokenReward: null,
   },
   {
@@ -171,7 +171,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: "type",
     trigger: "type_coverage",
     threshold: 17, // 17 unique types across Gen 1 Pokémon
-    storageReward: 50,
+    storageReward: 250,
     tokenReward: "type_pick",
   },
 
@@ -183,7 +183,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: "streak",
     trigger: "streak",
     threshold: 7,
-    storageReward: 20,
+    storageReward: 100,
     tokenReward: null,
   },
   {
@@ -193,7 +193,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: "streak",
     trigger: "streak",
     threshold: 30,
-    storageReward: 100,
+    storageReward: 500,
     tokenReward: "legendary",
   },
 
@@ -227,7 +227,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: "shiny",
     trigger: "shiny_complete",
     threshold: 151,
-    storageReward: 500,
+    storageReward: 2500,
     tokenReward: "mythical",
   },
 
@@ -261,7 +261,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: "level",
     trigger: "level",
     threshold: 5,
-    storageReward: 20,
+    storageReward: 100,
     tokenReward: null,
   },
   {
@@ -271,7 +271,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: "level",
     trigger: "level",
     threshold: 10,
-    storageReward: 30,
+    storageReward: 150,
     tokenReward: "type_pick",
   },
   {
@@ -281,7 +281,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: "level",
     trigger: "level",
     threshold: 20,
-    storageReward: 50,
+    storageReward: 250,
     tokenReward: "type_pick",
   },
   {
@@ -291,7 +291,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: "level",
     trigger: "level",
     threshold: 30,
-    storageReward: 75,
+    storageReward: 375,
     tokenReward: "type_pick",
   },
   {
@@ -301,7 +301,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: "level",
     trigger: "level",
     threshold: 40,
-    storageReward: 100,
+    storageReward: 500,
     tokenReward: "type_pick",
   },
   {
@@ -311,7 +311,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     category: "level",
     trigger: "level",
     threshold: 50,
-    storageReward: 150,
+    storageReward: 750,
     tokenReward: "legendary",
   },
 

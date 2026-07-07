@@ -1,12 +1,16 @@
 {
     "manifest_version": 3,
     "name": "Pokebrowser",
-    "version": "1.0",
+    "description": "Wild Pokemon appear while you browse the web. Catch them, build your collection, and track your progress.",
+    "version": "1.0.0",
+    "icons": {
+        "16": "icon16.png",
+        "32": "icon32.png",
+        "48": "icon48.png",
+        "128": "icon128.png"
+    },
     "permissions": [
         "storage"
-    ],
-    "host_permissions": [
-        "<all_urls>"
     ],
     "background": {
         "service_worker": "assets/background.js",
@@ -22,11 +26,18 @@
     "externally_connectable": {
         "matches": [
             "http://localhost:3000/*",
-            "https://pokebrowser.app/*"
+            "https://pokebrowser.net/*"
         ]
     },
     "action": {
-        "default_popup": "popup.html"
+        "default_popup": "popup.html",
+        "default_title": "Pokebrowser",
+        "default_icon": {
+            "16": "icon16.png",
+            "32": "icon32.png",
+            "48": "icon48.png",
+            "128": "icon128.png"
+        }
     },
     "web_accessible_resources": [
         {

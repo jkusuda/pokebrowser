@@ -19,12 +19,12 @@ export async function POST(request: Request) {
       return badRequest("pokedexNumber must be an integer between 1 and 151");
     }
 
-    await claimCandyReward(supabase, auth.user.id, pokedexNumber);
+    await claimCandyReward(supabase, pokedexNumber);
     return NextResponse.json({ success: true });
   } catch (error) {
     const msg = errorMessage(error);
-    if (msg === "No pending candy rewards") {
-      return NextResponse.json({ error: "No pending candy rewards" }, { status: 409 });
+    if (msg === "No pending candy rewards" || msg === "Candy reward already claimed") {
+      return NextResponse.json({ error: msg }, { status: 409 });
     }
     if (msg === "Species not in Pokédex") {
       return badRequest("Species not in Pokédex");

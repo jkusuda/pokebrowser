@@ -21,6 +21,21 @@ export default function CollectionTab({ pokemon, candies }: { pokemon: Pokemon[]
     return () => document.removeEventListener("click", handleClick);
   }, []);
 
+  // Keep the open detail panel in sync with refreshed server data (e.g. after
+  // an evolution changes pokedex_number). router.refresh() updates `pokemon`,
+  // but displayPokemon holds a snapshot, so re-derive it by id.
+  useEffect(() => {
+    if (!displayPokemon) return;
+    const updated = pokemon.find((p) => p.id === displayPokemon.id);
+    if (
+      updated &&
+      (updated.pokedex_number !== displayPokemon.pokedex_number ||
+        updated.nickname !== displayPokemon.nickname)
+    ) {
+      setDisplayPokemon(updated);
+    }
+  }, [pokemon, displayPokemon]);
+
   const handleSelect = (p: Pokemon) => {
     if (displayPokemon && displayPokemon.id !== p.id && isPanelVisible) {
       setIsPanelVisible(false);

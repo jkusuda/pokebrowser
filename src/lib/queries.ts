@@ -1,6 +1,5 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { User, Pokemon, Friend, FriendWithUser, IncomingRequest, PokedexUnlock, Candy, AchievementUnlock, Token, UserStats } from "@/types";
-import { ACHIEVEMENT_BY_ID } from "@/lib/achievements-data";
+import { User, Pokemon, Friend, FriendWithUser, IncomingRequest, PokedexUnlock, Candy, AchievementUnlock, Token, UserStats, LeaderboardCategory, LeaderboardResponse } from "@/types";
 
 export async function getTrainerData(supabase: SupabaseClient, userId: string) {
   // ── Step 1: fetch base rows in parallel (no joins — FK points to auth.users,
@@ -43,6 +42,21 @@ export async function getTrainerData(supabase: SupabaseClient, userId: string) {
   ]);
 
   if (profileResult.error) throw profileResult.error;
+  // Surface failures instead of silently rendering empty sections. user_stats
+  // may legitimately have no row yet, so "no rows" (PGRST116) is allowed there.
+  for (const result of [
+    pokemonResult,
+    allFriendRowsResult,
+    pokedexResult,
+    candiesResult,
+    achievementUnlocksResult,
+    tokensResult,
+  ]) {
+    if (result.error) throw result.error;
+  }
+  if (userStatsResult.error && userStatsResult.error.code !== "PGRST116") {
+    throw userStatsResult.error;
+  }
 
   const allRows = (allFriendRowsResult.data as Friend[]) ?? [];
 
@@ -135,7 +149,46 @@ export async function releasePokemon(supabase: SupabaseClient, pokemonId: string
   if (error) throw error;
 }
 
+/** Evolve a caught Pokémon in place via the server-authoritative RPC. */
+export async function evolvePokemon(supabase: SupabaseClient, pokemonId: string) {
+  const { data, error } = await supabase.rpc("evolve_pokemon", { p_pokemon_id: pokemonId });
+  if (error) throw error;
+  return data as { to_pokedex_number: number; is_new_species: boolean };
+}
+
+// ─── Leaderboard ────────────────────────────────────────────────────────────
+
+/**
+ * Fetches the top 100 trainers for a category plus the caller's own placement
+ * via the server-authoritative get_leaderboard RPC (user_stats RLS blocks
+ * cross-user reads, so this can't be a plain client query).
+ */
+export async function getLeaderboard(
+  supabase: SupabaseClient,
+  category: LeaderboardCategory
+) {
+  const { data, error } = await supabase.rpc("get_leaderboard", {
+    p_category: category,
+    p_limit: 100,
+  });
+  if (error) throw error;
+  return data as LeaderboardResponse;
+}
+
 // ─── Friends helpers ────────────────────────────────────────────────────────
+
+export const MAX_FRIENDS = 100;
+
+/** True if the user still has room for another accepted friend. */
+export async function hasFriendCapacity(supabase: SupabaseClient, userId: string) {
+  const { count, error } = await supabase
+    .from("friends")
+    .select("id", { count: "exact", head: true })
+    .or(`user_id.eq.${userId},friend_id.eq.${userId}`)
+    .eq("status", "accepted");
+  if (error) throw error;
+  return (count ?? 0) < MAX_FRIENDS;
+}
 
 export async function createFriendRequest(
   supabase: SupabaseClient,
@@ -205,106 +258,44 @@ export async function updatePrivacy(
 // ─── Achievement helpers ─────────────────────────────────────────────────────
 
 /**
- * Claims an achievement reward for the authenticated user.
- * Sets claimed_at, increases catch_limit, and grants a token if applicable.
+ * Claims an achievement reward for the authenticated user via the
+ * claim_achievement RPC, which atomically verifies the unlock, sets
+ * claimed_at, increases catch_limit, and grants a token if applicable.
+ * The reward values live inside the RPC (mirroring achievements-data.ts).
  */
-export async function claimAchievement(
-  supabase: SupabaseClient,
-  userId: string,
-  achievementId: string
-) {
-  // Verify the unlock exists and is unclaimed
-  const { data: unlock, error: unlockError } = await supabase
-    .from("achievement_unlocks")
-    .select("id, claimed_at")
-    .eq("user_id", userId)
-    .eq("achievement_id", achievementId)
-    .single();
+export async function claimAchievement(supabase: SupabaseClient, achievementId: string) {
+  const { data, error } = await supabase.rpc("claim_achievement", {
+    p_achievement_id: achievementId,
+  });
 
-  if (unlockError || !unlock) throw new Error("Achievement not found");
-  if (unlock.claimed_at) throw new Error("Already claimed");
-
-  const def = ACHIEVEMENT_BY_ID[achievementId];
-  if (!def) throw new Error("Unknown achievement");
-
-  // Mark as claimed
-  const { error: claimError } = await supabase
-    .from("achievement_unlocks")
-    .update({ claimed_at: new Date().toISOString() })
-    .eq("id", unlock.id);
-  if (claimError) throw claimError;
-
-  // Apply storage reward
-  if (def.storageReward > 0) {
-    const { error: storageError } = await supabase.rpc("increment_catch_limit", {
-      p_user_id: userId,
-      p_amount: def.storageReward,
-    });
-    if (storageError) throw storageError;
+  if (error) {
+    const msg = error.message ?? "";
+    if (msg.includes("already_claimed")) throw new Error("Already claimed");
+    if (msg.includes("achievement_not_found")) throw new Error("Achievement not found");
+    if (msg.includes("unknown_achievement")) throw new Error("Unknown achievement");
+    throw error;
   }
 
-  // Grant token reward
-  if (def.tokenReward) {
-    const { error: tokenError } = await supabase.from("tokens").insert({
-      user_id: userId,
-      token_type: def.tokenReward,
-      type_filter: null,
-    });
-    if (tokenError) throw tokenError;
-  }
-
-  return { storageGranted: def.storageReward, tokenGranted: def.tokenReward };
+  const result = data as { storage_granted: number; token_granted: string | null };
+  return { storageGranted: result.storage_granted, tokenGranted: result.token_granted };
 }
 
 /**
- * Claims a level-up candy reward: grants 10 candies to the chosen Pokémon family
- * and decrements unclaimed_candy_levels.
+ * Claims a level-up candy reward via the claim_candy_reward RPC, which
+ * atomically consumes one unclaimed level slot and grants +10 candies to the
+ * chosen species (must already be in the user's Pokédex).
  */
-export async function claimCandyReward(
-  supabase: SupabaseClient,
-  userId: string,
-  pokedexNumber: number
-) {
-  // Read current level count and verify > 0
-  const { data: user, error: userError } = await supabase
-    .from("users")
-    .select("unclaimed_candy_levels")
-    .eq("id", userId)
-    .single();
-
-  if (userError || !user) throw new Error("User not found");
-  const currentLevels = (user as { unclaimed_candy_levels: number }).unclaimed_candy_levels;
-  if (currentLevels < 1) throw new Error("No pending candy rewards");
-
-  // Verify user has caught this species
-  const { data: unlock } = await supabase
-    .from("pokedex")
-    .select("pokedex_number")
-    .eq("user_id", userId)
-    .eq("pokedex_number", pokedexNumber)
-    .single();
-
-  if (!unlock) throw new Error("Species not in Pokédex");
-
-  // Atomically decrement using an optimistic lock: only succeeds if unclaimed_candy_levels
-  // hasn't changed between the read above and this write (prevents double-claiming).
-  const { data: decremented, error: levelError } = await supabase
-    .from("users")
-    .update({ unclaimed_candy_levels: currentLevels - 1 })
-    .eq("id", userId)
-    .eq("unclaimed_candy_levels", currentLevels)
-    .select("id");
-
-  if (levelError) throw levelError;
-  if (!decremented?.length) throw new Error("No pending candy rewards");
-
-  // Grant the candies now that the level slot is consumed
-  const { error: candyError } = await supabase.rpc("increment_candy", {
-    p_user_id: userId,
+export async function claimCandyReward(supabase: SupabaseClient, pokedexNumber: number) {
+  const { error } = await supabase.rpc("claim_candy_reward", {
     p_pokedex_number: pokedexNumber,
-    p_amount: 10,
   });
-  if (candyError) throw candyError;
+
+  if (error) {
+    const msg = error.message ?? "";
+    if (msg.includes("no_pending_candy")) throw new Error("No pending candy rewards");
+    if (msg.includes("species_not_unlocked")) throw new Error("Species not in Pokédex");
+    throw error;
+  }
 }
 
 /**

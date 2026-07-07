@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { FriendProfile, Pokemon } from "@/types";
-import { TRAINER_BASE, getPokemonSprite, getBuddySpriteSize, getPokemonData } from "@/lib/pokemon";
+import { TRAINER_BASE, getPokemonSprite, getBuddySpriteSize, getPokemonData, getLevelProgress } from "@/lib/pokemon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -28,14 +28,20 @@ function Shimmer({ className = "", style }: { className?: string; style?: React.
 export default function FriendProfileCard({ profile, onBack }: Props) {
   const [fullProfile, setFullProfile] = useState<FriendProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
+  const [retryToken, setRetryToken] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setFullProfile(null);
+    setFailed(false);
 
     fetch(`/api/friends/profile/${profile.friend_code}`)
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then((data: FriendProfile) => {
         if (!cancelled) {
           setFullProfile(data);
@@ -43,15 +49,18 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
         }
       })
       .catch(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setFailed(true);
+          setLoading(false);
+        }
       });
 
     return () => { cancelled = true; };
-  }, [profile.friend_code]);
+  }, [profile.friend_code, retryToken]);
 
-  const level = fullProfile?.level ?? 1;
+  const { level, current: xpInLevel, required: xpRequired } = getLevelProgress(fullProfile?.xp ?? 0);
   const xpProgress = fullProfile
-    ? Math.min(100, Math.max(0, (fullProfile.xp / (level * 1000)) * 100))
+    ? Math.min(100, Math.max(0, (xpInLevel / xpRequired) * 100))
     : 0;
 
   return (
@@ -75,7 +84,7 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
           <Shimmer className="h-5 w-36 rounded-md" />
         ) : (
           <h1 className="text-emboss text-xl text-center truncate">
-            {fullProfile?.trainer_name}
+            {fullProfile?.trainer_name ?? profile.trainer_name}
           </h1>
         )}
       </div>
@@ -83,6 +92,22 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
       {/* Inner card */}
       <div className="flex-1 bg-pb-bg rounded-[8px] border-4 border-black relative flex flex-col shadow-inner overflow-hidden">
 
+        {failed ? (
+          <div className="flex-1 flex flex-col items-center justify-center gap-3 p-4">
+            <span className="font-black tracking-widest uppercase text-[11px] text-pb-forest text-center">
+              Couldn&apos;t load this trainer&apos;s profile
+            </span>
+            <Button
+              variant="game"
+              tone="neutral"
+              size="sm"
+              onClick={() => setRetryToken((n) => n + 1)}
+            >
+              Retry
+            </Button>
+          </div>
+        ) : (
+        <>
         {/* Sprites — both bottom-aligned; trainer centres when no buddy, shifts right when buddy present */}
         <div className="flex-1 relative overflow-hidden">
           {loading ? (
@@ -145,7 +170,7 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
                 <div className="flex justify-between items-end mb-1">
                   <span className="font-black tracking-widest text-[10px] text-black leading-none uppercase">EXP</span>
                   <span className="font-black tracking-widest text-[10px] text-black leading-none">
-                    {fullProfile?.xp} / {level * 1000}
+                    {xpInLevel} / {xpRequired}
                   </span>
                 </div>
                 <div className="w-full h-4 bg-white border-[3px] border-black rounded-full overflow-hidden shadow-[2px_2px_0_rgba(0,0,0,0.5)]">
@@ -158,6 +183,8 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
             )}
           </div>
         </div>
+        </>
+        )}
       </div>
     </Card>
   );

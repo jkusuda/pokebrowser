@@ -199,6 +199,7 @@ export default function StyleGuide() {
             <span className="text-emboss-sm text-xs">SMALL EMBOSS</span>
             <span className="text-emboss text-base">MEDIUM EMBOSS</span>
             <span className="text-emboss-lg text-4xl">LARGE EMBOSS</span>
+            <span className="text-emboss-xl text-6xl">XL EMBOSS</span>
           </div>
         </Column>
         <Column label="Inline equivalent (style + classes)">
@@ -220,6 +221,12 @@ export default function StyleGuide() {
               style={{ color: "white", WebkitTextStroke: "2px black", textShadow: "0 6px 0 black" }}
             >
               LARGE EMBOSS
+            </span>
+            <span
+              className="font-black uppercase tracking-widest text-6xl"
+              style={{ color: "white", WebkitTextStroke: "4px black", textShadow: "0 8px 0 black" }}
+            >
+              XL EMBOSS
             </span>
           </div>
         </Column>

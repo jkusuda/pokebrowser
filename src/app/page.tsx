@@ -96,8 +96,7 @@ async function HomeContent({
         {/* Hero Content */}
         <div className="relative z-10 flex flex-col items-center gap-4 animate-[fadeInUp_0.5s_ease-out_forwards] mx-4">
           <h1
-            className="font-black tracking-[0.2em] text-5xl sm:text-7xl md:text-8xl lg:text-[100px] text-white uppercase text-center relative z-10 leading-none"
-            style={{ WebkitTextStroke: "4px black", textShadow: "0 8px 0 black" }}
+            className="text-emboss-xl tracking-[0.2em] text-5xl sm:text-7xl md:text-8xl lg:text-[100px] text-center relative z-10 leading-none"
           >
             POKEBROWSER
           </h1>
@@ -243,6 +242,15 @@ async function HomeContent({
                 </svg>
                 GitHub
               </a>
+            </div>
+
+            <div className="flex flex-wrap gap-x-6 gap-y-2 justify-center mt-2">
+              <Link href="/terms" className="font-bold text-xs text-gray-400 hover:text-white transition-colors">
+                Terms of Service
+              </Link>
+              <Link href="/privacy" className="font-bold text-xs text-gray-400 hover:text-white transition-colors">
+                Privacy Policy
+              </Link>
             </div>
 
             <p className="text-xs mt-2 text-gray-500 font-bold">

@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { Pokemon, PokemonInfo, Candy } from "@/types";
 import { getPokemonSprite } from "@/lib/pokemon";
 import { getFamilyId } from "pokemon-data";
@@ -5,6 +8,7 @@ import { getTypeColor, getTypeIconPath } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import EvolveModal from "@/components/profile/EvolveModal";
 
 interface PokemonDetailsPanelProps {
   pokemon: Pokemon | null;
@@ -23,14 +27,25 @@ export default function PokemonDetailsPanel({
   isVisible,
   onClose,
 }: PokemonDetailsPanelProps) {
+  const [showEvolve, setShowEvolve] = useState(false);
+
   const types = pokemonInfo?.types ?? [];
   const primaryType = types[0] ?? "normal";
   const typeColors = getTypeColor(primaryType);
 
+  const candyCount = pokemon
+    ? candies?.find((c) => c.pokedex_number === getFamilyId(pokemon.pokedex_number))?.count ?? 0
+    : 0;
+  const evolveCost = pokemonInfo?.evolveCandyCost ?? null;
+  const canEvolve = pokemonInfo?.evolvesTo != null;
+  const canAfford = canEvolve && evolveCost != null && candyCount >= evolveCost;
+  const familyName = familyInfo?.name?.replace(/-/g, " ") ?? pokemonInfo?.name?.replace(/-/g, " ") ?? "Pokémon";
+
   return (
+    <>
     <Card
       className={cn(
-        "absolute top-2 bottom-2 right-2 w-[36%] rounded-[20px] shadow-lg transition-transform duration-300 z-20 overflow-hidden p-0 gap-0",
+        "absolute top-0 bottom-0 right-2 my-auto w-[36%] h-3/4 rounded-[20px] shadow-lg transition-transform duration-300 z-20 overflow-hidden p-0 gap-0",
         isVisible ? "translate-x-0" : "translate-x-[110%]"
       )}
       style={{ backgroundColor: `${typeColors.background}cc` }}
@@ -131,26 +146,28 @@ export default function PokemonDetailsPanel({
               shadow="sm"
               className="mx-3 mt-1.5 rounded-[12px] bg-white/90 flex-row items-center justify-between shrink-0"
             >
-              <span className="font-bold text-sm capitalize">
-                {familyInfo?.name?.replace(/-/g, " ") ?? pokemonInfo?.name?.replace(/-/g, " ") ?? "Pokémon"} Candy
-              </span>
-              <span className="font-bold text-sm text-gray-600">
-                {pokemon ? (candies?.find(c => c.pokedex_number === getFamilyId(pokemon.pokedex_number))?.count ?? 0) : "—"}
-              </span>
+              <span className="font-bold text-sm capitalize">{familyName} Candy</span>
+              <span className="font-bold text-sm text-gray-600">{candyCount}</span>
             </Card>
 
             {/* Evolve button */}
-            {pokemonInfo?.evolvesTo != null ? (
+            {canEvolve ? (
               <Card
                 variant="game"
                 tone="leaf"
                 size="sm"
                 shadow="sm"
-                className="mx-3 mt-1.5 rounded-[12px] bg-pb-leaf flex-row items-center justify-between shrink-0 opacity-60"
+                onClick={canAfford ? () => setShowEvolve(true) : undefined}
+                className={cn(
+                  "mx-3 mt-1.5 rounded-[12px] flex-row items-center justify-between shrink-0 transition-transform",
+                  canAfford
+                    ? "bg-pb-grass cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
+                    : "bg-pb-leaf opacity-50 cursor-not-allowed"
+                )}
               >
                 <span className="font-bold text-sm text-pb-forest uppercase tracking-wide">Evolve</span>
                 <span className="font-bold text-pb-forest/70 bg-white/60 px-3 py-0.5 rounded-full text-xs">
-                  {pokemonInfo.evolveCandyCost ?? "—"}
+                  {evolveCost ?? "—"}
                 </span>
               </Card>
             ) : (
@@ -163,27 +180,39 @@ export default function PokemonDetailsPanel({
               tone="white"
               size="sm"
               shadow="none"
-              className="mx-3 mt-1.5 mb-2 rounded-[12px] bg-white/70 text-center shrink-0"
+              className="mx-3 mt-1.5 mb-2 rounded-[12px] bg-white/70 text-center shrink-0 py-1.5 px-3 gap-0"
             >
-              <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-widest mb-0.5">
+              <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-widest">
                 Caught On
               </p>
-              {pokemon.caught_on && (
-                <p className="text-xs font-bold text-gray-700">{pokemon.caught_on}</p>
-              )}
-              <p className="text-xs text-gray-500">
-                {pokemon.caught_at
-                  ? new Date(pokemon.caught_at).toLocaleDateString("en-US", {
-                    month: "numeric",
-                    day: "numeric",
-                    year: "numeric",
-                  })
-                  : "Unknown"}
+              <p className="text-xs font-bold text-gray-700 truncate">
+                {pokemon.caught_on ?? "Unknown"}
+                <span className="font-normal text-gray-500">
+                  {" · "}
+                  {pokemon.caught_at
+                    ? new Date(pokemon.caught_at).toLocaleDateString("en-US", {
+                      month: "numeric",
+                      day: "numeric",
+                      year: "numeric",
+                    })
+                    : "Unknown"}
+                </span>
               </p>
             </Card>
           </div>
         </div>
       )}
     </Card>
+
+    {showEvolve && pokemon && pokemonInfo?.evolvesTo != null && (
+      <EvolveModal
+        pokemon={pokemon}
+        pokemonInfo={pokemonInfo}
+        targetNumber={pokemonInfo.evolvesTo}
+        familyName={familyName}
+        onClose={() => setShowEvolve(false)}
+      />
+    )}
+    </>
   );
 }

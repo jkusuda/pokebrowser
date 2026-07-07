@@ -19,7 +19,7 @@ export async function GET() {
     if (error) throw error;
 
     const unlockedById = Object.fromEntries(
-      ((unlocks as AchievementUnlock[]) ?? []).map((u) => [u.achievement_id, u])
+      ((unlocks ?? []) as AchievementUnlock[]).map((u) => [u.achievement_id, u])
     );
 
     // Merge static definitions with the user's unlock state.

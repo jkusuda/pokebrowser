@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     const newAchievements: string[] = [];
     for (const trigger of triggers) {
       const { data } = await supabase.rpc("check_action_achievements", { p_trigger: trigger });
-      if (data) newAchievements.push(...(data as string[]));
+      if (Array.isArray(data)) newAchievements.push(...(data as string[]));
     }
 
     return NextResponse.json({ success: true, newAchievements });

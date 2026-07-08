@@ -26,7 +26,8 @@
     "externally_connectable": {
         "matches": [
             "http://localhost:3000/*",
-            "https://pokebrowser.net/*"
+            "https://pokebrowser.net/*",
+            "https://www.pokebrowser.net/*"
         ]
     },
     "action": {

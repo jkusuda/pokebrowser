@@ -1,5 +1,7 @@
 @import "tailwindcss";
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400..900&display=swap");
+/* Same families as the website (see src/app/layout.tsx) — keep in sync.
+   Baloo 2 = body/UI, Climate Crisis = display titles. */
+@import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..800&family=Climate+Crisis&display=swap");
 
 /* ── Base ─────────────────────────────────────────────────────────────── */
 
@@ -9,7 +11,7 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  font-family: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  font-family: "Baloo 2", ui-sans-serif, system-ui, sans-serif;
   border: 2px solid black;
   box-sizing: border-box;
 }
@@ -17,6 +19,12 @@ body {
 #root {
   width: 100%;
   height: 100%;
+}
+
+/* Display font for the popup's game-style titles (mirrors the website's
+   .text-emboss* classes, which use Climate Crisis via --font-display). */
+h1 {
+  font-family: "Climate Crisis", "Baloo 2", sans-serif;
 }
 
 

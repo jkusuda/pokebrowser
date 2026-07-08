@@ -12,6 +12,7 @@ export default function App() {
     return (
       <div className="w-full h-full flex items-center justify-center bg-[#9dcd9d]">
         <div className="bg-[#e0f4d9] rounded-[8px] border-4 border-black shadow-[4px_4px_0_black] px-8 py-6 flex flex-col items-center gap-4">
+          <img src="./icon128.png" alt="" className="w-12 h-12" />
           <h1
             className="font-black text-xl tracking-widest text-white uppercase"
             style={{ WebkitTextStroke: "1.5px black", textShadow: "0 2px 0 black" }}
@@ -33,6 +34,7 @@ export default function App() {
         backgroundPosition: "center",
       }}>
         <div className="my-auto bg-[#e0f4d9] rounded-[8px] border-4 border-black shadow-[4px_4px_0_black] p-6 flex flex-col items-center text-center">
+          <img src="./icon128.png" alt="" className="w-16 h-16 mb-2" />
           <h1
             className="font-black text-2xl tracking-widest text-white uppercase mb-4"
             style={{ WebkitTextStroke: "1.5px black", textShadow: "0 2px 0 black" }}

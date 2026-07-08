@@ -8,7 +8,7 @@ const DEFAULTS = {
   SUPABASE_URL: "https://nxshczmwkznapzgprkcc.supabase.co",
   SUPABASE_ANON_KEY:
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54c2hjem13a3puYXB6Z3Bya2NjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNTIzMjUsImV4cCI6MjA4NzYyODMyNX0.c9o3R2Jp11rnd_jnVcpSW20SxOUeQNo6A36jpqkh-tE",
-  WEBSITE_URL: "https://pokebrowser.net",
+  WEBSITE_URL: "https://www.pokebrowser.net",
 } as const;
 
 const envSchema = z.object({

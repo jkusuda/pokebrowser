@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-import netPng from "@/assets/net.png";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -24,9 +22,8 @@ type Props = {
 export default function ProfileTopBar({ activePage, onPageChange }: Props) {
   return (
     <Card variant="game" tone="grass" className="w-full p-3 flex-row items-center mb-4 relative gap-0">
-      {/* Logo (left-anchored) */}
+      {/* Wordmark (left-anchored) */}
       <div className="absolute left-6 flex items-center gap-2">
-        <Image src={netPng} alt="Net" width={32} height={32} className="opacity-80" />
         <span className="text-black font-bold text-lg tracking-wide">Pokebrowser</span>
       </div>
 

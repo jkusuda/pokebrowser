@@ -102,7 +102,7 @@ export default function SettingsPage({ user }: Props) {
           onClick={handleLogout}
           variant="game"
           tone="danger"
-          className="w-full h-auto py-3 px-6 text-lg border-[3px] shadow-[3px_3px_0_black] rounded-[6px]"
+          className="w-full h-auto py-3 px-6 text-lg border-[3px] shadow-[3px_3px_0_black] rounded-[6px] [-webkit-text-stroke:0px] [text-shadow:none]"
         >
           LOG OUT
         </Button>

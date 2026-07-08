@@ -160,7 +160,7 @@ export default function CollectionTab({ pokemon, candies }: { pokemon: Pokemon[]
                 style={{ imageRendering: "pixelated" }}
               />
               {p.nickname && (
-                <p className="text-emboss-sm text-[14px] normal-case tracking-normal truncate w-[120%] text-center z-10">
+                <p className="font-bold text-[14px] text-white truncate w-[120%] text-center z-10 [text-shadow:-1px_-1px_0_#000,1px_-1px_0_#000,-1px_1px_0_#000,1px_1px_0_#000]">
                   {p.nickname}
                 </p>
               )}

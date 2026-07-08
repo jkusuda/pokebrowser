@@ -96,7 +96,7 @@ async function HomeContent({
         {/* Hero Content */}
         <div className="relative z-10 flex flex-col items-center gap-4 animate-[fadeInUp_0.5s_ease-out_forwards] mx-4">
           <h1
-            className="text-emboss-xl tracking-[0.2em] text-5xl sm:text-7xl md:text-8xl lg:text-[100px] text-center relative z-10 leading-none"
+            className="text-emboss-xl tracking-[0.1em] text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[100px] text-center relative z-10 leading-none"
           >
             POKEBROWSER
           </h1>

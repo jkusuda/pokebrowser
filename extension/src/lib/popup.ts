@@ -4,11 +4,11 @@
 
 export function getPopupCSS(grassUrl: string, pokeballUrl: string) {
   return `
-    @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400..900&display=swap");
+    @import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..800&family=Climate+Crisis&display=swap");
 
     :host {
       all: initial;
-      font-family: "Outfit", sans-serif;
+      font-family: "Baloo 2", sans-serif;
     }
 
     .overlay {
@@ -78,6 +78,7 @@ export function getPopupCSS(grassUrl: string, pokeballUrl: string) {
     }
 
     .title {
+      font-family: "Climate Crisis", "Baloo 2", sans-serif;
       font-weight: 900;
       font-size: 13px;
       letter-spacing: 0.1em;
@@ -157,7 +158,7 @@ export function getPopupCSS(grassUrl: string, pokeballUrl: string) {
     .btn {
       flex: 1;
       padding: 10px 0;
-      font-family: "Outfit", sans-serif;
+      font-family: "Baloo 2", sans-serif;
       font-weight: 900;
       font-size: 12px;
       letter-spacing: 0.15em;

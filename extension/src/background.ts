@@ -107,6 +107,7 @@ async function authenticate(): Promise<{ userId: string } | null> {
 const ALLOWED_WEB_ORIGINS = new Set([
   CONFIG.WEBSITE_URL,
   "https://pokebrowser.net",
+  "https://www.pokebrowser.net",
 ]);
 
 chrome.runtime.onMessageExternal.addListener((message: ExternalMessage, sender, sendResponse) => {

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { PokedexUnlock } from "@/types";
 import { getPokemonData, getPokedexSprite } from "@/lib/pokemon";
 import { errorMessage } from "@/lib/api-helpers";
+import { useRefresh } from "@/lib/hooks/useRefresh";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export default function CandySelectionModal({ pokedexUnlocks, pendingLevels }: Props) {
+  const { refresh } = useRefresh();
   const [remaining, setRemaining] = useState(pendingLevels);
   const [selected, setSelected] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -46,6 +48,8 @@ export default function CandySelectionModal({ pokedexUnlocks, pendingLevels }: P
       }
       setSelected(null);
       setRemaining((r) => r - 1);
+      // Re-sync server props so the granted candies show up in the collection.
+      refresh();
     } catch (err) {
       setError(errorMessage(err) || "Something went wrong");
     } finally {
@@ -61,7 +65,6 @@ export default function CandySelectionModal({ pokedexUnlocks, pendingLevels }: P
       <div className="bg-pb-bg border-4 border-black rounded-xl shadow-[6px_6px_0_black] p-6 max-w-md w-full mx-4 flex flex-col max-h-[85vh]">
         {/* Header */}
         <div className="text-center mb-4 shrink-0">
-          <div className="text-3xl mb-1">🍬</div>
           <h2 className="text-emboss text-xl">Level Up!</h2>
           <p className="text-sm text-black/70 mt-1">
             Choose a Pokémon to receive <strong>10 candies</strong>.
@@ -127,7 +130,7 @@ export default function CandySelectionModal({ pokedexUnlocks, pendingLevels }: P
             variant="game"
             tone="primary"
             size="md"
-            className="w-full"
+            className="w-full [-webkit-text-stroke:0px] [text-shadow:-1px_-1px_0_black,1px_-1px_0_black,-1px_1px_0_black,1px_1px_0_black]"
             onClick={handleClaim}
             disabled={selected === null || submitting}
           >

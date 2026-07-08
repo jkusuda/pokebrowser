@@ -44,17 +44,6 @@ async function HomeContent({
       {/* Fixed Sticky Navbar */}
       <nav className="fixed top-0 left-0 right-0 flex justify-end items-center z-50 p-4 md:p-6 pointer-events-none">
         <div className="flex gap-4 pointer-events-auto">
-          <Button asChild variant="game" tone="neutral" className={navBtnClasses}>
-            <a href="/pokebrowser-beta-1.0.0.zip" download>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-              <span className="hidden sm:inline">DOWNLOAD</span>
-            </a>
-          </Button>
-
           {isLoggedIn ? (
             <Button asChild variant="game" tone="neutral" className={navBtnClasses}>
               <Link href="/profile">
@@ -122,24 +111,26 @@ async function HomeContent({
         <section className="w-full py-24 px-8 bg-pb-leaf border-t-4 border-black flex flex-col items-center">
           <div className="max-w-4xl w-full">
             <h2 className={`${sectionTitleClass} text-emboss-lg text-pb-pine`}>
-              LATEST UPDATES
+              CHANGELOG
             </h2>
-            <Card variant="game" tone="white" shadow="lg" className="rounded-xl p-8 md:p-12 gap-0 space-y-8 max-w-2xl mx-auto">
-              {updatesData.updates.map((update, idx) => (
-                <div key={update.version}>
-                  <h3 className={`font-black text-2xl uppercase border-b-4 pb-2 mb-4 ${idx === 0 ? "border-black" : "text-gray-300 border-gray-100"}`}>
-                    Version {update.version}
-                    {update.isNew && (
-                      <span className="text-pb-pine ml-2 text-lg align-middle bg-pb-leaf border-2 border-black rounded px-2 py-1 shadow-[2px_2px_0_black]">NEW</span>
-                    )}
-                  </h3>
-                  <ul className={`list-disc pl-6 space-y-3 font-bold text-lg ${idx === 0 ? "text-gray-700" : "text-gray-400"}`}>
-                    {update.notes.map((note, noteIdx) => (
-                      <li key={noteIdx}>{note}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+            <Card variant="game" tone="white" shadow="lg" className="rounded-xl p-8 md:p-12 gap-0 max-w-2xl mx-auto">
+              <div className="custom-scrollbar max-h-[32rem] overflow-y-auto space-y-8 pr-2 pt-2">
+                {updatesData.updates.map((update, idx) => (
+                  <div key={update.version}>
+                    <h3 className="font-black text-2xl uppercase border-b-4 border-black pb-2 mb-4">
+                      Version {update.version}
+                      {update.isNew && (
+                        <span className="text-pb-pine ml-2 text-lg align-middle bg-pb-leaf border-2 border-black rounded px-2 py-1 shadow-[2px_2px_0_black]">NEW</span>
+                      )}
+                    </h3>
+                    <ul className="list-disc pl-6 space-y-3 font-bold text-lg text-gray-700">
+                      {update.notes.map((note, noteIdx) => (
+                        <li key={noteIdx}>{note}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
             </Card>
           </div>
         </section>

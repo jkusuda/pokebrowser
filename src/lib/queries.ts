@@ -315,3 +315,46 @@ export async function selectTokenType(
     .is("used_at", null);
   if (error) throw error;
 }
+
+// ─── Dev tools (local testing only, admin-gated) ────────────────────────────
+
+/** Grants a token directly via dev_grant_token, bypassing the achievement claim path. */
+export async function devGrantToken(
+  supabase: SupabaseClient,
+  tokenType: string,
+  typeFilter: string | null
+) {
+  const { error } = await supabase.rpc("dev_grant_token", {
+    p_token_type: tokenType,
+    p_type_filter: typeFilter,
+  });
+  if (error) {
+    const msg = error.message ?? "";
+    if (msg.includes("not_authorized")) throw new Error("Not authorized");
+    throw error;
+  }
+}
+
+/** Adds XP via dev_add_xp, recomputing level with the same curve as perform_catch. */
+export async function devAddXp(supabase: SupabaseClient, amount: number) {
+  const { data, error } = await supabase.rpc("dev_add_xp", { p_amount: amount });
+  if (error) {
+    const msg = error.message ?? "";
+    if (msg.includes("not_authorized")) throw new Error("Not authorized");
+    throw error;
+  }
+  return data as { xp: number; level: number };
+}
+
+/** Force-unlocks an achievement via dev_unlock_achievement, for testing the claim flow. */
+export async function devUnlockAchievement(supabase: SupabaseClient, achievementId: string) {
+  const { data, error } = await supabase.rpc("dev_unlock_achievement", {
+    p_achievement_id: achievementId,
+  });
+  if (error) {
+    const msg = error.message ?? "";
+    if (msg.includes("not_authorized")) throw new Error("Not authorized");
+    throw error;
+  }
+  return data as string[];
+}

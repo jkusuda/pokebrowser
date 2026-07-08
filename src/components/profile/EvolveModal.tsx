@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Pokemon, PokemonInfo } from "@/types";
 import { getPokemonSprite } from "@/lib/pokemon";
 import { getPokemonName } from "pokemon-data";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { errorMessage } from "@/lib/api-helpers";
+import { useRefresh } from "@/lib/hooks/useRefresh";
 import { cn } from "@/lib/utils";
 
 const ANIMATION_MS = 1800;
@@ -25,7 +25,7 @@ type Props = {
 export default function EvolveModal({ pokemon, pokemonInfo, targetNumber, familyName, onClose }: Props) {
   const [phase, setPhase] = useState<Phase>("confirm");
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+  const { refresh } = useRefresh();
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export default function EvolveModal({ pokemon, pokemonInfo, targetNumber, family
       timers.current.push(
         setTimeout(() => {
           setPhase("done");
-          router.refresh();
+          refresh();
           // Auto-close shortly after the reveal.
           timers.current.push(setTimeout(onClose, 1400));
         }, ANIMATION_MS)

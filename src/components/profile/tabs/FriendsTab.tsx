@@ -50,7 +50,7 @@ function FriendCodeDisplay({ code }: { code: string }) {
         </span>
         <span className="font-black text-base tracking-widest text-pb-forest font-mono">{code}</span>
       </div>
-      <Button onClick={handleCopy} variant="game" tone="mint" size="sm" className="shrink-0">
+      <Button onClick={handleCopy} variant="game" tone="mint" size="sm" className="shrink-0 shadow-none">
         {copied ? "COPIED!" : "COPY"}
       </Button>
     </div>
@@ -122,7 +122,7 @@ function AddFriendForm() {
           variant="game"
           tone="forest"
           size="sm"
-          className="shrink-0"
+          className="shrink-0 shadow-none !text-black [-webkit-text-stroke:0px] [text-shadow:none]"
         >
           {loading ? "..." : "ADD"}
         </Button>
@@ -253,7 +253,13 @@ function FriendRow({ friend, onView }: { friend: FriendWithUser; onView: () => v
         </p>
       </div>
       <div className="flex items-center gap-1.5 shrink-0">
-        <Button onClick={onView} variant="game" tone="forest" size="sm" className="px-3 py-1.5">
+        <Button
+          onClick={onView}
+          variant="game"
+          tone="forest"
+          size="sm"
+          className="px-3 py-1.5 shadow-none !text-black [-webkit-text-stroke:0px] [text-shadow:none]"
+        >
           VIEW
         </Button>
         <Button

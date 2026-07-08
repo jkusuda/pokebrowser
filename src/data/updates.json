@@ -1,8 +1,17 @@
 {
   "updates": [
     {
-      "version": "1.0.0",
+      "version": "1.0.1",
       "isNew": true,
+      "notes": [
+        "Fixed font issues.",
+        "Fixed type icons not rendering properly.",
+        "Fixed bug with friend achivements being one-sided."
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "isNew": false,
       "notes": [
         "Website is now live!",
         "Profile page implemented.",

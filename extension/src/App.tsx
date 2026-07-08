@@ -46,7 +46,7 @@ export default function App() {
           <button
             onClick={openLogin}
             className="w-full py-3 bg-[#8abf8a] hover:bg-[#9dcd9d] active:bg-[#9dcd9d] text-white font-black text-[12px] tracking-widest uppercase rounded-[6px] border-4 border-black shadow-[4px_4px_0_black] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all cursor-pointer"
-            style={{ WebkitTextStroke: "0.5px black", textShadow: "0px 1px 0px black" }}
+            style={{ textShadow: "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000" }}
           >
             Login / Sign Up
           </button>

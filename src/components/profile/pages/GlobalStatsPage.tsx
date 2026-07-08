@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import statsIcon from "@/assets/stats.png";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import RefreshButton from "@/components/profile/RefreshButton";
 import { cn } from "@/lib/utils";
 import { TRAINER_BASE } from "@/lib/pokemon";
 import { LeaderboardCategory, LeaderboardEntry, LeaderboardResponse } from "@/types";
@@ -126,14 +127,25 @@ export default function GlobalStatsPage({ active }: Props) {
   const [cache, setCache] = useState<Partial<Record<LeaderboardCategory, LeaderboardResponse>>>({});
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [retryToken, setRetryToken] = useState(0);
+  const [fetchToken, setFetchToken] = useState(0);
 
   const data = cache[category];
 
+  // Drops the current category from the cache so the fetch effect re-runs.
+  // Shared by the header refresh button and the failure Retry button.
+  const handleRefetch = () => {
+    setCache((prev) => {
+      const next = { ...prev };
+      delete next[category];
+      return next;
+    });
+    setFetchToken((n) => n + 1);
+  };
+
   useEffect(() => {
-    // Lazy fetch: only once the page is visible, and only the first time each
-    // category is viewed (unless a retry was requested).
-    if (!active || (data && retryToken === 0)) return;
+    // Lazy fetch: only once the page is visible, and only while the current
+    // category has no cached response (refresh/retry clear it).
+    if (!active || data) return;
 
     let cancelled = false;
     setLoading(true);
@@ -156,9 +168,10 @@ export default function GlobalStatsPage({ active }: Props) {
       });
 
     return () => { cancelled = true; };
-    // retryToken forces a refetch; data is intentionally read at call time.
+    // fetchToken forces a refetch after handleRefetch clears the cache entry;
+    // data is intentionally read at call time.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, category, retryToken]);
+  }, [active, category, fetchToken]);
 
   const unit = CATEGORIES.find((c) => c.key === category)?.unit ?? "";
   // Show the pinned "your placement" row only when the caller isn't already in
@@ -171,7 +184,10 @@ export default function GlobalStatsPage({ active }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-emboss text-xl">GLOBAL STATS</h2>
-        <img src={statsIcon.src} alt="" className="w-8 h-8 object-contain opacity-70" />
+        <div className="flex items-center gap-2">
+          <RefreshButton onRefresh={handleRefetch} refreshing={loading} />
+          <img src={statsIcon.src} alt="" className="w-8 h-8 object-contain opacity-70" />
+        </div>
       </div>
 
       {/* Category toggle */}
@@ -204,7 +220,7 @@ export default function GlobalStatsPage({ active }: Props) {
             <span className="font-black tracking-widest uppercase text-[11px] text-pb-forest/60 text-center">
               Couldn&apos;t load the leaderboard
             </span>
-            <Button variant="game" tone="neutral" size="sm" onClick={() => setRetryToken((n) => n + 1)}>
+            <Button variant="game" tone="neutral" size="sm" onClick={handleRefetch}>
               Retry
             </Button>
           </div>

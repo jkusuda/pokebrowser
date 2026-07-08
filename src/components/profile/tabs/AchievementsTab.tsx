@@ -3,6 +3,7 @@
 import { useState } from "react";
 import AchievementCard from "@/components/achievements/AchievementCard";
 import TypePickerModal from "@/components/rewards/TypePickerModal";
+import DevToolsPanel from "./DevToolsPanel";
 import { Button } from "@/components/ui/button";
 import {
   ACHIEVEMENTS_BY_CATEGORY,
@@ -11,6 +12,7 @@ import {
   type AchievementCategory,
 } from "@/lib/achievements-data";
 import { AchievementUnlock, Token, PokedexUnlock, UserStats } from "@/types";
+import { useRefresh } from "@/lib/hooks/useRefresh";
 import { cn } from "@/lib/utils";
 
 const CATEGORY_ORDER: AchievementCategory[] = [
@@ -69,6 +71,7 @@ export default function AchievementsTab({
   userLevel,
   friendCount,
 }: Props) {
+  const { refresh } = useRefresh();
   const [localUnlocks, setLocalUnlocks] = useState<AchievementUnlock[]>(achievementUnlocks);
   const [localTokens, setLocalTokens] = useState<Token[]>(tokens);
   const [typePickerToken, setTypePickerToken] = useState<Token | null>(null);
@@ -117,6 +120,9 @@ export default function AchievementsTab({
       };
       setLocalTokens((prev) => [...prev, newToken]);
     }
+
+    // Re-sync server props (storage reward on catch_limit, real token row).
+    refresh();
   }
 
   function handleTypeSelected(tokenId: string, typeName: string) {
@@ -124,12 +130,15 @@ export default function AchievementsTab({
       prev.map((t) => (t.id === tokenId ? { ...t, type_filter: typeName } : t))
     );
     setTypePickerToken(null);
+    refresh();
   }
 
   const unclaimedCount = localUnlocks.filter((u) => u.claimed_at === null).length;
 
   return (
     <div className="space-y-4">
+      {process.env.NODE_ENV !== "production" && <DevToolsPanel />}
+
       {/* Filter strip */}
       <div className="flex gap-2 flex-wrap">
         {(["all", "earned", "locked"] as const).map((f) => (

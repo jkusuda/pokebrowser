@@ -16,7 +16,7 @@ export async function POST(request: Request) {
 
     const { data: friendship } = await supabase
       .from("friends")
-      .select("id, status, friend_id")
+      .select("id, status, user_id, friend_id")
       .eq("id", friendshipId)
       .single();
 
@@ -44,6 +44,7 @@ export async function POST(request: Request) {
 
     const { data: newAchievements } = await supabase.rpc("check_action_achievements", {
       p_trigger: "friend_accept",
+      p_other_user_id: friendship.user_id,
     });
 
     return NextResponse.json({ success: true, newAchievements: newAchievements ?? [] });

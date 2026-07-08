@@ -1,14 +1,20 @@
 "use client";
 
-import { useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useRefresh } from "@/lib/hooks/useRefresh";
 import { cn } from "@/lib/utils";
 
-export default function RefreshButton() {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
+type Props = {
+  /** Custom refresh action; defaults to a server re-fetch via useRefresh. */
+  onRefresh?: () => void;
+  /** External pending state for custom refreshes (e.g. a client fetch). */
+  refreshing?: boolean;
+};
+
+export default function RefreshButton({ onRefresh, refreshing = false }: Props) {
+  const { refresh, pending } = useRefresh();
+  const busy = pending || refreshing;
 
   return (
     <Button
@@ -17,11 +23,11 @@ export default function RefreshButton() {
       tone="neutral"
       size="icon"
       className="h-8 w-8 border-2 shadow-[2px_2px_0_black] [&_svg]:size-4"
-      disabled={pending}
+      disabled={busy}
       aria-label="Refresh"
-      onClick={() => startTransition(() => router.refresh())}
+      onClick={onRefresh ?? refresh}
     >
-      <RefreshCw className={cn(pending && "animate-spin")} />
+      <RefreshCw className={cn(busy && "animate-spin")} />
     </Button>
   );
 }

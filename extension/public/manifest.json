@@ -3,6 +3,7 @@
     "name": "Pokebrowser",
     "description": "Wild Pokemon appear while you browse the web. Catch them, build your collection, and track your progress.",
     "version": "1.0.0",
+    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA36qcuVRixjaBi72EmVroRLTEAGCAQRWk7KR6pFKgxCzMKdc6ToALedlxjcWUDlJJCxxjf30clhyzm2X04X/UJ3l9P5oUh0b++u1YV1c+INgUy3JyJ2vGjLB14nqRzPsNn4NIGPklh5wKYc8AIts6UsV8FThevS8n5ZzZVX4cmAMd5FXmvbXYliFvYipTZRakf9bRxK8HDc6dJ2WNH5bOKHUdIhRS+J1Mb/3tCYl/E9zsSYsWxx8mrnQwEzvR6j+2ANvUXnP6vqPYHtEkUY+azUw7TWcBJHLt7u8Xf8akAdBoxeXtMMARgvXQXgUkEXYuqqqH4JFwPMrfbaN12cykswIDAQAB",
     "icons": {
         "16": "icon16.png",
         "32": "icon32.png",

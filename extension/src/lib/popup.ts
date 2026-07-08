@@ -2,10 +2,31 @@
 // the second Vite pass (vite.content.config.ts) still inlines it into the
 // fully-bundled content.js IIFE.
 
+// @font-face does not register inside a shadow root — content.ts injects this
+// into document.head so the shadow styles below can use the families by name.
+// Fonts are bundled in the extension (extension/public/fonts/ + manifest
+// web_accessible_resources) — same families as the website, keep in sync.
+export function getFontFaceCSS() {
+  return `
+    @font-face {
+      font-family: "Baloo 2";
+      font-style: normal;
+      font-weight: 400 800;
+      font-display: swap;
+      src: url("${chrome.runtime.getURL("fonts/baloo2-latin.woff2")}") format("woff2");
+    }
+    @font-face {
+      font-family: "Lilita One";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("${chrome.runtime.getURL("fonts/lilita-one-latin.woff2")}") format("woff2");
+    }
+  `;
+}
+
 export function getPopupCSS(grassUrl: string, pokeballUrl: string) {
   return `
-    @import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..800&family=Climate+Crisis&display=swap");
-
     :host {
       all: initial;
       font-family: "Baloo 2", sans-serif;
@@ -78,14 +99,13 @@ export function getPopupCSS(grassUrl: string, pokeballUrl: string) {
     }
 
     .title {
-      font-family: "Climate Crisis", "Baloo 2", sans-serif;
+      font-family: "Lilita One", "Baloo 2", sans-serif;
       font-weight: 900;
       font-size: 13px;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: white;
-      -webkit-text-stroke: 1.2px black;
-      text-shadow: 0 2px 0 black;
+      text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
       text-align: center;
     }
 
@@ -164,8 +184,7 @@ export function getPopupCSS(grassUrl: string, pokeballUrl: string) {
       letter-spacing: 0.15em;
       text-transform: uppercase;
       color: white;
-      -webkit-text-stroke: 0.5px black;
-      text-shadow: 0 1px 0 black;
+      text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
       border: 3px solid black;
       border-radius: 8px;
       cursor: pointer;
@@ -198,8 +217,7 @@ export function getPopupCSS(grassUrl: string, pokeballUrl: string) {
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: white;
-      -webkit-text-stroke: 1px black;
-      text-shadow: 0 2px 0 black;
+      text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
       text-align: center;
       width: 100%;
     }
@@ -221,7 +239,7 @@ export function getPopupHTML(
         <div class="grass"></div>
       </div>
       ${boxIsFull ? `
-        <div class="title" style="margin-top: 8px; color: #ff8a8a; -webkit-text-stroke: 1px black;">Your box is full!</div>
+        <div class="title" style="margin-top: 8px; color: #ff8a8a;">Your box is full!</div>
         <div class="buttons">
           <button class="btn btn-run" id="run-btn" aria-label="Run away from ${encounter.name}">Run</button>
         </div>

@@ -45,14 +45,14 @@ async function HomeContent({
       <nav className="fixed top-0 left-0 right-0 flex justify-end items-center z-50 p-4 md:p-6 pointer-events-none">
         <div className="flex gap-4 pointer-events-auto">
           <Button asChild variant="game" tone="neutral" className={navBtnClasses}>
-            <Link href="/download">
+            <a href="/pokebrowser-beta-1.0.0.zip" download>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                 <polyline points="7 10 12 15 17 10" />
                 <line x1="12" y1="15" x2="12" y2="3" />
               </svg>
               <span className="hidden sm:inline">DOWNLOAD</span>
-            </Link>
+            </a>
           </Button>
 
           {isLoggedIn ? (

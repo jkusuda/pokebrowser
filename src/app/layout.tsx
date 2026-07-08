@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Baloo_2, Climate_Crisis } from "next/font/google";
+import { Baloo_2, Lilita_One } from "next/font/google";
 import "./globals.css";
 import ExtensionAuthBridge from "@/components/auth/ExtensionAuthBridge";
 
@@ -16,8 +16,9 @@ const baseFont = Baloo_2({
   variable: '--font-base'
 });
 
-const displayFont = Climate_Crisis({
+const displayFont = Lilita_One({
   subsets: ["latin"],
+  weight: "400",
   display: 'swap',
   variable: '--font-title'
 });

@@ -7,7 +7,7 @@
 import { CONFIG } from "./lib/config";
 import { getPokemonSprite } from "./lib/sprites";
 import { runCatchAnimation } from "./lib/animation";
-import { getPopupCSS, getPopupHTML } from "./lib/popup";
+import { getFontFaceCSS, getPopupCSS, getPopupHTML } from "./lib/popup";
 import type {
   EncounterPayload,
   ExtensionMessage,
@@ -35,6 +35,15 @@ function showEncounterPopup(encounter: EncounterPayload, boxIsFull: boolean) {
   } catch {
     console.debug("Pokebrowser: Extension context invalidated.");
     return;
+  }
+
+  // Register the bundled fonts at document scope — @font-face inside a
+  // shadow root doesn't take effect in Chrome.
+  if (!document.getElementById("pokebrowse-fonts")) {
+    const fontStyle = document.createElement("style");
+    fontStyle.id = "pokebrowse-fonts";
+    fontStyle.textContent = getFontFaceCSS();
+    document.head.appendChild(fontStyle);
   }
 
   const style = document.createElement("style");

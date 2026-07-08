@@ -34,7 +34,6 @@ export default function App() {
         backgroundPosition: "center",
       }}>
         <div className="my-auto bg-[#e0f4d9] rounded-[8px] border-4 border-black shadow-[4px_4px_0_black] p-6 flex flex-col items-center text-center">
-          <img src="./icon128.png" alt="" className="w-16 h-16 mb-2" />
           <h1
             className="font-black text-2xl tracking-widest text-white uppercase mb-4"
             style={{ WebkitTextStroke: "1.5px black", textShadow: "0 2px 0 black" }}
@@ -74,8 +73,8 @@ export default function App() {
         {/* Header */}
         <div className="flex items-center">
           <span
-            className="font-black text-white text-sm tracking-widest uppercase"
-            style={{ WebkitTextStroke: "1px black", textShadow: "0 2px 0 black" }}
+            className="font-display font-black text-white text-sm tracking-widest uppercase"
+            style={{ textShadow: "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000" }}
           >
             RECENT CATCHES
           </span>
@@ -115,8 +114,8 @@ export default function App() {
                   />
                   {p.nickname && (
                     <p
-                      className="font-black text-[11px] truncate w-[110%] text-center z-10"
-                      style={{ color: "white", WebkitTextStroke: "0.75px black" }}
+                      className="font-bold text-[11px] truncate w-[110%] text-center z-10 text-white"
+                      style={{ textShadow: "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000" }}
                     >
                       {p.nickname}
                     </p>
@@ -133,7 +132,7 @@ export default function App() {
         <button
           onClick={openProfile}
           className="group w-full inline-flex items-center justify-center gap-3 px-6 py-3 text-[11px] tracking-widest text-white font-black italic bg-[#9dcd9d] border-4 border-black rounded-[8px] shadow-[4px_4px_0_black] transition-all duration-75 cursor-pointer uppercase hover:translate-y-px active:shadow-none"
-          style={{ WebkitTextStroke: "0.5px black", textShadow: "0px 1px 0px black" }}
+          style={{ textShadow: "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000" }}
         >
           VIEW PROFILE
         </button>
@@ -144,7 +143,6 @@ export default function App() {
         <button
           onClick={signOut}
           className="w-1/2 py-1.5 px-4 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white font-black text-[10px] tracking-wider rounded-[6px] border-2 border-black shadow-[2px_2px_0_black] transition-all duration-75 cursor-pointer hover:translate-y-px active:shadow-none"
-          style={{ WebkitTextStroke: "0.5px black", textShadow: "0px 1px 0px black" }}
         >
           LOG OUT
         </button>

@@ -1,7 +1,25 @@
 @import "tailwindcss";
-/* Same families as the website (see src/app/layout.tsx) — keep in sync.
-   Baloo 2 = body/UI, Climate Crisis = display titles. */
-@import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..800&family=Climate+Crisis&display=swap");
+
+/* ── Fonts ────────────────────────────────────────────────────────────────
+   Same families as the website (see src/app/layout.tsx) — keep in sync.
+   Baloo 2 = body/UI, Lilita One = display titles.
+   Bundled locally (extension/public/fonts/) — a Google Fonts @import after
+   the tailwind import is invalid CSS and gets stripped from the build. */
+@font-face {
+  font-family: "Baloo 2";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("/fonts/baloo2-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Lilita One";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/lilita-one-latin.woff2") format("woff2");
+}
 
 /* ── Base ─────────────────────────────────────────────────────────────── */
 
@@ -22,9 +40,10 @@ body {
 }
 
 /* Display font for the popup's game-style titles (mirrors the website's
-   .text-emboss* classes, which use Climate Crisis via --font-display). */
-h1 {
-  font-family: "Climate Crisis", "Baloo 2", sans-serif;
+   .text-emboss* classes, which use Lilita One via --font-display). */
+h1,
+.font-display {
+  font-family: "Lilita One", "Baloo 2", sans-serif;
 }
 
 

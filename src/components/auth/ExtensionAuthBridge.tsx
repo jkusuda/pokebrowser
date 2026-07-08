@@ -12,27 +12,37 @@ import { createClient } from "@/lib/supabase/client";
  * at the runtime layer — no in-page content script needed, and no risk of
  * other code on the page intercepting the token.
  *
- * If NEXT_PUBLIC_POKEBROWSE_EXTENSION_ID isn't configured or the extension
- * isn't installed, this no-ops silently — the web app still works on its own.
+ * NEXT_PUBLIC_POKEBROWSE_EXTENSION_ID may be a comma-separated list of IDs so
+ * one deployment can serve several installs (the Web Store build plus unpacked
+ * dev builds, which each get a different ID). The session is broadcast to every
+ * ID; each browser silently ignores the ones it doesn't have installed.
+ *
+ * If it isn't configured or no listed extension is installed, this no-ops
+ * silently — the web app still works on its own.
  */
 export default function ExtensionAuthBridge() {
   useEffect(() => {
-    const extensionId = process.env.NEXT_PUBLIC_POKEBROWSE_EXTENSION_ID;
-    if (!extensionId) return;
+    const extensionIds = (process.env.NEXT_PUBLIC_POKEBROWSE_EXTENSION_ID ?? "")
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean);
+    if (extensionIds.length === 0) return;
 
     const sendMessage = window.chrome?.runtime?.sendMessage;
     if (typeof sendMessage !== "function") return;
 
     const post = (msg: unknown) => {
-      try {
-        sendMessage(extensionId, msg, () => {
-          // Swallow lastError — set when the extension is missing or hasn't
-          // accepted the connection. Accessing it clears the runtime warning.
-          void window.chrome?.runtime?.lastError;
-        });
-      } catch {
-        // chrome.runtime.sendMessage can throw synchronously if the extension
-        // is fully unavailable; that's fine, we just don't have a bridge.
+      for (const extensionId of extensionIds) {
+        try {
+          sendMessage(extensionId, msg, () => {
+            // Swallow lastError — set when the extension is missing or hasn't
+            // accepted the connection. Accessing it clears the runtime warning.
+            void window.chrome?.runtime?.lastError;
+          });
+        } catch {
+          // chrome.runtime.sendMessage can throw synchronously if the extension
+          // is fully unavailable; that's fine, we just skip that ID.
+        }
       }
     };
 

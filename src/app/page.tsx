@@ -3,9 +3,9 @@ import Link from "next/link";
 import AuthModal from "@/components/auth/AuthModal";
 import { createClient } from "@/lib/supabase/server";
 import bikingbg from "@/assets/bikingbackground.gif";
-import placeholderImg from "@/assets/placeholder.png";
 import whiteballIcon from "@/assets/whiteball.png";
 import LandingGallery from "@/components/landing/LandingGallery";
+import DownloadButton from "@/components/landing/DownloadButton";
 import updatesData from "@/data/updates.json";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -44,16 +44,7 @@ async function HomeContent({
       {/* Fixed Sticky Navbar */}
       <nav className="fixed top-0 left-0 right-0 flex justify-end items-center z-50 p-4 md:p-6 pointer-events-none">
         <div className="flex gap-4 pointer-events-auto">
-          <Button asChild variant="game" tone="neutral" className={navBtnClasses}>
-            <a href="/pokebrowser-1.0.1.zip" download>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-              <span className="hidden sm:inline">DOWNLOAD</span>
-            </a>
-          </Button>
+          <DownloadButton className={navBtnClasses} />
 
           {isLoggedIn ? (
             <Button asChild variant="game" tone="neutral" className={navBtnClasses}>
@@ -131,7 +122,7 @@ async function HomeContent({
                     <h3 className="font-black text-2xl uppercase border-b-4 border-black pb-2 mb-4">
                       Version {update.version}
                       {update.isNew && (
-                        <span className="text-pb-pine ml-2 text-lg align-middle bg-pb-leaf border-2 border-black rounded px-2 py-1 shadow-[2px_2px_0_black]">NEW</span>
+                        <span className="text-pb-pine ml-2 text-lg align-middle bg-pb-leaf border-2 border-black rounded px-2 py-1 shadow-[2px_2px_0_black]">NEW!</span>
                       )}
                     </h3>
                     <ul className="list-disc pl-6 space-y-3 font-bold text-lg text-gray-700">
@@ -148,8 +139,8 @@ async function HomeContent({
 
         {/* What is Pokebrowser Section */}
         <section className="w-full py-28 px-8 bg-pb-grass-deep border-t-8 border-black flex flex-col items-center">
-          <div className="max-w-5xl w-full flex flex-col md:flex-row gap-12 items-center">
-            <div className="flex-1">
+          <div className="w-full flex flex-col 2xl:flex-row gap-12 items-stretch 2xl:justify-center">
+            <div className="w-full 2xl:w-auto 2xl:max-w-lg 2xl:shrink-0 min-w-0">
               <h2 className="text-emboss-lg tracking-widest text-4xl md:text-5xl mb-8">
                 WHAT IS POKEBROWSER?
               </h2>
@@ -161,13 +152,13 @@ async function HomeContent({
                 </p>
               </div>
             </div>
-            <div className="flex-1 w-full flex justify-center">
-              <div className="w-72 h-72 md:w-96 md:h-96 bg-white border-8 border-black flex items-center justify-center shadow-[8px_8px_0_black] relative overflow-hidden">
-                <Image
-                  src={placeholderImg}
-                  alt="Pokebrowser Showcase"
-                  fill
-                  className="object-cover"
+            <div className="w-full 2xl:w-auto flex justify-center 2xl:items-center">
+              <div className="w-full max-w-[560px] aspect-video 2xl:max-w-none 2xl:aspect-auto 2xl:w-[910px] 2xl:h-[512px] bg-white border-8 border-black shadow-[8px_8px_0_black] relative overflow-hidden">
+                <iframe
+                  src="https://www.youtube-nocookie.com/embed/DfkSVHb_8HI?autoplay=1&mute=1&loop=1&playlist=DfkSVHb_8HI&controls=0&modestbranding=1&rel=0&playsinline=1&disablekb=1&iv_load_policy=3"
+                  title="Pokebrowser Showcase"
+                  allow="autoplay; encrypted-media; picture-in-picture"
+                  className="absolute inset-0 w-full h-full pointer-events-none border-0"
                 />
               </div>
             </div>

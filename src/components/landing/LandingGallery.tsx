@@ -5,8 +5,9 @@ import { useRef, useEffect, useState } from "react";
 import gallery1 from "@/assets/gallery1.png";
 import gallery2 from "@/assets/gallery2.png";
 import gallery3 from "@/assets/gallery3.png";
+import gallery4 from "@/assets/gallery4.png";
 
-const IMAGES = [gallery1, gallery2, gallery3];
+const IMAGES = [gallery1, gallery2, gallery3, gallery4];
 // Five repeats (15 cards) is enough to make the carousel feel endless from
 // any starting position without rendering 90 <Image fill> children up front.
 const INFINITE_IMAGES = Array(5).fill(IMAGES).flat();

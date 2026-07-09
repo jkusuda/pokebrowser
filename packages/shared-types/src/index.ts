@@ -86,6 +86,7 @@ export interface UserStats {
   total_catches: number;
   caught_websites: string[];
   types_caught: string[];
+  active_dates: string[]; // 'YYYY-MM-DD' days the trainer caught something (persists across releases)
   current_streak: number;
   longest_streak: number;
   last_catch_date: string | null; // 'YYYY-MM-DD'

@@ -165,11 +165,13 @@ export async function evolvePokemon(supabase: SupabaseClient, pokemonId: string)
  */
 export async function getLeaderboard(
   supabase: SupabaseClient,
-  category: LeaderboardCategory
+  category: LeaderboardCategory,
+  friendsOnly: boolean = false
 ) {
   const { data, error } = await supabase.rpc("get_leaderboard", {
     p_category: category,
     p_limit: 100,
+    p_friends_only: friendsOnly,
   });
   if (error) throw error;
   return data as LeaderboardResponse;

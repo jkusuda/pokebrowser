@@ -121,20 +121,22 @@ function LeaderboardRow({ entry, unit }: { entry: LeaderboardEntry; unit: string
 
 export default function GlobalStatsPage({ active }: Props) {
   const [category, setCategory] = useState<LeaderboardCategory>("catches");
-  // Cache each category's response so toggling back doesn't refetch.
-  const [cache, setCache] = useState<Partial<Record<LeaderboardCategory, LeaderboardResponse>>>({});
+  const [friendsOnly, setFriendsOnly] = useState(false);
+  // Cache each category+scope response so toggling back doesn't refetch.
+  const [cache, setCache] = useState<Partial<Record<string, LeaderboardResponse>>>({});
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
   const [fetchToken, setFetchToken] = useState(0);
 
-  const data = cache[category];
+  const cacheKey = `${category}:${friendsOnly ? "friends" : "global"}`;
+  const data = cache[cacheKey];
 
-  // Drops the current category from the cache so the fetch effect re-runs.
+  // Drops the current category+scope from the cache so the fetch effect re-runs.
   // Shared by the header refresh button and the failure Retry button.
   const handleRefetch = () => {
     setCache((prev) => {
       const next = { ...prev };
-      delete next[category];
+      delete next[cacheKey];
       return next;
     });
     setFetchToken((n) => n + 1);
@@ -142,21 +144,21 @@ export default function GlobalStatsPage({ active }: Props) {
 
   useEffect(() => {
     // Lazy fetch: only once the page is visible, and only while the current
-    // category has no cached response (refresh/retry clear it).
+    // category+scope has no cached response (refresh/retry clear it).
     if (!active || data) return;
 
     let cancelled = false;
     setLoading(true);
     setFailed(false);
 
-    fetch(`/api/leaderboard?category=${category}`)
+    fetch(`/api/leaderboard?category=${category}&scope=${friendsOnly ? "friends" : "global"}`)
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
       })
       .then((res: LeaderboardResponse) => {
         if (cancelled) return;
-        setCache((prev) => ({ ...prev, [category]: res }));
+        setCache((prev) => ({ ...prev, [cacheKey]: res }));
         setLoading(false);
       })
       .catch(() => {
@@ -169,7 +171,7 @@ export default function GlobalStatsPage({ active }: Props) {
     // fetchToken forces a refetch after handleRefetch clears the cache entry;
     // data is intentionally read at call time.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, category, fetchToken]);
+  }, [active, category, friendsOnly, fetchToken]);
 
   const unit = CATEGORIES.find((c) => c.key === category)?.unit ?? "";
   // Show the pinned "your placement" row only when the caller isn't already in
@@ -183,6 +185,18 @@ export default function GlobalStatsPage({ active }: Props) {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-emboss text-xl">GLOBAL STATS</h2>
         <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="game"
+            tone={friendsOnly ? "primary" : "neutral"}
+            size="sm"
+            className="h-8 px-3 text-[9px] border-2 shadow-[2px_2px_0_black] [-webkit-text-stroke:0px] [text-shadow:none]"
+            aria-pressed={friendsOnly}
+            onClick={() => setFriendsOnly((v) => !v)}
+            title={friendsOnly ? "Showing friends only" : "Showing all trainers"}
+          >
+            Friends
+          </Button>
           <RefreshButton onRefresh={handleRefetch} refreshing={loading} />
           <img src={statsIcon.src} alt="" className="w-8 h-8 object-contain opacity-70" />
         </div>

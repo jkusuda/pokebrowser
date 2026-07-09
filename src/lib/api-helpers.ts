@@ -4,9 +4,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const FRIEND_CODE_RE = /^[A-Z0-9]{4}-[A-Z0-9]{4}$/i;
 
-export type AuthOk = { user: { id: string }; response: null };
-export type AuthErr = { user: null; response: NextResponse };
-export type AuthResult = AuthOk | AuthErr;
+type AuthResult =
+  | { user: { id: string }; response: null }
+  | { user: null; response: NextResponse };
 
 /**
  * Resolves the authenticated user for an API route. Returns either the user
@@ -33,9 +33,4 @@ export function badRequest(message: string) {
 export function internalError(scope: string, error: unknown) {
   console.error(`${scope}:`, error);
   return NextResponse.json({ error: "Internal server error" }, { status: 500 });
-}
-
-/** Narrow caught errors to a message string without leaking `any` everywhere. */
-export function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : "";
 }

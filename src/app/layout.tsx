@@ -35,8 +35,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-      </head>
       <body className={`${baseFont.variable} ${displayFont.variable} font-sans antialiased text-black`}>
         <ExtensionAuthBridge />
         {children}

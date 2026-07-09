@@ -117,7 +117,7 @@ async function HomeContent({
             </h2>
             <Card variant="game" tone="white" shadow="lg" className="rounded-xl p-8 md:p-12 gap-0 max-w-2xl mx-auto">
               <div className="custom-scrollbar max-h-[32rem] overflow-y-auto space-y-8 pr-2 pt-2">
-                {updatesData.updates.map((update, idx) => (
+                {updatesData.updates.map((update) => (
                   <div key={update.version}>
                     <h3 className="font-black text-2xl uppercase border-b-4 border-black pb-2 mb-4">
                       Version {update.version}
@@ -146,7 +146,7 @@ async function HomeContent({
               </h2>
               <div className="bg-black/20 p-6 md:p-8 rounded-xl border-4 border-black">
                 <p className="text-xl md:text-2xl text-white font-bold leading-relaxed shadow-black drop-shadow-md">
-                  Pokebrowser brings the world of Pokémon directly to your web browser. As you surf the internet, you'll encounter wild Pokémon right on the webpages you visit.
+                  Pokebrowser brings the world of Pokémon directly to your web browser. As you surf the internet, you&apos;ll encounter wild Pokémon right on the webpages you visit.
                   <br /><br />
                   Catch them, build your collection, and fill out your Pokédex!
                 </p>

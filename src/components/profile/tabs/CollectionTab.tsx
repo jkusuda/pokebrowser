@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Pokemon, PokemonInfo, Candy } from "@/types";
 import { getPokemonSprite, getPokemonData, getFamilyId } from "@/lib/pokemon";
+import { postJson } from "@/lib/client-api";
+import { useRefresh } from "@/lib/hooks/useRefresh";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import PokemonDetailsPanel from "./PokemonDetailsPanel";
@@ -13,7 +14,7 @@ export default function CollectionTab({ pokemon, candies }: { pokemon: Pokemon[]
   const [isPanelVisible, setIsPanelVisible] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; pokemon: Pokemon } | null>(null);
 
-  const router = useRouter();
+  const { refresh } = useRefresh();
 
   useEffect(() => {
     const handleClick = () => setContextMenu(null);
@@ -22,19 +23,21 @@ export default function CollectionTab({ pokemon, candies }: { pokemon: Pokemon[]
   }, []);
 
   // Keep the open detail panel in sync with refreshed server data (e.g. after
-  // an evolution changes pokedex_number). router.refresh() updates `pokemon`,
-  // but displayPokemon holds a snapshot, so re-derive it by id.
-  useEffect(() => {
-    if (!displayPokemon) return;
-    const updated = pokemon.find((p) => p.id === displayPokemon.id);
-    if (
-      updated &&
-      (updated.pokedex_number !== displayPokemon.pokedex_number ||
-        updated.nickname !== displayPokemon.nickname)
-    ) {
-      setDisplayPokemon(updated);
-    }
-  }, [pokemon, displayPokemon]);
+  // an evolution changes pokedex_number). displayPokemon holds a snapshot so
+  // the panel stays populated during its close animation after a release, but
+  // while the Pokémon still exists the live row wins.
+  const livePokemon = displayPokemon
+    ? pokemon.find((p) => p.id === displayPokemon.id)
+    : undefined;
+  if (
+    livePokemon &&
+    (livePokemon.pokedex_number !== displayPokemon!.pokedex_number ||
+      livePokemon.nickname !== displayPokemon!.nickname)
+  ) {
+    // Render-time state adjustment (guarded, so it can't loop) — the React
+    // alternative to syncing props into state with an effect.
+    setDisplayPokemon(livePokemon);
+  }
 
   const handleSelect = (p: Pokemon) => {
     if (displayPokemon && displayPokemon.id !== p.id && isPanelVisible) {
@@ -71,57 +74,40 @@ export default function CollectionTab({ pokemon, candies }: { pokemon: Pokemon[]
         finalNick = defaultName.charAt(0).toUpperCase() + defaultName.slice(1);
       }
 
-      const res = await fetch("/api/pokemon/nickname", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pokemonId: p.id, nickname: finalNick }),
-      });
-
-      if (res.ok) {
-        router.refresh();
+      try {
+        await postJson("/api/pokemon/nickname", { pokemonId: p.id, nickname: finalNick });
+        refresh();
         if (displayPokemon?.id === p.id) {
           setDisplayPokemon({ ...p, nickname: finalNick });
         }
-      } else {
-        const data = await res.json();
-        console.error("Nickname update error:", data.error);
+      } catch (err) {
+        console.error("Nickname update error:", err);
         alert("Failed to update nickname.");
       }
     }
   };
 
   const handleSetBuddy = async (p: Pokemon) => {
-    const res = await fetch("/api/trainer/buddy", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pokemonId: p.id }),
-    });
-    if (res.ok) {
-      router.refresh();
-    } else {
-      const data = await res.json();
-      console.error("Set buddy error:", data.error);
+    try {
+      await postJson("/api/trainer/buddy", { pokemonId: p.id });
+      refresh();
+    } catch (err) {
+      console.error("Set buddy error:", err);
       alert("Failed to set buddy.");
     }
   };
 
   const handleRelease = async (p: Pokemon) => {
     if (window.confirm(`Are you sure you want to release ${p.nickname || `#${p.pokedex_number}`}? This cannot be undone.`)) {
-      const res = await fetch("/api/pokemon/release", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pokemonId: p.id }),
-      });
-
-      if (res.ok) {
-        router.refresh();
+      try {
+        await postJson("/api/pokemon/release", { pokemonId: p.id });
+        refresh();
         if (displayPokemon?.id === p.id) {
           setIsPanelVisible(false);
           setTimeout(() => setDisplayPokemon(null), PANEL_TRANSITION_MS);
         }
-      } else {
-        const data = await res.json();
-        console.error("Release error:", data.error);
+      } catch (err) {
+        console.error("Release error:", err);
         alert("Failed to release Pokémon.");
       }
     }

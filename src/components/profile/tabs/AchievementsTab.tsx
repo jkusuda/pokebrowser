@@ -12,6 +12,7 @@ import {
   type AchievementCategory,
 } from "@/lib/achievements-data";
 import { AchievementUnlock, Token, PokedexUnlock, UserStats } from "@/types";
+import { postJson } from "@/lib/client-api";
 import { useRefresh } from "@/lib/hooks/useRefresh";
 import { cn } from "@/lib/utils";
 
@@ -90,14 +91,11 @@ export default function AchievementsTab({
   );
 
   async function handleClaim(achievementId: string) {
-    const res = await fetch("/api/achievements/claim", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ achievementId }),
-    });
-    const json = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(json.error ?? "Failed to claim");
-    const { tokenGranted } = json;
+    const { tokenGranted } = await postJson<{ tokenGranted: Token["token_type"] | null }>(
+      "/api/achievements/claim",
+      { achievementId },
+      "Failed to claim"
+    );
 
     // Optimistically mark as claimed
     setLocalUnlocks((prev) =>

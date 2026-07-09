@@ -31,7 +31,6 @@ export default async function ProfilePage() {
     >
       <div className="absolute inset-0 bg-white/20 pointer-events-none z-0 mix-blend-overlay" />
       <ProfileContent
-        initialTab="collection"
         pokemon={pokemon}
         friends={friends}
         incomingRequests={incomingRequests}

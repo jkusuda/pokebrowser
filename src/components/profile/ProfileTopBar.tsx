@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-type Page = "home" | "globalStats" | "pokedex" | "settings";
+/** Top-level profile pages, shared with ProfileContent's page switcher. */
+export type Page = "home" | "globalStats" | "pokedex" | "settings";
 
 // Static — defined outside component to avoid recreation on every render
 const NAV_ITEMS: { label: string; page: Page }[] = [

@@ -9,7 +9,6 @@ export type {
   Pokemon,
   Candy,
   PokedexUnlock,
-  RecentPokemon,
   UserStats,
   AchievementUnlock,
   Token,

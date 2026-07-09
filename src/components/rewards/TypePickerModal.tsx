@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ModalShell } from "@/components/ui/modal-shell";
 import { GEN1_TYPES, getTypeIconPath, getTypeColor } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { postJson } from "@/lib/client-api";
+import { cn, errorMessage } from "@/lib/utils";
 
 interface Props {
   tokenId: string;
@@ -21,30 +23,21 @@ export default function TypePickerModal({ tokenId, onClose, onSelected }: Props)
     setSubmitting(true);
     setError(null);
     try {
-      const res = await fetch("/api/tokens/select-type", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tokenId, typeName: selected }),
-      });
-      if (!res.ok) {
-        const json = await res.json().catch(() => ({}));
-        throw new Error(json.error ?? "Failed to save type");
-      }
+      await postJson("/api/tokens/select-type", { tokenId, typeName: selected }, "Failed to save type");
       onSelected(selected);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      setError(errorMessage(err) || "Something went wrong");
       setSubmitting(false);
     }
   }
 
 
   return (
-    /* Backdrop */
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-    >
-      <div className="bg-pb-bg border-4 border-black rounded-xl shadow-[6px_6px_0_black] p-6 max-w-sm w-full mx-4">
+    <ModalShell onClose={onClose} className="z-50" backdropClassName="bg-black/60 backdrop-blur-none">
+      <div
+        className="relative z-10 bg-pb-bg border-4 border-black rounded-xl shadow-[6px_6px_0_black] p-6 max-w-sm w-full mx-4"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <h2 className="text-emboss text-xl text-center mb-1">Choose a Type</h2>
         <p className="text-center text-xs text-black/60 mb-4">
@@ -106,6 +99,6 @@ export default function TypePickerModal({ tokenId, onClose, onSelected }: Props)
           </Button>
         </div>
       </div>
-    </div>
+    </ModalShell>
   );
 }

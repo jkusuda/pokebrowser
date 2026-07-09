@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import statsIcon from "@/assets/stats.png";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Shimmer } from "@/components/ui/shimmer";
 import RefreshButton from "@/components/profile/RefreshButton";
+import { SubTabButton } from "@/components/profile/SubTabButton";
 import { cn } from "@/lib/utils";
 import { TRAINER_BASE } from "@/lib/pokemon";
 import { LeaderboardCategory, LeaderboardEntry, LeaderboardResponse } from "@/types";
@@ -25,10 +27,6 @@ function rankBadgeClass(rank: number): string {
   if (rank === 2) return "bg-gray-200 text-black border-black";
   if (rank === 3) return "bg-orange-300 text-black border-black";
   return "bg-pb-bg text-pb-forest border-black/30";
-}
-
-function Shimmer({ className = "" }: { className?: string }) {
-  return <div className={cn("bg-pb-pine/30 animate-pulse rounded-lg", className)} />;
 }
 
 function ShimmerRow() {
@@ -192,25 +190,15 @@ export default function GlobalStatsPage({ active }: Props) {
 
       {/* Category toggle */}
       <div className="flex items-center gap-1 border-b-2 border-black/10 mb-4">
-        {CATEGORIES.map((c) => {
-          const isActive = category === c.key;
-          return (
-            <Button
-              key={c.key}
-              variant="ghost"
-              size="sm"
-              onClick={() => setCategory(c.key)}
-              className={cn(
-                "h-auto px-3 py-1.5 text-[9px] font-black tracking-widest uppercase rounded-t-lg rounded-b-none border-b-2 -mb-[2px]",
-                isActive
-                  ? "text-pb-forest border-pb-pine bg-black/5 hover:bg-black/5"
-                  : "text-pb-forest/50 border-transparent hover:text-pb-forest/80"
-              )}
-            >
-              {c.label}
-            </Button>
-          );
-        })}
+        {CATEGORIES.map((c) => (
+          <SubTabButton
+            key={c.key}
+            active={category === c.key}
+            onClick={() => setCategory(c.key)}
+          >
+            {c.label}
+          </SubTabButton>
+        ))}
       </div>
 
       {/* List */}

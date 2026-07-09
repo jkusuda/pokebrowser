@@ -53,8 +53,3 @@ export function getTypeColor(typeName: string): Pick<TypeStyle, "background" | "
 export function getTypeIconPath(typeName: string): string {
   return TYPE_STYLES[typeName.toLowerCase()]?.icon ?? FALLBACK.icon;
 }
-
-/** Background-only lookup map; kept for callers that don't need borders. */
-export const TYPE_COLORS: Record<string, string> = Object.fromEntries(
-  Object.entries(TYPE_STYLES).map(([k, v]) => [k, v.background])
-);

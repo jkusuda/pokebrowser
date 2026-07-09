@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { devAddXp } from "@/lib/queries";
-import { requireUser, badRequest, internalError, errorMessage } from "@/lib/api-helpers";
+import { requireUser, badRequest, internalError } from "@/lib/api-helpers";
+import { errorMessage } from "@/lib/utils";
 
 export async function POST(request: Request) {
   if (process.env.NODE_ENV === "production") {

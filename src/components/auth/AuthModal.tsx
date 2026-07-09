@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { ModalShell } from "@/components/ui/modal-shell";
 import AuthForm from "./AuthForm";
 
 export default function AuthModal() {
@@ -11,22 +11,8 @@ export default function AuthModal() {
     router.push("/");
   }
 
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") close();
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
-
   return (
-    <div
-      className="fixed inset-0 z-300 flex items-center justify-center"
-      onClick={close}
-    >
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-
+    <ModalShell onClose={close} closeOnEscape>
       {/* Modal panel */}
       <div
         className="relative z-10 w-full max-w-md mx-4"
@@ -43,6 +29,6 @@ export default function AuthModal() {
 
         <AuthForm />
       </div>
-    </div>
+    </ModalShell>
   );
 }

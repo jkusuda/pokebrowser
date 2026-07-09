@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ModalShell } from "@/components/ui/modal-shell";
 
 const GITHUB_ISSUES_URL = "https://github.com/jkusuda/pb-remastered/issues";
 const BETA_EMAIL = "kusuda.jordan@gmail.com";
@@ -17,17 +17,8 @@ const STEPS = [
 ];
 
 export default function DownloadModal({ onClose }: Props) {
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
-
   return (
-    <div className="fixed inset-0 z-300 flex items-center justify-center" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+    <ModalShell onClose={onClose} closeOnEscape>
       <Card
         variant="game"
         tone="cream"
@@ -111,6 +102,6 @@ export default function DownloadModal({ onClose }: Props) {
           </Button>
         </div>
       </Card>
-    </div>
+    </ModalShell>
   );
 }

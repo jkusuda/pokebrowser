@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import settingsIcon from "@/assets/settings.webp";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { postJson } from "@/lib/client-api";
 import { User } from "@/types";
 
 type Props = {
@@ -26,17 +27,8 @@ export default function SettingsPage({ user }: Props) {
     const next = !isPrivate;
     setPrivacyLoading(true);
     try {
-      const res = await fetch("/api/trainer/privacy", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isPrivate: next }),
-      });
-      if (res.ok) {
-        setIsPrivate(next);
-      } else {
-        const data = await res.json();
-        console.error("Privacy update error:", data.error);
-      }
+      await postJson("/api/trainer/privacy", { isPrivate: next });
+      setIsPrivate(next);
     } catch (err) {
       console.error("Privacy update error:", err);
     } finally {

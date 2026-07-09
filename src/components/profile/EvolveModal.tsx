@@ -6,9 +6,10 @@ import { getPokemonSprite } from "@/lib/pokemon";
 import { getPokemonName } from "pokemon-data";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { errorMessage } from "@/lib/api-helpers";
+import { ModalShell } from "@/components/ui/modal-shell";
+import { postJson } from "@/lib/client-api";
 import { useRefresh } from "@/lib/hooks/useRefresh";
-import { cn } from "@/lib/utils";
+import { cn, errorMessage } from "@/lib/utils";
 
 const ANIMATION_MS = 1800;
 
@@ -44,18 +45,7 @@ export default function EvolveModal({ pokemon, pokemonInfo, targetNumber, family
     setPhase("evolving");
     setError(null);
     try {
-      const res = await fetch("/api/pokemon/evolve", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pokemonId: pokemon.id }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setError(data.error ?? "Failed to evolve");
-        setPhase("error");
-        return;
-      }
+      await postJson("/api/pokemon/evolve", { pokemonId: pokemon.id }, "Failed to evolve");
 
       // Let the flash/pulse play before revealing the evolved sprite.
       timers.current.push(
@@ -73,8 +63,10 @@ export default function EvolveModal({ pokemon, pokemonInfo, targetNumber, family
   }
 
   return (
-    <div className="fixed inset-0 z-300 flex items-center justify-center" onClick={phase === "evolving" ? undefined : onClose}>
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+    <ModalShell
+      onClose={phase === "evolving" ? undefined : onClose}
+      backdropClassName="bg-black/60"
+    >
       <Card
         variant="game"
         tone="cream"
@@ -132,6 +124,6 @@ export default function EvolveModal({ pokemon, pokemonInfo, targetNumber, family
           )}
         </div>
       </Card>
-    </div>
+    </ModalShell>
   );
 }

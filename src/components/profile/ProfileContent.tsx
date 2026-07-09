@@ -3,7 +3,7 @@
 import { useState } from "react";
 import TrainerCard from "./TrainerCard";
 import FriendProfileCard from "./FriendProfileCard";
-import ProfileTopBar from "./ProfileTopBar";
+import ProfileTopBar, { type Page } from "./ProfileTopBar";
 import TotalActivityPanel, { ActivityStats } from "./TotalActivityPanel";
 import TrainerStatsPanel from "./TrainerStatsPanel";
 import ProfileBottomNav from "./ProfileBottomNav";
@@ -20,13 +20,7 @@ import { User, Pokemon, FriendWithUser, IncomingRequest, FriendProfile, PokedexU
 import { Card } from "@/components/ui/card";
 import { useRealtimeRefresh } from "@/lib/hooks/useRealtimeRefresh";
 
-type Page = "home" | "globalStats" | "pokedex" | "settings";
-
-/** Tabs that map to a real content panel */
-const VALID_TABS = new Set(["collection", "friends", "achievements", "stats"]);
-
 type Props = {
-  initialTab: string;
   pokemon: Pokemon[];
   friends: FriendWithUser[];
   incomingRequests: IncomingRequest[];
@@ -61,7 +55,6 @@ function TabHeader({ title, right }: { title: string; right?: React.ReactNode })
 const FADE_MS = 150;
 
 export default function ProfileContent({
-  initialTab,
   pokemon,
   friends,
   incomingRequests,
@@ -73,7 +66,7 @@ export default function ProfileContent({
   tokens,
   userStats,
 }: Props) {
-  const [activeTab, setActiveTab] = useState(VALID_TABS.has(initialTab) ? initialTab : "collection");
+  const [activeTab, setActiveTab] = useState("collection");
   const [activePage, setActivePage] = useState<Page>("home");
   const [fading, setFading] = useState(false);
   const [selectedFriend, setSelectedFriend] = useState<FriendProfile | null>(null);

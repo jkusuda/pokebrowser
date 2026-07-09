@@ -5,20 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ACHIEVEMENTS } from "@/lib/achievements-data";
 import { GEN1_TYPES } from "@/lib/types";
+import { postJson } from "@/lib/client-api";
 import { useRefresh } from "@/lib/hooks/useRefresh";
 
 const TOKEN_TYPES = ["legendary", "mythical", "shiny", "type_pick"] as const;
-
-async function postJson(url: string, body: unknown) {
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(json.error ?? "Request failed");
-  return json;
-}
 
 /** Admin-only, NODE_ENV-gated testing tools — grant tokens, add XP, force-unlock achievements. */
 export default function DevToolsPanel() {

@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ModalShell } from "@/components/ui/modal-shell";
 import { PokedexUnlock } from "@/types";
 import { getPokemonData, getPokedexSprite } from "@/lib/pokemon";
-import { errorMessage } from "@/lib/api-helpers";
+import { postJson } from "@/lib/client-api";
 import { useRefresh } from "@/lib/hooks/useRefresh";
-import { cn } from "@/lib/utils";
+import { cn, errorMessage } from "@/lib/utils";
 
 interface Props {
   pokedexUnlocks: PokedexUnlock[];
@@ -37,15 +38,7 @@ export default function CandySelectionModal({ pokedexUnlocks, pendingLevels }: P
     setSubmitting(true);
     setError(null);
     try {
-      const res = await fetch("/api/rewards/claim-candy", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pokedexNumber: selected }),
-      });
-      if (!res.ok) {
-        const json = await res.json().catch(() => ({}));
-        throw new Error(json.error ?? "Failed to claim");
-      }
+      await postJson("/api/rewards/claim-candy", { pokedexNumber: selected }, "Failed to claim");
       setSelected(null);
       setRemaining((r) => r - 1);
       // Re-sync server props so the granted candies show up in the collection.
@@ -60,9 +53,9 @@ export default function CandySelectionModal({ pokedexUnlocks, pendingLevels }: P
   if (remaining <= 0) return null;
 
   return (
-    /* Backdrop */
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="bg-pb-bg border-4 border-black rounded-xl shadow-[6px_6px_0_black] p-6 max-w-md w-full mx-4 flex flex-col max-h-[85vh]">
+    /* Blocking modal — no onClose; the only way out is claiming every reward. */
+    <ModalShell className="z-50" backdropClassName="bg-black/60 backdrop-blur-none">
+      <div className="relative z-10 bg-pb-bg border-4 border-black rounded-xl shadow-[6px_6px_0_black] p-6 max-w-md w-full mx-4 flex flex-col max-h-[85vh]">
         {/* Header */}
         <div className="text-center mb-4 shrink-0">
           <h2 className="text-emboss text-xl">Level Up!</h2>
@@ -142,6 +135,6 @@ export default function CandySelectionModal({ pokedexUnlocks, pendingLevels }: P
           </Button>
         </div>
       </div>
-    </div>
+    </ModalShell>
   );
 }

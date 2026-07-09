@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { devGrantToken } from "@/lib/queries";
 import { GEN1_TYPES } from "@/lib/types";
-import { requireUser, badRequest, internalError, errorMessage } from "@/lib/api-helpers";
+import { requireUser, badRequest, internalError } from "@/lib/api-helpers";
+import { errorMessage } from "@/lib/utils";
 
 const VALID_TOKEN_TYPES = new Set(["legendary", "mythical", "type_pick", "shiny"]);
 const VALID_TYPES = new Set<string>(GEN1_TYPES);

@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { TRAINER_BASE } from "@/lib/pokemon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { errorMessage } from "@/lib/api-helpers";
-import { cn } from "@/lib/utils";
+import { ModalShell } from "@/components/ui/modal-shell";
+import { postJson } from "@/lib/client-api";
+import { useRefresh } from "@/lib/hooks/useRefresh";
+import { cn, errorMessage } from "@/lib/utils";
 
 const AVATAR_OPTIONS = [
   "ash", "red", "ethan", "lyra", "kris", "brendan", "may", "lucas", "dawn", "hilbert", "hilda",
@@ -25,25 +26,19 @@ export default function EditProfileModal({ currentName, currentAvatarId, onClose
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const router = useRouter();
+  const { refresh } = useRefresh();
 
   async function handleSave() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/trainer/update", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ trainerName: trainerName.trim(), avatarId }),
-      });
-
-      if (res.ok) {
-        router.refresh();
-        onClose();
-      } else {
-        const data = await res.json().catch(() => ({}));
-        setError(data.error ?? "Failed to update profile");
-      }
+      await postJson(
+        "/api/trainer/update",
+        { trainerName: trainerName.trim(), avatarId },
+        "Failed to update profile"
+      );
+      refresh();
+      onClose();
     } catch (err) {
       setError(errorMessage(err) || "An error occurred");
     } finally {
@@ -52,8 +47,7 @@ export default function EditProfileModal({ currentName, currentAvatarId, onClose
   }
 
   return (
-    <div className="fixed inset-0 z-300 flex items-center justify-center" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+    <ModalShell onClose={onClose}>
       <Card
         variant="game"
         tone="cream"
@@ -135,7 +129,7 @@ export default function EditProfileModal({ currentName, currentAvatarId, onClose
           </div>
         </div>
       </Card>
-    </div>
+    </ModalShell>
   );
 }
 

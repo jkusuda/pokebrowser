@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { User, FriendWithUser, IncomingRequest, FriendProfile } from "@/types";
 import { TRAINER_BASE } from "@/lib/pokemon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { errorMessage } from "@/lib/api-helpers";
-import { cn } from "@/lib/utils";
+import { SubTabButton } from "@/components/profile/SubTabButton";
+import { postJson } from "@/lib/client-api";
+import { useRefresh } from "@/lib/hooks/useRefresh";
+import { cn, errorMessage } from "@/lib/utils";
 
 type Props = {
   user: User;
@@ -60,7 +61,7 @@ function FriendCodeDisplay({ code }: { code: string }) {
 // ─── Add friend form ────────────────────────────────────────────────────────
 
 function AddFriendForm() {
-  const router = useRouter();
+  const { refresh } = useRefresh();
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,19 +85,10 @@ function AddFriendForm() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/friends/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ friendCode: code }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setError(data.error ?? "Failed to send request");
-      } else {
-        setSuccess(true);
-        setCode("");
-        router.refresh();
-      }
+      await postJson("/api/friends/add", { friendCode: code }, "Failed to send request");
+      setSuccess(true);
+      setCode("");
+      refresh();
     } catch (err) {
       setError(errorMessage(err) || "Something went wrong. Please try again.");
     } finally {
@@ -136,18 +128,14 @@ function AddFriendForm() {
 // ─── Row variants ───────────────────────────────────────────────────────────
 
 function IncomingRequestRow({ req }: { req: IncomingRequest }) {
-  const router = useRouter();
+  const { refresh } = useRefresh();
   const [loading, setLoading] = useState<"accept" | "decline" | null>(null);
 
   const handle = async (action: "accept" | "decline") => {
     setLoading(action);
     const endpoint = action === "accept" ? "/api/friends/accept" : "/api/friends/remove";
-    await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ friendshipId: req.id }),
-    });
-    router.refresh();
+    await postJson(endpoint, { friendshipId: req.id }).catch(() => {});
+    refresh();
   };
 
   return (
@@ -191,17 +179,13 @@ function IncomingRequestRow({ req }: { req: IncomingRequest }) {
 }
 
 function PendingSentRow({ friend }: { friend: FriendWithUser }) {
-  const router = useRouter();
+  const { refresh } = useRefresh();
   const [loading, setLoading] = useState(false);
 
   const handleCancel = async () => {
     setLoading(true);
-    await fetch("/api/friends/remove", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ friendshipId: friend.id }),
-    });
-    router.refresh();
+    await postJson("/api/friends/remove", { friendshipId: friend.id }).catch(() => {});
+    refresh();
   };
 
   return (
@@ -224,18 +208,14 @@ function PendingSentRow({ friend }: { friend: FriendWithUser }) {
 }
 
 function FriendRow({ friend, onView }: { friend: FriendWithUser; onView: () => void }) {
-  const router = useRouter();
+  const { refresh } = useRefresh();
   const [loading, setLoading] = useState(false);
 
   const handleRemove = async () => {
     if (!window.confirm(`Remove ${friend.friend.trainer_name} from your friends?`)) return;
     setLoading(true);
-    await fetch("/api/friends/remove", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ friendshipId: friend.id }),
-    });
-    router.refresh();
+    await postJson("/api/friends/remove", { friendshipId: friend.id }).catch(() => {});
+    refresh();
   };
 
   return (
@@ -322,17 +302,11 @@ export default function FriendsTab({ user, friends, incomingRequests, onFriendSe
         {tabs.map((t) => {
           const isActive = subTab === t.key;
           return (
-            <Button
+            <SubTabButton
               key={t.key}
-              variant="ghost"
-              size="sm"
+              active={isActive}
               onClick={() => setSubTab(t.key)}
-              className={cn(
-                "relative h-auto px-3 py-1.5 text-[9px] font-black tracking-widest uppercase rounded-t-lg rounded-b-none border-b-2 -mb-[2px]",
-                isActive
-                  ? "text-pb-forest border-pb-pine bg-black/5 hover:bg-black/5"
-                  : "text-pb-forest/50 border-transparent hover:text-pb-forest/80"
-              )}
+              className="relative"
             >
               {t.label}
               <span
@@ -347,7 +321,7 @@ export default function FriendsTab({ user, friends, incomingRequests, onFriendSe
               >
                 {t.count}
               </span>
-            </Button>
+            </SubTabButton>
           );
         })}
       </div>

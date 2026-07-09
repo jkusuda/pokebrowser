@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FriendProfile, Pokemon } from "@/types";
+import { FriendProfile } from "@/types";
 import { TRAINER_BASE, getPokemonSprite, getBuddySpriteSize, getPokemonData, getLevelProgress } from "@/lib/pokemon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Shimmer } from "@/components/ui/shimmer";
 
 const BackArrow = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -12,30 +13,25 @@ const BackArrow = () => (
   </svg>
 );
 
-type BuddyData = Pick<Pokemon, "id" | "pokedex_number" | "is_shiny" | "nickname"> | null;
-
 type Props = {
   profile: FriendProfile;
   onBack: () => void;
 };
 
-function Shimmer({ className = "", style }: { className?: string; style?: React.CSSProperties }) {
-  return (
-    <div className={`bg-pb-pine/40 animate-pulse rounded-lg ${className}`} style={style} />
-  );
-}
-
 export default function FriendProfileCard({ profile, onBack }: Props) {
-  const [fullProfile, setFullProfile] = useState<FriendProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
+  // The fetch result is tagged with the request key it answered; loading and
+  // failed states are derived from whether the latest key has settled, so the
+  // effect never needs to reset state synchronously.
+  const [result, setResult] = useState<{
+    key: string;
+    profile: FriendProfile | null;
+    failed: boolean;
+  } | null>(null);
   const [retryToken, setRetryToken] = useState(0);
+  const requestKey = `${profile.friend_code}:${retryToken}`;
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    setFullProfile(null);
-    setFailed(false);
 
     fetch(`/api/friends/profile/${profile.friend_code}`)
       .then((r) => {
@@ -43,20 +39,19 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
         return r.json();
       })
       .then((data: FriendProfile) => {
-        if (!cancelled) {
-          setFullProfile(data);
-          setLoading(false);
-        }
+        if (!cancelled) setResult({ key: requestKey, profile: data, failed: false });
       })
       .catch(() => {
-        if (!cancelled) {
-          setFailed(true);
-          setLoading(false);
-        }
+        if (!cancelled) setResult({ key: requestKey, profile: null, failed: true });
       });
 
     return () => { cancelled = true; };
-  }, [profile.friend_code, retryToken]);
+  }, [requestKey, profile.friend_code]);
+
+  const settled = result?.key === requestKey ? result : null;
+  const loading = settled === null;
+  const failed = settled?.failed ?? false;
+  const fullProfile = settled?.profile ?? null;
 
   const { level, current: xpInLevel, required: xpRequired } = getLevelProgress(fullProfile?.xp ?? 0);
   const xpProgress = fullProfile
@@ -81,7 +76,7 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
       {/* Title */}
       <div className="flex justify-center mb-3 px-10 h-7 items-center">
         {loading ? (
-          <Shimmer className="h-5 w-36 rounded-md" />
+          <Shimmer className="bg-pb-pine/40 h-5 w-36 rounded-md" />
         ) : (
           <h1 className="text-emboss text-xl text-center truncate">
             {fullProfile?.trainer_name ?? profile.trainer_name}
@@ -112,8 +107,8 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
         <div className="flex-1 relative overflow-hidden">
           {loading ? (
             <>
-              <Shimmer className="absolute rounded-2xl" style={{ width: 96, height: 96, left: 8, bottom: 64 }} />
-              <Shimmer className="absolute rounded-2xl" style={{ width: 160, height: 220, left: "50%", transform: "translateX(-50%)", bottom: 64 }} />
+              <Shimmer className="bg-pb-pine/40 absolute rounded-2xl" style={{ width: 96, height: 96, left: 8, bottom: 64 }} />
+              <Shimmer className="bg-pb-pine/40 absolute rounded-2xl" style={{ width: 160, height: 220, left: "50%", transform: "translateX(-50%)", bottom: 64 }} />
             </>
           ) : (
             <>
@@ -152,7 +147,7 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
           {/* Level badge */}
           <div className="flex flex-col items-center justify-center w-14 h-14 bg-white rounded-[8px] border-4 border-black shadow-[2px_2px_0_black] shrink-0">
             {loading ? (
-              <Shimmer className="w-8 h-8 rounded" />
+              <Shimmer className="bg-pb-pine/40 w-8 h-8 rounded" />
             ) : (
               <>
                 <span className="font-bold text-[9px] text-black leading-none mt-1">LEVEL</span>
@@ -164,7 +159,7 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
           {/* XP bar */}
           <div className="flex flex-col justify-center px-1 h-14 flex-1 mt-1">
             {loading ? (
-              <Shimmer className="w-full h-4 rounded-full" />
+              <Shimmer className="bg-pb-pine/40 w-full h-4 rounded-full" />
             ) : (
               <>
                 <div className="flex justify-between items-end mb-1">

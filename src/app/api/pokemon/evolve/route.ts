@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getPokemonName } from "pokemon-data";
 import { evolvePokemon } from "@/lib/queries";
-import { requireUser, badRequest, internalError, errorMessage, UUID_RE } from "@/lib/api-helpers";
+import { requireUser, badRequest, internalError, UUID_RE } from "@/lib/api-helpers";
+import { errorMessage } from "@/lib/utils";
 
 export async function POST(request: Request) {
   try {

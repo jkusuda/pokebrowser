@@ -50,7 +50,7 @@ export default function LandingGallery() {
       {/* Scroll Container */}
       <div 
         ref={scrollRef}
-        className="flex overflow-x-auto gap-8 pb-12 pt-4 px-4 sm:px-[10vw] snap-x snap-mandatory hide-scrollbar group transition-all duration-300" 
+        className="flex overflow-x-auto gap-8 pb-12 pt-4 px-4 sm:px-[10vw] snap-x snap-mandatory group transition-all duration-300"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {INFINITE_IMAGES.map((img, i) => (

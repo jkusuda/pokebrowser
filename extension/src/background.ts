@@ -1,6 +1,6 @@
 import { CONFIG } from "./lib/config";
 import { supabase } from "./lib/supabase";
-import { getFamilyId, getPokemonName, getRandomPokemonId, getPokemonsByGeneration, getPokemonData } from "pokemon-data";
+import { getFamilyId, getPokemonName, getRandomPokemonId, getPokemonData } from "pokemon-data";
 import type { ExtensionMessage, ExternalMessage } from "./types/messages";
 
 type StoredSession = { access_token: string; refresh_token: string };
@@ -10,69 +10,23 @@ type PendingEncounter = {
   isShiny: boolean;
   name: string;
   createdAt: number;
-  tokenId?: string;
 };
 
 // Gen 1 legendary Pokémon ids
 const LEGENDARY_IDS = [144, 145, 146, 150, 151];
 
-/** Pick a random id from an array of Gen 1 Pokémon ids. */
-function pickRandom(ids: number[]): number {
-  return ids[Math.floor(Math.random() * ids.length)];
-}
-
-/** Return all Gen 1 Pokémon ids whose types include typeName. */
-function gen1IdsByType(typeName: string): number[] {
-  return getPokemonsByGeneration(1)
-    .filter((p) => p.types.includes(typeName.toLowerCase()))
-    .map((p) => p.id);
-}
-
 const PENDING_PREFIX = "pb_enc_";
 const pendingKey = (userId: string) => `${PENDING_PREFIX}${userId}`;
 
-type EncounterToken = { id: string; token_type: string; type_filter: string | null };
-
 /**
- * Rolls an encounter, letting the active token override the defaults.
- * `usedTokenId` is only set when the token actually shaped the roll — a
- * type_pick token whose type hasn't been chosen yet is left unconsumed.
+ * Rolls a browsing encounter. Tokens no longer influence this — they are
+ * opened as lootbox encounters on the website instead (redeem_token RPC).
  */
-function rollEncounter(token: EncounterToken | null): {
-  pokedexNumber: number;
-  isShiny: boolean;
-  usedTokenId?: string;
-} {
-  let pokedexNumber = getRandomPokemonId(CONFIG.GAME.CURRENT_GENERATION);
-  let isShiny = Math.random() < CONFIG.GAME.SHINY_RATE;
-  let usedTokenId: string | undefined;
-
-  if (token) {
-    switch (token.token_type) {
-      case "legendary":
-        pokedexNumber = pickRandom(LEGENDARY_IDS);
-        usedTokenId = token.id;
-        break;
-      case "mythical":
-        pokedexNumber = 151; // Mew
-        usedTokenId = token.id;
-        break;
-      case "shiny":
-        isShiny = true;
-        usedTokenId = token.id;
-        break;
-      case "type_pick":
-        if (token.type_filter) {
-          const ids = gen1IdsByType(token.type_filter);
-          if (ids.length > 0) pokedexNumber = pickRandom(ids);
-          usedTokenId = token.id;
-        }
-        // type not chosen yet — keep the normal roll, token stays available
-        break;
-    }
-  }
-
-  return { pokedexNumber, isShiny, usedTokenId };
+function rollEncounter(): { pokedexNumber: number; isShiny: boolean } {
+  return {
+    pokedexNumber: getRandomPokemonId(CONFIG.GAME.CURRENT_GENERATION),
+    isShiny: Math.random() < CONFIG.GAME.SHINY_RATE,
+  };
 }
 
 /**
@@ -159,25 +113,14 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendRes
       }
       const { userId } = auth;
 
-      const [{ data: user }, { count: pokemonCount }, { data: activeToken }] = await Promise.all([
+      const [{ data: user }, { count: pokemonCount }] = await Promise.all([
         supabase.from("users").select("catch_limit").eq("id", userId).single(),
         supabase.from("pokemon").select("*", { count: "exact", head: true }).eq("user_id", userId),
-        supabase
-          .from("tokens")
-          .select("*")
-          .eq("user_id", userId)
-          .is("used_at", null)
-          .order("created_at", { ascending: true })
-          .limit(1)
-          .maybeSingle(),
       ]);
       const catchLimit = user?.catch_limit ?? CONFIG.GAME.DEFAULT_CATCH_LIMIT;
       const boxIsFull = (pokemonCount ?? 0) >= catchLimit;
 
-      // Roll encounter — use token if available
-      const { pokedexNumber, isShiny, usedTokenId } = rollEncounter(
-        activeToken as EncounterToken | null
-      );
+      const { pokedexNumber, isShiny } = rollEncounter();
 
       const name = getPokemonName(pokedexNumber);
       const nonce = crypto.randomUUID();
@@ -188,7 +131,6 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendRes
         isShiny,
         name,
         createdAt: Date.now(),
-        tokenId: usedTokenId,
       };
       await chrome.storage.session.set({ [pendingKey(userId)]: pending });
 
@@ -289,18 +231,6 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendRes
               console.warn("update_catch_stats failed (non-fatal):", statsError);
             }
           });
-
-        // Mark token as used if one was consumed in this encounter
-        if (pending.tokenId) {
-          supabase
-            .from("tokens")
-            .update({ used_at: new Date().toISOString() })
-            .eq("id", pending.tokenId)
-            .eq("user_id", userId)
-            .then(({ error: tokenError }) => {
-              if (tokenError) console.warn("Token mark-used failed (non-fatal):", tokenError);
-            });
-        }
 
         sendResponse({ ok: true, isNewSpecies });
       } catch (err) {

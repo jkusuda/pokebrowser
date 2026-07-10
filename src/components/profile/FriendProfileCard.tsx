@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import BadgeStrip from "./BadgeStrip";
+import BuddyIndicator from "./BuddyIndicator";
 import { FriendProfile } from "@/types";
 import { TRAINER_BASE, getPokemonSprite, getBuddySpriteSize, getPokemonData, getLevelProgress } from "@/lib/pokemon";
 import { Button } from "@/components/ui/button";
@@ -103,6 +105,15 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
           </div>
         ) : (
         <>
+        {!loading && <BadgeStrip badgeIds={fullProfile?.displayed_badges ?? []} />}
+
+        {!loading && fullProfile?.buddy && (
+          <BuddyIndicator
+            pokedexNumber={fullProfile.buddy.pokedex_number}
+            nickname={fullProfile.buddy.nickname}
+          />
+        )}
+
         {/* Sprites — both bottom-aligned; trainer centres when no buddy, shifts right when buddy present */}
         <div className="flex-1 relative overflow-hidden">
           {loading ? (

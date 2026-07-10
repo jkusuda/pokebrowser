@@ -31,6 +31,7 @@ export interface LeaderboardEntry {
   trainer_name: string | null;
   avatar_id: string | null;
   friend_code: string | null;
+  displayed_badges: string[] | null;
 }
 
 /** The caller's own placement (always unmasked), or null if they have no stats yet. */
@@ -40,6 +41,7 @@ export interface LeaderboardMe {
   trainer_name: string;
   avatar_id: string;
   friend_code: string;
+  displayed_badges: string[];
 }
 
 export interface LeaderboardResponse {

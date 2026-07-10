@@ -83,8 +83,9 @@ export default function AchievementCard({ def, unlock, progress = 0, onClaim }: 
   const isClaimed = isEarned && unlock!.claimed_at !== null;
   const isUnclaimedEarned = isEarned && !isClaimed;
 
-  const hasReward = def.storageReward > 0 || def.tokenReward !== null;
+  const hasReward = def.xpReward > 0 || def.storageReward > 0 || def.tokenReward !== null;
   const rewardLabel = [
+    def.xpReward > 0 ? `+${def.xpReward.toLocaleString()} XP` : null,
     def.storageReward > 0 ? `+${def.storageReward} storage` : null,
     def.tokenReward ? TOKEN_LABELS[def.tokenReward] : null,
   ]

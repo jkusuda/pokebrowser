@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import EditProfileModal from "./EditProfileModal";
+import BadgeStrip from "./BadgeStrip";
+import BuddyIndicator from "./BuddyIndicator";
 import { User, Pokemon } from "@/types";
 import { TRAINER_BASE, getPokemonSprite, getBuddySpriteSize, getPokemonData, getLevelProgress } from "@/lib/pokemon";
 import { Button } from "@/components/ui/button";
@@ -21,9 +23,10 @@ const NotePenIcon = () => (
 type Props = {
   user: User;
   favoritePokemon: Pokemon | null;
+  unlockedAchievementIds: string[];
 };
 
-export default function TrainerCard({ user, favoritePokemon }: Props) {
+export default function TrainerCard({ user, favoritePokemon, unlockedAchievementIds }: Props) {
   const [editOpen, setEditOpen] = useState(false);
   const { level, current: xpInLevel, required: xpRequired } = getLevelProgress(user.xp ?? 0);
 
@@ -41,6 +44,15 @@ export default function TrainerCard({ user, favoritePokemon }: Props) {
 
         {/* Inner card */}
         <div className="flex-1 bg-pb-bg rounded-[8px] border-4 border-black relative flex flex-col shadow-inner overflow-hidden">
+
+          <BadgeStrip badgeIds={user.displayed_badges ?? []} />
+
+          {favoritePokemon && (
+            <BuddyIndicator
+              pokedexNumber={favoritePokemon.pokedex_number}
+              nickname={favoritePokemon.nickname}
+            />
+          )}
 
           {/* Sprites — both bottom-aligned; trainer centres when no buddy, shifts right when buddy present */}
           <div className="flex-1 relative overflow-hidden">
@@ -112,6 +124,8 @@ export default function TrainerCard({ user, favoritePokemon }: Props) {
         <EditProfileModal
           currentName={user.trainer_name}
           currentAvatarId={user.avatar_id}
+          currentBadgeIds={user.displayed_badges ?? []}
+          unlockedAchievementIds={unlockedAchievementIds}
           onClose={() => setEditOpen(false)}
         />
       )}

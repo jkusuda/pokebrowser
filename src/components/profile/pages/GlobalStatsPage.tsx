@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Shimmer } from "@/components/ui/shimmer";
 import RefreshButton from "@/components/profile/RefreshButton";
+import { BadgeIcons } from "@/components/profile/BadgeStrip";
 import { SubTabButton } from "@/components/profile/SubTabButton";
 import { cn } from "@/lib/utils";
 import { TRAINER_BASE } from "@/lib/pokemon";
@@ -95,10 +96,20 @@ function LeaderboardRow({ entry, unit }: { entry: LeaderboardEntry; unit: string
 
       {/* Name + friend code */}
       <div className="flex-1 min-w-0">
-        <p className="font-bold text-sm text-pb-forest truncate">
-          {masked ? "Anonymous Trainer" : entry.trainer_name}
-          {entry.is_me && <span className="ml-1.5 text-pb-pine font-black text-[9px] tracking-widest uppercase">YOU</span>}
-        </p>
+        <div className="flex items-center gap-2 min-w-0">
+          <p className="font-bold text-sm text-pb-forest truncate min-w-0">
+            {masked ? "Anonymous Trainer" : entry.trainer_name}
+            {entry.is_me && <span className="ml-1.5 text-pb-pine font-black text-[9px] tracking-widest uppercase">YOU</span>}
+          </p>
+          {!masked && (
+            <BadgeIcons
+              badgeIds={entry.displayed_badges ?? []}
+              className="gap-1"
+              badgeClassName="w-7 h-7"
+              tooltipClassName="top-full left-1/2 -translate-x-1/2 mt-1"
+            />
+          )}
+        </div>
         {masked ? (
           <p className="font-black tracking-widest uppercase text-[7px] text-pb-forest/40 mt-0.5">PRIVATE</p>
         ) : (
@@ -258,6 +269,7 @@ export default function GlobalStatsPage({ active }: Props) {
               trainer_name: data.me.trainer_name,
               avatar_id: data.me.avatar_id,
               friend_code: data.me.friend_code,
+              displayed_badges: data.me.displayed_badges,
             }}
             unit={unit}
           />

@@ -44,6 +44,8 @@ export interface AchievementDef {
   storageReward: number;
   /** Encounter token type, if any. */
   tokenReward: TokenReward | null;
+  /** XP granted on claim. Mirrors the values hardcoded in the claim_achievement RPC — keep in sync. */
+  xpReward: number;
 }
 
 export const ACHIEVEMENTS: AchievementDef[] = [
@@ -57,6 +59,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 1,
     storageReward: 50,
     tokenReward: null,
+    xpReward: 500,
   },
   {
     id: "getting_started",
@@ -67,6 +70,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 10,
     storageReward: 100,
     tokenReward: null,
+    xpReward: 1000,
   },
   {
     id: "collector",
@@ -77,6 +81,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 100,
     storageReward: 250,
     tokenReward: "type_pick",
+    xpReward: 5000,
   },
   {
     id: "master_collector",
@@ -87,6 +92,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 1000,
     storageReward: 500,
     tokenReward: "legendary",
+    xpReward: 25000,
   },
 
   // ── Website ────────────────────────────────────────────────────────────────
@@ -99,6 +105,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 10,
     storageReward: 100,
     tokenReward: null,
+    xpReward: 1000,
   },
   {
     id: "web_surfer",
@@ -109,6 +116,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 100,
     storageReward: 250,
     tokenReward: null,
+    xpReward: 5000,
   },
   {
     id: "netizen",
@@ -119,6 +127,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 1000,
     storageReward: 500,
     tokenReward: "legendary",
+    xpReward: 25000,
   },
 
   // ── Social ─────────────────────────────────────────────────────────────────
@@ -131,6 +140,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 1,
     storageReward: 0,
     tokenReward: null,
+    xpReward: 250,
   },
   {
     id: "that_sounds_better",
@@ -141,6 +151,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 1,
     storageReward: 0,
     tokenReward: null,
+    xpReward: 250,
   },
   {
     id: "friendly",
@@ -151,6 +162,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 1,
     storageReward: 50,
     tokenReward: null,
+    xpReward: 500,
   },
   {
     id: "social_butterfly",
@@ -161,6 +173,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 10,
     storageReward: 0,
     tokenReward: null,
+    xpReward: 2500,
   },
 
   // ── Type coverage ──────────────────────────────────────────────────────────
@@ -173,6 +186,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 17, // 17 unique types across Gen 1 Pokémon
     storageReward: 250,
     tokenReward: "type_pick",
+    xpReward: 5000,
   },
 
   // ── Streak ─────────────────────────────────────────────────────────────────
@@ -185,6 +199,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 7,
     storageReward: 100,
     tokenReward: null,
+    xpReward: 2500,
   },
   {
     id: "love_of_the_game",
@@ -195,6 +210,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 30,
     storageReward: 500,
     tokenReward: "legendary",
+    xpReward: 15000,
   },
 
   // ── Pokédex ────────────────────────────────────────────────────────────────
@@ -207,6 +223,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 151,
     storageReward: 0,
     tokenReward: "shiny",
+    xpReward: 50000,
   },
 
   // ── Shiny ──────────────────────────────────────────────────────────────────
@@ -219,6 +236,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 1,
     storageReward: 0,
     tokenReward: null,
+    xpReward: 2500,
   },
   {
     id: "shiny_hunter",
@@ -229,6 +247,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 151,
     storageReward: 2500,
     tokenReward: "mythical",
+    xpReward: 100000,
   },
 
   // ── Customization ──────────────────────────────────────────────────────────
@@ -241,6 +260,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 1,
     storageReward: 0,
     tokenReward: null,
+    xpReward: 250,
   },
   {
     id: "new_look",
@@ -251,6 +271,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 1,
     storageReward: 0,
     tokenReward: null,
+    xpReward: 250,
   },
 
   // ── Level ──────────────────────────────────────────────────────────────────
@@ -263,6 +284,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 5,
     storageReward: 100,
     tokenReward: null,
+    xpReward: 1000,
   },
   {
     id: "level_10",
@@ -273,6 +295,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 10,
     storageReward: 150,
     tokenReward: "type_pick",
+    xpReward: 2500,
   },
   {
     id: "level_20",
@@ -283,6 +306,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 20,
     storageReward: 250,
     tokenReward: "type_pick",
+    xpReward: 5000,
   },
   {
     id: "level_30",
@@ -293,6 +317,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 30,
     storageReward: 375,
     tokenReward: "type_pick",
+    xpReward: 10000,
   },
   {
     id: "level_40",
@@ -303,6 +328,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 40,
     storageReward: 500,
     tokenReward: "type_pick",
+    xpReward: 15000,
   },
   {
     id: "level_50",
@@ -313,6 +339,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 50,
     storageReward: 750,
     tokenReward: "legendary",
+    xpReward: 25000,
   },
 
   // ── Legendary ──────────────────────────────────────────────────────────────
@@ -325,6 +352,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     threshold: 1,
     storageReward: 0,
     tokenReward: null,
+    xpReward: 5000,
   },
 ];
 

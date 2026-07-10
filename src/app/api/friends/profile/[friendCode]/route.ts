@@ -19,7 +19,7 @@ export async function GET(
 
     const { data: targetUser } = await supabase
       .from("users")
-      .select("id, trainer_name, avatar_id, level, xp, friend_code, favorite_pokemon_id")
+      .select("id, trainer_name, avatar_id, level, xp, friend_code, favorite_pokemon_id, displayed_badges")
       .eq("friend_code", friendCode.toUpperCase())
       .single();
 
@@ -65,6 +65,7 @@ export async function GET(
       xp: targetUser.xp,
       friend_code: targetUser.friend_code,
       favorite_pokemon_id: targetUser.favorite_pokemon_id,
+      displayed_badges: targetUser.displayed_badges ?? [],
       buddy,
     };
 

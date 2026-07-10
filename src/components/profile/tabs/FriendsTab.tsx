@@ -275,6 +275,7 @@ export default function FriendsTab({ user, friends, incomingRequests, onFriendSe
       xp: friend.friend.xp,
       friend_code: friend.friend.friend_code,
       favorite_pokemon_id: friend.friend.favorite_pokemon_id,
+      displayed_badges: [],
       buddy: null,
     });
   };

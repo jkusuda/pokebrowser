@@ -14,6 +14,7 @@ export interface User {
   catch_limit: number;
   is_private: boolean;
   unclaimed_candy_levels: number;
+  displayed_badges: string[]; // achievement ids, max 3 (set via set_displayed_badges RPC)
 }
 
 // public.friends — friend relationships
@@ -45,6 +46,7 @@ export interface FriendProfile {
   xp: number;
   friend_code: string;
   favorite_pokemon_id: string | null;
+  displayed_badges: string[];
   buddy: Pick<Pokemon, "id" | "pokedex_number" | "is_shiny" | "nickname"> | null;
 }
 

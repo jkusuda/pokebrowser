@@ -1,20 +1,27 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Pokemon, PokemonInfo, Candy } from "@/types";
 import { getPokemonSprite, getPokemonData, getFamilyId } from "@/lib/pokemon";
+import { filterCollection } from "@/lib/collection-search";
 import { postJson } from "@/lib/client-api";
 import { useRefresh } from "@/lib/hooks/useRefresh";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import PokemonDetailsPanel from "./PokemonDetailsPanel";
+import NicknameModal from "@/components/profile/NicknameModal";
+import ReleaseModal from "@/components/profile/ReleaseModal";
 
 const PANEL_TRANSITION_MS = 300;
 
-export default function CollectionTab({ pokemon, candies }: { pokemon: Pokemon[], candies: Candy[] }) {
+export default function CollectionTab({ pokemon, candies, search = "" }: { pokemon: Pokemon[], candies: Candy[], search?: string }) {
   const [displayPokemon, setDisplayPokemon] = useState<Pokemon | null>(null);
   const [isPanelVisible, setIsPanelVisible] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; pokemon: Pokemon } | null>(null);
+  const [nicknameTarget, setNicknameTarget] = useState<Pokemon | null>(null);
+  const [releaseTarget, setReleaseTarget] = useState<Pokemon | null>(null);
 
   const { refresh } = useRefresh();
+
+  const filteredPokemon = useMemo(() => filterCollection(pokemon, search), [pokemon, search]);
 
   useEffect(() => {
     const handleClick = () => setContextMenu(null);
@@ -62,31 +69,6 @@ export default function CollectionTab({ pokemon, candies }: { pokemon: Pokemon[]
     setContextMenu({ x: e.clientX, y: e.clientY, pokemon: p });
   };
 
-  const handleChangeNickname = async (p: Pokemon) => {
-    const info = getPokemonData(p.pokedex_number);
-    const currentName = p.nickname || info?.name || "this Pokémon";
-    const newNick = window.prompt(`Enter a new nickname for ${currentName} (leave blank for default name):`, p.nickname || "");
-    if (newNick !== null) {
-      let finalNick = newNick.trim();
-
-      if (!finalNick) {
-        const defaultName = info?.name ?? `Pokemon #${p.pokedex_number}`;
-        finalNick = defaultName.charAt(0).toUpperCase() + defaultName.slice(1);
-      }
-
-      try {
-        await postJson("/api/pokemon/nickname", { pokemonId: p.id, nickname: finalNick });
-        refresh();
-        if (displayPokemon?.id === p.id) {
-          setDisplayPokemon({ ...p, nickname: finalNick });
-        }
-      } catch (err) {
-        console.error("Nickname update error:", err);
-        alert("Failed to update nickname.");
-      }
-    }
-  };
-
   const handleSetBuddy = async (p: Pokemon) => {
     try {
       await postJson("/api/trainer/buddy", { pokemonId: p.id });
@@ -97,19 +79,16 @@ export default function CollectionTab({ pokemon, candies }: { pokemon: Pokemon[]
     }
   };
 
-  const handleRelease = async (p: Pokemon) => {
-    if (window.confirm(`Are you sure you want to release ${p.nickname || `#${p.pokedex_number}`}? This cannot be undone.`)) {
-      try {
-        await postJson("/api/pokemon/release", { pokemonId: p.id });
-        refresh();
-        if (displayPokemon?.id === p.id) {
-          setIsPanelVisible(false);
-          setTimeout(() => setDisplayPokemon(null), PANEL_TRANSITION_MS);
-        }
-      } catch (err) {
-        console.error("Release error:", err);
-        alert("Failed to release Pokémon.");
-      }
+  const handleNicknameSaved = (p: Pokemon, nickname: string) => {
+    if (displayPokemon?.id === p.id) {
+      setDisplayPokemon({ ...p, nickname });
+    }
+  };
+
+  const handleReleased = (p: Pokemon) => {
+    if (displayPokemon?.id === p.id) {
+      setIsPanelVisible(false);
+      setTimeout(() => setDisplayPokemon(null), PANEL_TRANSITION_MS);
     }
   };
 
@@ -131,35 +110,43 @@ export default function CollectionTab({ pokemon, candies }: { pokemon: Pokemon[]
   return (
     <div className="relative flex-1 flex flex-col min-h-0 overflow-hidden w-full h-full">
       <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
-        <div className="grid grid-cols-4 gap-1 place-items-center">
-          {pokemon.map((p) => (
-            <div
-              key={p.id}
-              className="flex flex-col items-center cursor-pointer"
-              onClick={() => handleSelect(p)}
-              onContextMenu={(e) => handleContextMenu(e, p)}
-            >
-              <div className="relative">
-                <img
-                  src={getPokemonSprite(p.pokedex_number, p.is_shiny)}
-                  alt={p.nickname || `#${p.pokedex_number}`}
-                  className="w-20 h-20 object-contain mb-0 drop-shadow-md hover:scale-100 transition-transform"
-                  style={{ imageRendering: "pixelated" }}
-                />
-                {p.is_shiny && (
-                  <span className="absolute top-0 right-0 text-sm text-amber-400 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)] pointer-events-none">
-                    ✦
-                  </span>
+        {filteredPokemon.length === 0 ? (
+          <div className="flex items-center justify-center h-32">
+            <p className="font-black tracking-widest uppercase text-[9px] text-pb-forest/40 text-center leading-relaxed">
+              NO MATCHES<br />TRY A DIFFERENT SEARCH
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-4 gap-1 place-items-center">
+            {filteredPokemon.map((p) => (
+              <div
+                key={p.id}
+                className="flex flex-col items-center cursor-pointer"
+                onClick={() => handleSelect(p)}
+                onContextMenu={(e) => handleContextMenu(e, p)}
+              >
+                <div className="relative">
+                  <img
+                    src={getPokemonSprite(p.pokedex_number, p.is_shiny)}
+                    alt={p.nickname || `#${p.pokedex_number}`}
+                    className="w-20 h-20 object-contain mb-0 drop-shadow-md hover:scale-100 transition-transform"
+                    style={{ imageRendering: "pixelated" }}
+                  />
+                  {p.is_shiny && (
+                    <span className="absolute top-0 right-0 text-sm text-amber-400 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)] pointer-events-none">
+                      ✦
+                    </span>
+                  )}
+                </div>
+                {p.nickname && (
+                  <p className="font-bold text-[14px] text-white truncate w-[120%] text-center z-10 [text-shadow:-1px_-1px_0_#000,1px_-1px_0_#000,-1px_1px_0_#000,1px_1px_0_#000]">
+                    {p.nickname}
+                  </p>
                 )}
               </div>
-              {p.nickname && (
-                <p className="font-bold text-[14px] text-white truncate w-[120%] text-center z-10 [text-shadow:-1px_-1px_0_#000,1px_-1px_0_#000,-1px_1px_0_#000,1px_1px_0_#000]">
-                  {p.nickname}
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <PokemonDetailsPanel
@@ -197,8 +184,8 @@ export default function CollectionTab({ pokemon, candies }: { pokemon: Pokemon[]
             size="sm"
             className="justify-start h-auto px-3 py-2 text-[10px] text-black uppercase rounded-sm"
             onClick={() => {
+              setNicknameTarget(contextMenu.pokemon);
               setContextMenu(null);
-              handleChangeNickname(contextMenu.pokemon);
             }}
           >
             Change Nickname
@@ -208,13 +195,29 @@ export default function CollectionTab({ pokemon, candies }: { pokemon: Pokemon[]
             size="sm"
             className="justify-start h-auto px-3 py-2 text-[10px] text-red-600 hover:text-red-700 uppercase rounded-sm"
             onClick={() => {
+              setReleaseTarget(contextMenu.pokemon);
               setContextMenu(null);
-              handleRelease(contextMenu.pokemon);
             }}
           >
             Release
           </Button>
         </Card>
+      )}
+
+      {nicknameTarget && (
+        <NicknameModal
+          pokemon={nicknameTarget}
+          onClose={() => setNicknameTarget(null)}
+          onSaved={(nickname) => handleNicknameSaved(nicknameTarget, nickname)}
+        />
+      )}
+
+      {releaseTarget && (
+        <ReleaseModal
+          pokemon={releaseTarget}
+          onClose={() => setReleaseTarget(null)}
+          onReleased={() => handleReleased(releaseTarget)}
+        />
       )}
     </div>
   );

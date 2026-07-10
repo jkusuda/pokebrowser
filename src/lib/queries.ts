@@ -243,6 +243,23 @@ export async function setFavoritePokemon(
   if (error) throw error;
 }
 
+// ─── Displayed badges ───────────────────────────────────────────────────────
+
+/**
+ * Replaces the user's displayed profile badges via the set_displayed_badges
+ * RPC, which verifies every id has an achievement_unlocks row for the caller
+ * (users.displayed_badges has no client UPDATE grant, so this is the only
+ * write path).
+ */
+export async function setDisplayedBadges(supabase: SupabaseClient, badgeIds: string[]) {
+  const { error } = await supabase.rpc("set_displayed_badges", { p_badge_ids: badgeIds });
+  if (error) {
+    const msg = error.message ?? "";
+    if (msg.includes("badge_not_unlocked")) throw new Error("Badge not unlocked");
+    throw error;
+  }
+}
+
 // ─── Privacy ────────────────────────────────────────────────────────────────
 
 export async function updatePrivacy(
@@ -282,11 +299,13 @@ export async function claimAchievement(supabase: SupabaseClient, achievementId: 
     storage_granted: number;
     token_granted: string | null;
     token_id: string | null;
+    xp_granted: number;
   };
   return {
     storageGranted: result.storage_granted,
     tokenGranted: result.token_granted,
     tokenId: result.token_id,
+    xpGranted: result.xp_granted,
   };
 }
 

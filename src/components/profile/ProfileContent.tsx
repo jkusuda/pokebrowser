@@ -18,6 +18,7 @@ import RefreshButton from "./RefreshButton";
 
 import { User, Pokemon, FriendWithUser, IncomingRequest, FriendProfile, PokedexUnlock, Candy, AchievementUnlock, Token, UserStats } from "@/types";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { useRealtimeRefresh } from "@/lib/hooks/useRealtimeRefresh";
 
 type Props = {
@@ -43,10 +44,13 @@ function TabPanel({ children, className = "" }: { children: React.ReactNode; cla
 }
 
 /** Embossed title bar used in every TabPanel. */
-function TabHeader({ title, right }: { title: string; right?: React.ReactNode }) {
+function TabHeader({ title, titleExtra, right }: { title: string; titleExtra?: React.ReactNode; right?: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between mb-4">
-      <h2 className="text-emboss text-xl">{title}</h2>
+      <div className="flex items-center gap-3">
+        <h2 className="text-emboss text-xl">{title}</h2>
+        {titleExtra}
+      </div>
       {right}
     </div>
   );
@@ -70,6 +74,7 @@ export default function ProfileContent({
   const [activePage, setActivePage] = useState<Page>("home");
   const [fading, setFading] = useState(false);
   const [selectedFriend, setSelectedFriend] = useState<FriendProfile | null>(null);
+  const [collectionSearch, setCollectionSearch] = useState("");
 
   useRealtimeRefresh(user.id);
 
@@ -129,7 +134,11 @@ export default function ProfileContent({
             {selectedFriend ? (
               <FriendProfileCard profile={selectedFriend} onBack={handleBackFromFriend} />
             ) : (
-              <TrainerCard user={user} favoritePokemon={favoritePokemon} />
+              <TrainerCard
+                user={user}
+                favoritePokemon={favoritePokemon}
+                unlockedAchievementIds={achievementUnlocks.map((a) => a.achievement_id)}
+              />
             )}
           </div>
 
@@ -150,6 +159,14 @@ export default function ProfileContent({
               <TabPanel>
                 <TabHeader
                   title="COLLECTION"
+                  titleExtra={
+                    <Input
+                      value={collectionSearch}
+                      onChange={(e) => setCollectionSearch(e.target.value)}
+                      placeholder="Search... (shiny&dragon)"
+                      className="w-40 h-8 px-2 py-1 rounded-[6px] border-2 text-xs"
+                    />
+                  }
                   right={
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-sm text-black tracking-wide">
@@ -160,7 +177,7 @@ export default function ProfileContent({
                   }
                 />
                 <div className="flex-1 flex flex-col pr-2 min-h-0 relative">
-                  <CollectionTab pokemon={pokemon} candies={candies} />
+                  <CollectionTab pokemon={pokemon} candies={candies} search={collectionSearch} />
                 </div>
               </TabPanel>
             )}

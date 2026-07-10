@@ -68,7 +68,7 @@ export default function PokemonDetailsPanel({
           {/* Sprite + info card */}
           <div className="relative">
             <img
-              src={getPokemonSprite(pokemon.pokedex_number)}
+              src={getPokemonSprite(pokemon.pokedex_number, pokemon.is_shiny)}
               alt={pokemon.nickname || `#${pokemon.pokedex_number}`}
               className="absolute -top-16 left-1/2 -translate-x-1/2 w-20 h-20 object-contain object-bottom drop-shadow-lg z-20"
               style={{ imageRendering: "pixelated" }}
@@ -89,6 +89,9 @@ export default function PokemonDetailsPanel({
                 </h3>
                 <p className="text-xs text-gray-500 font-semibold">
                   #{pokemon.pokedex_number.toString().padStart(3, "0")}
+                  {pokemon.is_shiny && (
+                    <span className="ml-1.5 text-amber-500 font-bold">✦ SHINY</span>
+                  )}
                 </p>
               </div>
 

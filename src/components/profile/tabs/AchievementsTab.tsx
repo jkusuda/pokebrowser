@@ -3,6 +3,7 @@
 import { useState } from "react";
 import AchievementCard from "@/components/achievements/AchievementCard";
 import TypePickerModal from "@/components/rewards/TypePickerModal";
+import TokenEncounterModal from "@/components/rewards/TokenEncounterModal";
 import DevToolsPanel from "./DevToolsPanel";
 import { Button } from "@/components/ui/button";
 import {
@@ -76,26 +77,17 @@ export default function AchievementsTab({
   const [localUnlocks, setLocalUnlocks] = useState<AchievementUnlock[]>(achievementUnlocks);
   const [localTokens, setLocalTokens] = useState<Token[]>(tokens);
   const [typePickerToken, setTypePickerToken] = useState<Token | null>(null);
+  const [openingToken, setOpeningToken] = useState<Token | null>(null);
   const [filter, setFilter] = useState<"all" | "earned" | "locked">("all");
 
   const unlockById = Object.fromEntries(localUnlocks.map((u) => [u.achievement_id, u]));
   const pokedexCount = pokedexUnlocks.length;
 
-  // Active (configured) tokens ready to use
-  const readyTokens = localTokens.filter(
-    (t) => t.token_type !== "type_pick" || t.type_filter !== null
-  );
-  // type_pick tokens waiting for type selection
-  const pendingTypeTokens = localTokens.filter(
-    (t) => t.token_type === "type_pick" && t.type_filter === null
-  );
-
   async function handleClaim(achievementId: string) {
-    const { tokenGranted } = await postJson<{ tokenGranted: Token["token_type"] | null }>(
-      "/api/achievements/claim",
-      { achievementId },
-      "Failed to claim"
-    );
+    const { tokenGranted, tokenId } = await postJson<{
+      tokenGranted: Token["token_type"] | null;
+      tokenId: string | null;
+    }>("/api/achievements/claim", { achievementId }, "Failed to claim");
 
     // Optimistically mark as claimed
     setLocalUnlocks((prev) =>
@@ -106,10 +98,12 @@ export default function AchievementsTab({
       )
     );
 
-    // If a token was granted, add it to local state
-    if (tokenGranted) {
+    // A granted token opens immediately — type_pick asks for a type first.
+    // It's also added to local state so it lands in the Unopened Tokens
+    // inventory if the user backs out of the picker or the open fails.
+    if (tokenGranted && tokenId) {
       const newToken: Token = {
-        id: crypto.randomUUID(),
+        id: tokenId,
         user_id: "",
         token_type: tokenGranted,
         type_filter: null,
@@ -117,18 +111,31 @@ export default function AchievementsTab({
         used_at: null,
       };
       setLocalTokens((prev) => [...prev, newToken]);
+      if (tokenGranted === "type_pick") {
+        setTypePickerToken(newToken);
+      } else {
+        setOpeningToken(newToken);
+      }
     }
 
     // Re-sync server props (storage reward on catch_limit, real token row).
     refresh();
   }
 
-  function handleTypeSelected(tokenId: string, typeName: string) {
+  function handleTypeSelected(token: Token, typeName: string) {
     setLocalTokens((prev) =>
-      prev.map((t) => (t.id === tokenId ? { ...t, type_filter: typeName } : t))
+      prev.map((t) => (t.id === token.id ? { ...t, type_filter: typeName } : t))
     );
     setTypePickerToken(null);
-    refresh();
+    // Type chosen → summon the encounter right away.
+    setOpeningToken({ ...token, type_filter: typeName });
+  }
+
+  function handleEncounterClose(opened: boolean) {
+    if (opened && openingToken) {
+      setLocalTokens((prev) => prev.filter((t) => t.id !== openingToken.id));
+    }
+    setOpeningToken(null);
   }
 
   const unclaimedCount = localUnlocks.filter((u) => u.claimed_at === null).length;
@@ -157,44 +164,49 @@ export default function AchievementsTab({
         ))}
       </div>
 
-      {/* Active tokens section */}
-      {(readyTokens.length > 0 || pendingTypeTokens.length > 0) && (
+      {/* Unopened tokens inventory — each one summons an encounter when opened */}
+      {localTokens.length > 0 && (
         <div className="bg-pb-leaf border-2 border-pb-pine rounded-lg p-3">
           <h3 className="font-black text-xs uppercase tracking-widest text-pb-forest mb-2">
-            🎫 Active Tokens
+            🎁 Unopened Tokens
           </h3>
           <div className="flex flex-wrap gap-2">
-            {readyTokens.map((token) => (
-              <div
-                key={token.id}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 bg-pb-grass border-2 border-black rounded-lg shadow-[2px_2px_0_black]"
-              >
-                <span className="text-base">
-                  {token.token_type === "legendary" ? "🌟" :
-                   token.token_type === "mythical" ? "🔮" :
-                   token.token_type === "shiny" ? "✨" : "💎"}
-                </span>
-                <span className="text-emboss-sm text-[10px]">
-                  {token.token_type === "type_pick"
-                    ? `${token.type_filter} type`
-                    : token.token_type}
-                </span>
-              </div>
-            ))}
-            {pendingTypeTokens.map((token) => (
-              <Button
-                key={token.id}
-                variant="game"
-                size="sm"
-                onClick={() => setTypePickerToken(token)}
-                className="flex items-center gap-1.5 h-auto px-2.5 py-1.5 bg-amber-400 hover:bg-amber-500 active:bg-amber-500 border-2 rounded-lg shadow-[2px_2px_0_black] !text-black [-webkit-text-stroke:0px] [text-shadow:none]"
-              >
-                <span className="text-base">💎</span>
-                <span className="text-[10px] font-black uppercase">
-                  Choose Type ▼
-                </span>
-              </Button>
-            ))}
+            {localTokens.map((token) => {
+              const needsType =
+                token.token_type === "type_pick" && token.type_filter === null;
+              return (
+                <Button
+                  key={token.id}
+                  variant="game"
+                  size="sm"
+                  disabled={openingToken !== null || typePickerToken !== null}
+                  onClick={() =>
+                    needsType ? setTypePickerToken(token) : setOpeningToken(token)
+                  }
+                  className={cn(
+                    "flex items-center gap-1.5 h-auto px-2.5 py-1.5 border-2 rounded-lg shadow-[2px_2px_0_black] !text-black [-webkit-text-stroke:0px] [text-shadow:none]",
+                    needsType
+                      ? "bg-amber-400 hover:bg-amber-500 active:bg-amber-500"
+                      : "bg-pb-grass hover:bg-pb-grass-deep active:bg-pb-grass-deep"
+                  )}
+                >
+                  <span className="text-base">
+                    {token.token_type === "legendary" ? "🌟" :
+                     token.token_type === "mythical" ? "🔮" :
+                     token.token_type === "shiny" ? "✨" : "💎"}
+                  </span>
+                  <span className="text-[10px] font-black uppercase">
+                    {needsType
+                      ? "Choose Type ▼"
+                      : `Open ${
+                          token.token_type === "type_pick"
+                            ? `${token.type_filter} type`
+                            : token.token_type
+                        }`}
+                  </span>
+                </Button>
+              );
+            })}
           </div>
         </div>
       )}
@@ -244,8 +256,13 @@ export default function AchievementsTab({
         <TypePickerModal
           tokenId={typePickerToken.id}
           onClose={() => setTypePickerToken(null)}
-          onSelected={(typeName) => handleTypeSelected(typePickerToken.id, typeName)}
+          onSelected={(typeName) => handleTypeSelected(typePickerToken, typeName)}
         />
+      )}
+
+      {/* Token encounter (lootbox) modal */}
+      {openingToken && (
+        <TokenEncounterModal token={openingToken} onClose={handleEncounterClose} />
       )}
     </div>
   );

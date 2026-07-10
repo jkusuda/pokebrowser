@@ -6,8 +6,8 @@ export type { PokemonData, LevelProgress } from "pokemon-data";
 
 export const TRAINER_BASE = "https://play.pokemonshowdown.com/sprites/trainers";
 
-export function getPokemonSprite(pokedexNumber: number): string {
-  return `https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/versions/generation-v/black-white/animated/${pokedexNumber}.gif`;
+export function getPokemonSprite(pokedexNumber: number, isShiny = false): string {
+  return `https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/versions/generation-v/black-white/animated/${isShiny ? "shiny/" : ""}${pokedexNumber}.gif`;
 }
 
 export function getPokedexSprite(pokedexNumber: number): string {

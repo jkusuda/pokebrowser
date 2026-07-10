@@ -278,8 +278,48 @@ export async function claimAchievement(supabase: SupabaseClient, achievementId: 
     throw error;
   }
 
-  const result = data as { storage_granted: number; token_granted: string | null };
-  return { storageGranted: result.storage_granted, tokenGranted: result.token_granted };
+  const result = data as {
+    storage_granted: number;
+    token_granted: string | null;
+    token_id: string | null;
+  };
+  return {
+    storageGranted: result.storage_granted,
+    tokenGranted: result.token_granted,
+    tokenId: result.token_id,
+  };
+}
+
+/**
+ * Opens a token lootbox via the redeem_token RPC, which atomically rolls the
+ * encounter server-side (from the pokemon_species reference table), marks the
+ * token used, and performs the catch. A failed catch (box full) rolls back
+ * the token consumption, so the token survives.
+ */
+export async function redeemToken(supabase: SupabaseClient, tokenId: string) {
+  const { data, error } = await supabase.rpc("redeem_token", {
+    p_token_id: tokenId,
+  });
+
+  if (error) {
+    const msg = error.message ?? "";
+    if (msg.includes("not_found")) throw new Error("Token not found");
+    if (msg.includes("already_used")) throw new Error("Token already used");
+    if (msg.includes("type_not_selected")) throw new Error("Choose a type first");
+    if (msg.includes("catch_limit_reached")) throw new Error("Box is full");
+    throw error;
+  }
+
+  const result = data as {
+    pokedex_number: number;
+    is_shiny: boolean;
+    is_new_species: boolean;
+  };
+  return {
+    pokedexNumber: result.pokedex_number,
+    isShiny: result.is_shiny,
+    isNewSpecies: result.is_new_species,
+  };
 }
 
 /**
@@ -301,7 +341,7 @@ export async function claimCandyReward(supabase: SupabaseClient, pokedexNumber: 
 }
 
 /**
- * Sets the type_filter on a type_pick token so the extension can use it.
+ * Sets the type_filter on a type_pick token so it can be opened.
  */
 export async function selectTokenType(
   supabase: SupabaseClient,

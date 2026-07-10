@@ -82,7 +82,7 @@ export default function EvolveModal({ pokemon, pokemonInfo, targetNumber, family
           {/* Sprite stage */}
           <div className="relative h-28 w-28 flex items-center justify-center">
             <img
-              src={getPokemonSprite(spriteNumber)}
+              src={getPokemonSprite(spriteNumber, pokemon.is_shiny)}
               alt={phase === "done" ? toName : fromName}
               className={cn(
                 "h-24 w-24 object-contain drop-shadow-lg",

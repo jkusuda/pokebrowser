@@ -46,7 +46,7 @@ export default function TrainerCard({ user, favoritePokemon }: Props) {
           <div className="flex-1 relative overflow-hidden">
             {favoritePokemon && (
               <img
-                src={getPokemonSprite(favoritePokemon.pokedex_number)}
+                src={getPokemonSprite(favoritePokemon.pokedex_number, favoritePokemon.is_shiny)}
                 alt={favoritePokemon.nickname ?? `#${favoritePokemon.pokedex_number}`}
                 className="absolute z-10"
                 style={{

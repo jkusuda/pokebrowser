@@ -1,8 +1,16 @@
 {
   "updates": [
     {
-      "version": "1.0.1",
+      "version": "1.0.2",
       "isNew": true,
+      "notes": [
+        "Overhauled type tokens. Encounters are now instant.",
+        "Updated user stats page."
+      ]
+    },
+    {
+      "version": "1.0.1",
+      "isNew": false,
       "notes": [
         "Fixed font issues.",
         "Fixed type icons not rendering properly.",

@@ -41,7 +41,7 @@ export default function TypePickerModal({ tokenId, onClose, onSelected }: Props)
         {/* Header */}
         <h2 className="text-emboss text-xl text-center mb-1">Choose a Type</h2>
         <p className="text-center text-xs text-black/60 mb-4">
-          Your next encounter will be a Pokémon of this type.
+          Summon a Pokémon of this type!
         </p>
 
         {/* Type grid */}
@@ -95,7 +95,7 @@ export default function TypePickerModal({ tokenId, onClose, onSelected }: Props)
             onClick={handleConfirm}
             disabled={!selected || submitting}
           >
-            {submitting ? "Saving..." : "Confirm"}
+            {submitting ? "Saving..." : "Summon"}
           </Button>
         </div>
       </div>

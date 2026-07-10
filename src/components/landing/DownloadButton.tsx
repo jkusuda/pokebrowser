@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import DownloadModal from "./DownloadModal";
 
-const DOWNLOAD_HREF = "/pokebrowser-1.0.1.zip";
+const DOWNLOAD_HREF = "/pokebrowser-1.0.2.zip";
 
 export default function DownloadButton({ className }: { className?: string }) {
   const [open, setOpen] = useState(false);

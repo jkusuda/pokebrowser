@@ -117,7 +117,7 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
                 const sz = bd ? getBuddySpriteSize(bd.height) : 96;
                 return (
                   <img
-                    src={getPokemonSprite(fullProfile.buddy!.pokedex_number)}
+                    src={getPokemonSprite(fullProfile.buddy!.pokedex_number, fullProfile.buddy!.is_shiny)}
                     alt={fullProfile.buddy!.nickname ?? `#${fullProfile.buddy!.pokedex_number}`}
                     className="absolute z-10"
                     style={{ imageRendering: "pixelated", height: sz, width: "auto", left: 8, bottom: 64 }}

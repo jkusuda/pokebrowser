@@ -139,12 +139,19 @@ export default function CollectionTab({ pokemon, candies }: { pokemon: Pokemon[]
               onClick={() => handleSelect(p)}
               onContextMenu={(e) => handleContextMenu(e, p)}
             >
-              <img
-                src={getPokemonSprite(p.pokedex_number)}
-                alt={p.nickname || `#${p.pokedex_number}`}
-                className="w-20 h-20 object-contain mb-0 drop-shadow-md hover:scale-100 transition-transform"
-                style={{ imageRendering: "pixelated" }}
-              />
+              <div className="relative">
+                <img
+                  src={getPokemonSprite(p.pokedex_number, p.is_shiny)}
+                  alt={p.nickname || `#${p.pokedex_number}`}
+                  className="w-20 h-20 object-contain mb-0 drop-shadow-md hover:scale-100 transition-transform"
+                  style={{ imageRendering: "pixelated" }}
+                />
+                {p.is_shiny && (
+                  <span className="absolute top-0 right-0 text-sm text-amber-400 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)] pointer-events-none">
+                    ✦
+                  </span>
+                )}
+              </div>
               {p.nickname && (
                 <p className="font-bold text-[14px] text-white truncate w-[120%] text-center z-10 [text-shadow:-1px_-1px_0_#000,1px_-1px_0_#000,-1px_1px_0_#000,1px_1px_0_#000]">
                   {p.nickname}

@@ -46,8 +46,8 @@ This is an npm workspace monorepo: the Next.js web app at the root, the Chrome e
 ### 1. Web app
 
 ```bash
-git clone https://github.com/jkusuda/pb-remastered.git
-cd pb-remastered
+git clone https://github.com/jkusuda/pokebrowser.git
+cd pokebrowser
 npm install
 cp .env.example .env   # fill in your Supabase URL/key
 npm run dev            # http://localhost:3000
@@ -70,7 +70,7 @@ Then load it in Chrome:
 
 ## Contact
 
-- 🐛 Found a bug? [Open an issue](https://github.com/jkusuda/pb-remastered/issues)
+- 🐛 Found a bug? [Open an issue](https://github.com/jkusuda/pokebrowser/issues)
 - 📧 Questions or beta testing: [kusuda.jordan@gmail.com](mailto:kusuda.jordan@gmail.com)
 
 ---

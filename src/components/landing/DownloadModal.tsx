@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ModalShell } from "@/components/ui/modal-shell";
 
-const GITHUB_ISSUES_URL = "https://github.com/jkusuda/pb-remastered/issues";
+const GITHUB_ISSUES_URL = "https://github.com/jkusuda/pokebrowser/issues";
 const BETA_EMAIL = "kusuda.jordan@gmail.com";
 
 type Props = { onClose: () => void };

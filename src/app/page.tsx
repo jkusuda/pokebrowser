@@ -116,14 +116,17 @@ async function HomeContent({
               CHANGELOG
             </h2>
             <Card variant="game" tone="white" shadow="lg" className="rounded-xl p-8 md:p-12 gap-0 max-w-2xl mx-auto">
-              <div className="custom-scrollbar max-h-[32rem] overflow-y-auto space-y-8 pr-2 pt-2">
+              <div className="custom-scrollbar-gray max-h-[32rem] overflow-y-auto space-y-8 pr-2 pt-2">
                 {updatesData.updates.map((update) => (
                   <div key={update.version}>
-                    <h3 className="font-black text-2xl uppercase border-b-4 border-black pb-2 mb-4">
-                      Version {update.version}
-                      {update.isNew && (
-                        <span className="text-pb-primary ml-2 text-lg align-middle bg-pb-surface border-2 border-black rounded px-2 py-1 shadow-[2px_2px_0_black]">NEW!</span>
-                      )}
+                    <h3 className="flex items-baseline justify-between gap-4 font-black text-2xl uppercase border-b-4 border-black pb-2 mb-4">
+                      <span>
+                        Version {update.version}
+                        {update.isNew && (
+                          <span className="text-pb-primary ml-2 text-lg align-middle bg-pb-surface border-2 border-black rounded px-2 py-1 shadow-[2px_2px_0_black]">NEW!</span>
+                        )}
+                      </span>
+                      <span className="shrink-0 text-sm md:text-base font-bold text-gray-500 normal-case">{update.date}</span>
                     </h3>
                     <ul className="list-disc pl-6 space-y-3 font-bold text-lg text-gray-700">
                       {update.notes.map((note, noteIdx) => (

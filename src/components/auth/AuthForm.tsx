@@ -46,7 +46,7 @@ export default function AuthForm() {
       if (error) {
         setError(error.message);
       } else {
-        setSuccess("Check your email to confirm your account!");
+        setSuccess("Account created successfully!");
       }
     }
 

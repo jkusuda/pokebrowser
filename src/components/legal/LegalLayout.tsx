@@ -23,14 +23,14 @@ export function LegalPage({
     <main className="w-full min-h-screen bg-pb-bg font-sans flex flex-col items-center px-4 py-10 md:py-16">
       <div className="w-full max-w-3xl flex flex-col gap-6">
         {/* Hero band */}
-        <div className="bg-pb-forest border-4 border-black rounded-[10px] shadow-[6px_6px_0_black] px-6 py-7 flex flex-col gap-3 items-center text-center">
+        <div className="bg-pb-ink border-4 border-black rounded-[10px] shadow-[6px_6px_0_black] px-6 py-7 flex flex-col gap-3 items-center text-center">
           <Link href="/" className="self-start">
             <Button variant="game" tone="neutral" size="sm" className="text-[11px]">
               ← Back to home
             </Button>
           </Link>
           <h1 className="text-emboss-lg text-3xl md:text-5xl">{title}</h1>
-          <p className="text-pb-grass font-bold text-xs md:text-sm uppercase tracking-widest">
+          <p className="text-pb-accent font-bold text-xs md:text-sm uppercase tracking-widest">
             Effective {effectiveDate}
           </p>
         </div>
@@ -70,7 +70,7 @@ export function LegalSection({
 }) {
   return (
     <section className={cn("flex flex-col gap-3", className)}>
-      <h2 className="text-lg md:text-2xl font-black uppercase tracking-wide text-pb-forest">
+      <h2 className="text-lg md:text-2xl font-black uppercase tracking-wide text-pb-ink">
         {heading}
       </h2>
       <div className="flex flex-col gap-3 text-sm md:text-base font-semibold text-gray-700 leading-relaxed">
@@ -83,7 +83,7 @@ export function LegalSection({
 /** Intro/summary paragraph shown above the first section. */
 export function LegalIntro({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-sm md:text-base font-semibold text-gray-700 leading-relaxed border-l-4 border-pb-grass-deep pl-4">
+    <p className="text-sm md:text-base font-semibold text-gray-700 leading-relaxed border-l-4 border-pb-accent-deep pl-4">
       {children}
     </p>
   );
@@ -106,7 +106,7 @@ export function LegalFinePrint({ children }: { children: React.ReactNode }) {
 /** Inline contact email link, styled consistently. */
 export function ContactEmail({ email }: { email: string }) {
   return (
-    <a href={`mailto:${email}`} className="text-pb-pine underline font-bold break-all">
+    <a href={`mailto:${email}`} className="text-pb-primary underline font-bold break-all">
       {email}
     </a>
   );

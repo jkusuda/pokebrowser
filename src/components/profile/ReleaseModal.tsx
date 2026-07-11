@@ -46,7 +46,7 @@ export default function ReleaseModal({ pokemon, onClose, onReleased }: Props) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-center px-6 py-4 border-b-4 border-black bg-pb-grass">
+        <div className="flex items-center justify-center px-6 py-4 border-b-4 border-black bg-pb-accent">
           <h2 className="text-emboss text-xl">RELEASE?</h2>
         </div>
 

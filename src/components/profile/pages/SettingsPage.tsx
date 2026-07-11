@@ -6,6 +6,8 @@ import settingsIcon from "@/assets/settings.webp";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { postJson } from "@/lib/client-api";
+import { THEMES, ThemeId } from "@/lib/themes";
+import { cn } from "@/lib/utils";
 import { User } from "@/types";
 
 type Props = {
@@ -16,6 +18,8 @@ export default function SettingsPage({ user }: Props) {
   const router = useRouter();
   const [isPrivate, setIsPrivate] = useState(user.is_private);
   const [privacyLoading, setPrivacyLoading] = useState(false);
+  const [theme, setTheme] = useState<ThemeId>(user.theme);
+  const [themeLoading, setThemeLoading] = useState(false);
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -33,6 +37,22 @@ export default function SettingsPage({ user }: Props) {
       console.error("Privacy update error:", err);
     } finally {
       setPrivacyLoading(false);
+    }
+  };
+
+  const handleThemeSelect = async (next: ThemeId) => {
+    if (next === theme || themeLoading) return;
+    setThemeLoading(true);
+    try {
+      await postJson("/api/trainer/theme", { theme: next });
+      setTheme(next);
+      // The data-theme attribute + background live on the server-rendered
+      // /profile wrapper — refresh re-renders it with the new theme.
+      router.refresh();
+    } catch (err) {
+      console.error("Theme update error:", err);
+    } finally {
+      setThemeLoading(false);
     }
   };
 
@@ -55,10 +75,10 @@ export default function SettingsPage({ user }: Props) {
         {/* Privacy toggle */}
         <div className="w-full flex items-center justify-between gap-4">
           <div className="flex flex-col gap-1">
-            <span className="font-black tracking-widest uppercase text-[11px] text-pb-forest">
+            <span className="font-black tracking-widest uppercase text-[11px] text-pb-ink">
               Private Profile
             </span>
-            <span className="font-bold text-[10px] text-pb-forest/60 leading-tight">
+            <span className="font-bold text-[10px] text-pb-ink/60 leading-tight">
               Prevent others from sending you friend requests
             </span>
           </div>
@@ -71,7 +91,7 @@ export default function SettingsPage({ user }: Props) {
             disabled={privacyLoading}
             className={`
               shrink-0 w-12 h-6 rounded-full border-[3px] border-black transition-all duration-200
-              ${isPrivate ? "bg-pb-pine" : "bg-black/20"}
+              ${isPrivate ? "bg-pb-primary" : "bg-black/20"}
               ${privacyLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
               relative
             `}
@@ -84,6 +104,45 @@ export default function SettingsPage({ user }: Props) {
               `}
             />
           </button>
+        </div>
+
+        {/* Divider */}
+        <div className="w-full border-t-[3px] border-black/20" />
+
+        {/* Theme picker */}
+        <div className="w-full flex items-center justify-between gap-4">
+          <div className="flex flex-col gap-1">
+            <span className="font-black tracking-widest uppercase text-[11px] text-pb-ink">
+              Theme
+            </span>
+            <span className="font-bold text-[10px] text-pb-ink/60 leading-tight">
+              Color style for your profile
+            </span>
+          </div>
+          <div className="flex gap-2" role="radiogroup" aria-label="Profile theme">
+            {THEMES.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                role="radio"
+                aria-checked={theme === t.id}
+                aria-label={`${t.label} theme`}
+                title={t.label}
+                onClick={() => handleThemeSelect(t.id)}
+                disabled={themeLoading}
+                // Literal hex, not a pb-* class — swatches must keep their own
+                // color regardless of the active theme.
+                style={{ backgroundColor: t.swatch }}
+                className={cn(
+                  "shrink-0 w-9 h-9 rounded-[6px] border-[3px] border-black transition-all duration-200",
+                  theme === t.id
+                    ? "shadow-[2px_2px_0_black] -translate-y-px"
+                    : "opacity-60 hover:opacity-100",
+                  themeLoading ? "cursor-not-allowed" : "cursor-pointer"
+                )}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Divider */}

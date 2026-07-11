@@ -115,7 +115,7 @@ export default function TermsPage() {
       <LegalSection heading="8. Privacy">
         <p>
           Your use of Pokebrowser is also governed by our{" "}
-          <Link href="/privacy" className="text-pb-pine underline font-bold">
+          <Link href="/privacy" className="text-pb-primary underline font-bold">
             Privacy Policy
           </Link>
           , which explains what data we collect and how we use it — including the

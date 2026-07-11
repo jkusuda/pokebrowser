@@ -1,8 +1,19 @@
 {
   "updates": [
     {
-      "version": "1.0.2",
+      "version": "1.1.0",
       "isNew": true,
+      "notes": [
+        "New badge feature! Display your achievements on your profile.",
+        "New nickname and release modals.",
+        "New blue profile page theme.",
+        "Added buddy display names on user profiles.",
+        "Added collection search and filtering."
+      ]
+    },
+    {
+      "version": "1.0.2",
+      "isNew": false,
       "notes": [
         "Overhauled type tokens. Encounters are now instant.",
         "Updated user stats page."

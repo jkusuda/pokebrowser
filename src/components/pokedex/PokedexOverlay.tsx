@@ -280,7 +280,7 @@ function DetailPanel({ entry, caughtSet }: { entry: PokedexEntry; caughtSet: Set
                   style={{ backgroundColor: color.background, border: `2px solid ${color.border}` }}
                   title={t}
                 >
-                  <img src={getTypeIconPath(t)} alt={t} className="w-4 h-4 object-contain" />
+                  <img src={getTypeIconPath(t)} alt={t} className="w-6 h-6 object-contain" />
                 </div>
               );
             })}

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getTrainerData } from "@/lib/queries";
 import ProfileContent from "@/components/profile/ProfileContent";
 import route101 from "@/assets/route101.webp";
+import themeBackground2 from "@/assets/theme_background_2.webp";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -24,10 +25,15 @@ export default async function ProfilePage() {
 
   if (!userData) redirect("/?modal=login");
 
+  // Theme background images live here, not in themes.ts (static image imports
+  // must stay out of files consumed by API routes).
+  const background = userData.theme === "blue" ? themeBackground2 : route101;
+
   return (
     <div
+      data-theme={userData.theme}
       className="h-screen w-screen overflow-hidden bg-cover bg-center bg-no-repeat relative"
-      style={{ backgroundImage: `url(${route101.src})` }}
+      style={{ backgroundImage: `url(${background.src})` }}
     >
       <div className="absolute inset-0 bg-white/20 pointer-events-none z-0 mix-blend-overlay" />
       <ProfileContent

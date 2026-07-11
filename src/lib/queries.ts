@@ -1,5 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { User, Pokemon, Friend, FriendWithUser, IncomingRequest, PokedexUnlock, Candy, AchievementUnlock, Token, UserStats, LeaderboardCategory, LeaderboardResponse } from "@/types";
+import { ThemeId } from "@/lib/themes";
 
 export async function getTrainerData(supabase: SupabaseClient, userId: string) {
   // ── Step 1: fetch base rows in parallel (no joins — FK points to auth.users,
@@ -270,6 +271,20 @@ export async function updatePrivacy(
   const { error } = await supabase
     .from("users")
     .update({ is_private: isPrivate })
+    .eq("id", userId);
+  if (error) throw error;
+}
+
+// ─── Theme ──────────────────────────────────────────────────────────────────
+
+export async function updateTheme(
+  supabase: SupabaseClient,
+  userId: string,
+  theme: ThemeId
+) {
+  const { error } = await supabase
+    .from("users")
+    .update({ theme })
     .eq("id", userId);
   if (error) throw error;
 }

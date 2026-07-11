@@ -15,7 +15,7 @@ const NAV_ITEMS = [
 ];
 
 const btnClass = (isActive: boolean) =>
-  `flex-1 flex flex-col items-center justify-center py-5 px-4 rounded-[8px] border-[4px] border-black shadow-[4px_4px_0_black] transition-transform hover:-translate-y-1 hover:bg-pb-grass-deep active:translate-y-1 active:shadow-[1px_1px_0_black] ${isActive ? "bg-pb-grass-deep" : "bg-pb-grass"
+  `flex-1 flex flex-col items-center justify-center py-5 px-4 rounded-[8px] border-[4px] border-black shadow-[4px_4px_0_black] transition-transform hover:-translate-y-1 hover:bg-pb-accent-deep active:translate-y-1 active:shadow-[1px_1px_0_black] ${isActive ? "bg-pb-accent-deep" : "bg-pb-accent"
   }`;
 
 type Props = {

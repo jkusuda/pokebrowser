@@ -26,7 +26,7 @@ export default function DownloadModal({ onClose }: Props) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b-4 border-black bg-pb-grass">
+        <div className="flex items-center justify-between px-6 py-4 border-b-4 border-black bg-pb-accent">
           <h2 className="text-emboss text-xl">THANK YOU FOR DOWNLOADING!</h2>
           <Button
             onClick={onClose}
@@ -54,7 +54,7 @@ export default function DownloadModal({ onClose }: Props) {
             <ol className="flex flex-col gap-2">
               {STEPS.map((step, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <span className="shrink-0 h-6 w-6 flex items-center justify-center rounded-full border-4 border-black bg-pb-grass font-black text-[11px]">
+                  <span className="shrink-0 h-6 w-6 flex items-center justify-center rounded-full border-4 border-black bg-pb-accent font-black text-[11px]">
                     {i + 1}
                   </span>
                   <span className="font-bold text-sm text-black/90 pt-0.5">{step}</span>
@@ -64,7 +64,7 @@ export default function DownloadModal({ onClose }: Props) {
           </div>
 
           {/* Beta test CTA */}
-          <div className="p-4 bg-pb-grass/30 rounded-[8px] border-4 border-black">
+          <div className="p-4 bg-pb-accent/30 rounded-[8px] border-4 border-black">
             <p className="font-bold text-sm text-black/90">
               Want to be part of the beta test? Load the extension in Chrome, then email your
               extension ID to{" "}

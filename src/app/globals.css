@@ -3,14 +3,18 @@
 /* Pokebrowser theme tokens. */
 @theme {
 
-  /* Pokebrowser palette — chunky neo-brutalist greens, sticker-style. */
+  /* Pokebrowser palette — theme-neutral slot names; these defaults are the
+     green theme. Per-theme overrides live in the [data-theme="..."] blocks
+     below (applied on the /profile wrapper). */
   --color-pb-bg: #e0f4d9;
-  --color-pb-leaf: #ecf5e8;
-  --color-pb-grass: #9dcd9d;
-  --color-pb-grass-hover: #b3d9b3;
-  --color-pb-grass-deep: #8abf8a;
-  --color-pb-pine: #4a8a44;
-  --color-pb-forest: #2d5a27;
+  --color-pb-surface: #ecf5e8;
+  --color-pb-accent: #9dcd9d;
+  --color-pb-accent-hover: #b3d9b3;
+  --color-pb-accent-deep: #8abf8a;
+  --color-pb-primary: #4a8a44;
+  --color-pb-ink: #2d5a27;
+  --color-pb-inactive: #c9d3c4;
+  --color-pb-inactive-border: #9aa895;
   --color-pb-poppy: #c0392b;
   --color-pb-poppy-hover: #e74c3c;
 
@@ -62,6 +66,32 @@
   --ring: 117 36% 73%;
 
   --radius: 0.5rem;
+}
+
+/* Blue "ocean" theme — activated via data-theme={user.theme} on the /profile
+   wrapper (src/app/profile/page.tsx). Green needs no block; it's the @theme
+   default. Adding a theme: add a block here + an entry in src/lib/themes.ts +
+   the shared-types User["theme"] union + the users_theme_check DB constraint +
+   a background image in profile/page.tsx — keep all five in sync. */
+[data-theme="blue"] {
+  --color-pb-bg: #d6e9f5;
+  --color-pb-surface: #e9f1f7;
+  --color-pb-accent: #92bdd9;
+  --color-pb-accent-hover: #abcde3;
+  --color-pb-accent-deep: #7eafce;
+  --color-pb-primary: #3672a1;
+  --color-pb-ink: #244460;
+  --color-pb-inactive: #c3ced5;
+  --color-pb-inactive-border: #94a0a8;
+
+  /* shadcn tokens consumed inside the profile area (ghost hover, focus ring). */
+  --background: 203 60% 90%;
+  --card: 203 60% 90%;
+  --secondary: 203 45% 94%;
+  --muted: 203 45% 94%;
+  --primary: 203 45% 65%;
+  --accent: 203 45% 65%;
+  --ring: 203 50% 74%;
 }
 
 @theme inline {
@@ -136,7 +166,7 @@
   /* Themed scrollbar for the game UI's scroll containers. */
   .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: var(--color-pb-grass-deep) transparent;
+    scrollbar-color: var(--color-pb-accent-deep) transparent;
   }
   .custom-scrollbar::-webkit-scrollbar {
     width: 8px;
@@ -146,11 +176,11 @@
     background: transparent;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: var(--color-pb-grass-deep);
+    background: var(--color-pb-accent-deep);
     border-radius: 9999px;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: var(--color-pb-pine);
+    background: var(--color-pb-primary);
   }
 }
 

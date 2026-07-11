@@ -27,8 +27,8 @@ export function SubTabButton({
       className={cn(
         "h-auto px-3 py-1.5 text-[9px] font-black tracking-widest uppercase rounded-t-lg rounded-b-none border-b-2 -mb-[2px]",
         active
-          ? "text-pb-forest border-pb-pine bg-black/5 hover:bg-black/5"
-          : "text-pb-forest/50 border-transparent hover:text-pb-forest/80",
+          ? "text-pb-ink border-pb-primary bg-black/5 hover:bg-black/5"
+          : "text-pb-ink/50 border-transparent hover:text-pb-ink/80",
         className
       )}
     >

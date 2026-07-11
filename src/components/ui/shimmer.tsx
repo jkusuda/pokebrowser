@@ -10,7 +10,7 @@ export function Shimmer({
 }) {
   return (
     <div
-      className={cn("bg-pb-pine/30 animate-pulse rounded-lg", className)}
+      className={cn("bg-pb-primary/30 animate-pulse rounded-lg", className)}
       style={style}
     />
   );

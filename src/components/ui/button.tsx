@@ -22,11 +22,11 @@ const buttonVariants = cva(
       // `tone` only meaningfully applies to `variant="game"`. Default variant
       // owns its own background via Tailwind theme tokens.
       tone: {
-        primary: "bg-pb-grass-deep hover:bg-pb-grass active:bg-pb-grass",
+        primary: "bg-pb-accent-deep hover:bg-pb-accent active:bg-pb-accent",
         danger: "bg-red-500 hover:bg-red-600 active:bg-red-700",
-        neutral: "bg-pb-bg !text-black [-webkit-text-stroke:0px] [text-shadow:none] hover:bg-pb-leaf",
-        forest: "bg-pb-pine hover:bg-pb-grass-deep active:bg-pb-forest",
-        mint: "bg-pb-grass !text-black [-webkit-text-stroke:0px] [text-shadow:none] hover:bg-pb-grass-hover",
+        neutral: "bg-pb-bg !text-black [-webkit-text-stroke:0px] [text-shadow:none] hover:bg-pb-surface",
+        forest: "bg-pb-primary hover:bg-pb-accent-deep active:bg-pb-ink",
+        mint: "bg-pb-accent !text-black [-webkit-text-stroke:0px] [text-shadow:none] hover:bg-pb-accent-hover",
       },
       size: {
         sm: "h-9 px-4 text-[10px]",
@@ -37,7 +37,7 @@ const buttonVariants = cva(
     },
     compoundVariants: [
       // Game variant w/o explicit tone defaults to primary green.
-      { variant: "game", tone: undefined, class: "bg-pb-grass-deep hover:bg-pb-grass" },
+      { variant: "game", tone: undefined, class: "bg-pb-accent-deep hover:bg-pb-accent" },
     ],
     defaultVariants: {
       variant: "default",

@@ -27,7 +27,7 @@ function rankBadgeClass(rank: number): string {
   if (rank === 1) return "bg-yellow-300 text-black border-black";
   if (rank === 2) return "bg-gray-200 text-black border-black";
   if (rank === 3) return "bg-orange-300 text-black border-black";
-  return "bg-pb-bg text-pb-forest border-black/30";
+  return "bg-pb-bg text-pb-ink border-black/30";
 }
 
 function ShimmerRow() {
@@ -64,9 +64,9 @@ function LeaderboardRow({ entry, unit }: { entry: LeaderboardEntry; unit: string
       className={cn(
         "flex items-center gap-3 p-3 rounded-xl border-2 transition-colors",
         entry.is_me
-          ? "bg-pb-grass/60 border-pb-pine"
+          ? "bg-pb-accent/60 border-pb-primary"
           : "bg-white border-black/15",
-        canCopy && "cursor-pointer hover:border-pb-pine/60"
+        canCopy && "cursor-pointer hover:border-pb-primary/60"
       )}
       title={canCopy ? "Click to copy friend code" : undefined}
     >
@@ -82,7 +82,7 @@ function LeaderboardRow({ entry, unit }: { entry: LeaderboardEntry; unit: string
 
       {/* Avatar */}
       {masked ? (
-        <div className="w-10 h-10 rounded-lg bg-pb-pine/15 border-2 border-black/10 flex items-center justify-center shrink-0 text-pb-forest/50 font-black text-lg">
+        <div className="w-10 h-10 rounded-lg bg-pb-primary/15 border-2 border-black/10 flex items-center justify-center shrink-0 text-pb-ink/50 font-black text-lg">
           ?
         </div>
       ) : (
@@ -97,9 +97,9 @@ function LeaderboardRow({ entry, unit }: { entry: LeaderboardEntry; unit: string
       {/* Name + friend code */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 min-w-0">
-          <p className="font-bold text-sm text-pb-forest truncate min-w-0">
+          <p className="font-bold text-sm text-pb-ink truncate min-w-0">
             {masked ? "Anonymous Trainer" : entry.trainer_name}
-            {entry.is_me && <span className="ml-1.5 text-pb-pine font-black text-[9px] tracking-widest uppercase">YOU</span>}
+            {entry.is_me && <span className="ml-1.5 text-pb-primary font-black text-[9px] tracking-widest uppercase">YOU</span>}
           </p>
           {!masked && (
             <BadgeIcons
@@ -111,9 +111,9 @@ function LeaderboardRow({ entry, unit }: { entry: LeaderboardEntry; unit: string
           )}
         </div>
         {masked ? (
-          <p className="font-black tracking-widest uppercase text-[7px] text-pb-forest/40 mt-0.5">PRIVATE</p>
+          <p className="font-black tracking-widest uppercase text-[7px] text-pb-ink/40 mt-0.5">PRIVATE</p>
         ) : (
-          <p className="font-mono tracking-widest text-[9px] text-pb-pine/80 mt-0.5">
+          <p className="font-mono tracking-widest text-[9px] text-pb-primary/80 mt-0.5">
             {copied ? "COPIED!" : entry.friend_code}
           </p>
         )}
@@ -121,8 +121,8 @@ function LeaderboardRow({ entry, unit }: { entry: LeaderboardEntry; unit: string
 
       {/* Stat value */}
       <div className="flex flex-col items-end shrink-0">
-        <span className="font-black text-base text-pb-forest leading-none">{entry.value}</span>
-        <span className="font-black tracking-widest uppercase text-[7px] text-pb-forest/50 mt-0.5">{unit}</span>
+        <span className="font-black text-base text-pb-ink leading-none">{entry.value}</span>
+        <span className="font-black tracking-widest uppercase text-[7px] text-pb-ink/50 mt-0.5">{unit}</span>
       </div>
     </div>
   );
@@ -230,7 +230,7 @@ export default function GlobalStatsPage({ active }: Props) {
       <div className="flex-1 overflow-y-auto custom-scrollbar pr-1 min-h-0">
         {failed ? (
           <div className="h-full flex flex-col items-center justify-center gap-3">
-            <span className="font-black tracking-widest uppercase text-[11px] text-pb-forest/60 text-center">
+            <span className="font-black tracking-widest uppercase text-[11px] text-pb-ink/60 text-center">
               Couldn&apos;t load the leaderboard
             </span>
             <Button variant="game" tone="neutral" size="sm" onClick={handleRefetch}>
@@ -243,7 +243,7 @@ export default function GlobalStatsPage({ active }: Props) {
           </div>
         ) : data && data.top.length === 0 ? (
           <div className="h-full flex items-center justify-center">
-            <span className="font-black tracking-widest uppercase text-[10px] text-pb-forest/40 text-center leading-relaxed">
+            <span className="font-black tracking-widest uppercase text-[10px] text-pb-ink/40 text-center leading-relaxed">
               NO RANKINGS YET<br />BE THE FIRST TO CATCH SOMETHING!
             </span>
           </div>
@@ -278,7 +278,7 @@ export default function GlobalStatsPage({ active }: Props) {
 
       {/* No stats yet for the caller */}
       {data && !data.me && !loading && (
-        <p className="mt-3 pt-3 border-t-2 border-black/10 font-black tracking-widest uppercase text-[8px] text-pb-forest/40 text-center">
+        <p className="mt-3 pt-3 border-t-2 border-black/10 font-black tracking-widest uppercase text-[8px] text-pb-ink/40 text-center">
           Catch a Pokémon to join the rankings
         </p>
       )}

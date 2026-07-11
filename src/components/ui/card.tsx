@@ -16,9 +16,9 @@ const cardVariants = cva("flex flex-col", {
       // For variant="game" only — vary the panel color.
       cream: "bg-pb-bg",
       white: "bg-white",
-      leaf: "bg-pb-leaf",
+      leaf: "bg-pb-surface",
       glass: "bg-pb-bg/90",
-      grass: "bg-pb-grass",
+      grass: "bg-pb-accent",
     },
     size: {
       sm: "p-3 gap-2",

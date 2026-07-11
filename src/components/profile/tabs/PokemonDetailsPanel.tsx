@@ -164,12 +164,12 @@ export default function PokemonDetailsPanel({
                 className={cn(
                   "mx-3 mt-1.5 rounded-[12px] flex-row items-center justify-between shrink-0 transition-transform",
                   canAfford
-                    ? "bg-pb-grass cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
-                    : "bg-pb-leaf opacity-50 cursor-not-allowed"
+                    ? "bg-pb-accent cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
+                    : "bg-pb-surface opacity-50 cursor-not-allowed"
                 )}
               >
-                <span className="font-bold text-sm text-pb-forest uppercase tracking-wide">Evolve</span>
-                <span className="font-bold text-pb-forest/70 bg-white/60 px-3 py-0.5 rounded-full text-xs">
+                <span className="font-bold text-sm text-pb-ink uppercase tracking-wide">Evolve</span>
+                <span className="font-bold text-pb-ink/70 bg-white/60 px-3 py-0.5 rounded-full text-xs">
                   {evolveCost ?? "—"}
                 </span>
               </Card>

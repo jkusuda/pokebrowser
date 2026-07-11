@@ -100,7 +100,7 @@ export default function CollectionTab({ pokemon, candies, search = "" }: { pokem
   if (pokemon.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <p className="font-black tracking-widest uppercase text-[9px] text-pb-forest/40 text-center leading-relaxed">
+        <p className="font-black tracking-widest uppercase text-[9px] text-pb-ink/40 text-center leading-relaxed">
           NO POKÉMON YET<br />GO CATCH SOME!
         </p>
       </div>
@@ -112,7 +112,7 @@ export default function CollectionTab({ pokemon, candies, search = "" }: { pokem
       <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
         {filteredPokemon.length === 0 ? (
           <div className="flex items-center justify-center h-32">
-            <p className="font-black tracking-widest uppercase text-[9px] text-pb-forest/40 text-center leading-relaxed">
+            <p className="font-black tracking-widest uppercase text-[9px] text-pb-ink/40 text-center leading-relaxed">
               NO MATCHES<br />TRY A DIFFERENT SEARCH
             </p>
           </div>

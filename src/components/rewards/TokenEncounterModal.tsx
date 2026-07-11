@@ -166,7 +166,7 @@ export default function TokenEncounterModal({ token, onClose }: Props) {
               </span>
             )}
             {result.isNewSpecies && (
-              <span className="px-2 py-0.5 bg-pb-grass border-2 border-black rounded-md text-[10px] font-black uppercase shadow-[2px_2px_0_black]">
+              <span className="px-2 py-0.5 bg-pb-accent border-2 border-black rounded-md text-[10px] font-black uppercase shadow-[2px_2px_0_black]">
                 New species
               </span>
             )}

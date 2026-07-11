@@ -100,7 +100,7 @@ export default function TrainerCard({ user, favoritePokemon, unlockedAchievement
               </div>
               <div className="w-full h-4 bg-white border-[3px] border-black rounded-full overflow-hidden shadow-[2px_2px_0_rgba(0,0,0,0.5)]">
                 <div
-                  className="h-full bg-pb-pine"
+                  className="h-full bg-pb-primary"
                   style={{ width: `${Math.min(100, Math.max(0, (xpInLevel / xpRequired) * 100))}%` }}
                 />
               </div>

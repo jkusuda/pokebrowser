@@ -82,7 +82,7 @@ export default function EditProfileModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b-4 border-black bg-pb-grass">
+        <div className="flex items-center justify-between px-6 py-4 border-b-4 border-black bg-pb-accent">
           <h2 className="text-emboss text-xl">EDIT PROFILE</h2>
           <Button
             onClick={onClose}
@@ -110,7 +110,7 @@ export default function EditProfileModal({
           {/* Avatar picker */}
           <div>
             <label className="font-black text-[13px] text-black block mb-2 tracking-wide uppercase">AVATAR</label>
-            <div className="grid grid-cols-6 gap-2 p-4 bg-pb-grass/30 rounded-[8px] border-4 border-black max-h-64 overflow-y-auto shadow-inner">
+            <div className="grid grid-cols-6 gap-2 p-4 bg-pb-accent/30 rounded-[8px] border-4 border-black max-h-64 overflow-y-auto shadow-inner">
               {AVATAR_OPTIONS.map((id) => (
                 <Button
                   key={id}
@@ -119,7 +119,7 @@ export default function EditProfileModal({
                   className={cn(
                     "h-16 w-16 p-0 rounded-[8px]",
                     avatarId === id
-                      ? "bg-pb-grass border-4 border-black shadow-[2px_2px_0_black] scale-110 hover:bg-pb-grass"
+                      ? "bg-pb-accent border-4 border-black shadow-[2px_2px_0_black] scale-110 hover:bg-pb-accent"
                       : "bg-white/50 border-4 border-transparent hover:border-black/20 hover:bg-white/50"
                   )}
                 >
@@ -140,7 +140,7 @@ export default function EditProfileModal({
           {/* Badge picker */}
           <div>
             <label className="font-black text-[13px] text-black block mb-2 tracking-wide uppercase">BADGES</label>
-            <div className="grid grid-cols-6 gap-2 p-4 bg-pb-grass/30 rounded-[8px] border-4 border-black shadow-inner">
+            <div className="grid grid-cols-6 gap-2 p-4 bg-pb-accent/30 rounded-[8px] border-4 border-black shadow-inner">
               {BADGE_ACHIEVEMENT_IDS.map((id) => {
                 const isUnlocked = unlocked.has(id);
                 const isSelected = badgeIds.includes(id);
@@ -154,7 +154,7 @@ export default function EditProfileModal({
                         className={cn(
                           "h-16 w-16 p-0 rounded-[8px]",
                           isSelected
-                            ? "bg-pb-grass border-4 border-black shadow-[2px_2px_0_black] scale-110 hover:bg-pb-grass"
+                            ? "bg-pb-accent border-4 border-black shadow-[2px_2px_0_black] scale-110 hover:bg-pb-accent"
                             : "bg-white/50 border-4 border-transparent hover:border-black/20 hover:bg-white/50",
                           !isSelected && badgeIds.length >= MAX_DISPLAYED_BADGES && "opacity-50"
                         )}

@@ -63,7 +63,7 @@ export default function CandySelectionModal({ pokedexUnlocks, pendingLevels }: P
             Choose a Pokémon to receive <strong>10 candies</strong>.
           </p>
           {remaining > 1 && (
-            <p className="text-xs text-pb-pine font-bold mt-1">
+            <p className="text-xs text-pb-primary font-bold mt-1">
               {remaining} rewards remaining
             </p>
           )}
@@ -91,8 +91,8 @@ export default function CandySelectionModal({ pokedexUnlocks, pendingLevels }: P
                   className={cn(
                     "flex flex-col items-center p-2 rounded-lg border-2 transition-all cursor-pointer",
                     isSelected
-                      ? "border-black bg-pb-grass shadow-[2px_2px_0_black] scale-105"
-                      : "border-black/20 bg-white/50 hover:border-pb-pine hover:bg-pb-leaf/50"
+                      ? "border-black bg-pb-accent shadow-[2px_2px_0_black] scale-105"
+                      : "border-black/20 bg-white/50 hover:border-pb-primary hover:bg-pb-surface/50"
                   )}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}

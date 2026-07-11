@@ -15,6 +15,7 @@ export interface User {
   is_private: boolean;
   unclaimed_candy_levels: number;
   displayed_badges: string[]; // achievement ids, max 3 (set via set_displayed_badges RPC)
+  theme: "green" | "blue"; // profile color theme — keep in sync with THEMES in src/lib/themes.ts and the users_theme_check DB constraint
 }
 
 // public.friends — friend relationships

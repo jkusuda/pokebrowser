@@ -106,9 +106,9 @@ export default function AchievementCard({ def, unlock, progress = 0, onClaim }: 
       className={cn(
         "flex items-start gap-3 p-3 rounded-lg border-2 transition-all",
         isClaimed
-          ? "border-pb-grass bg-pb-leaf/60 opacity-70"
+          ? "border-pb-accent bg-pb-surface/60 opacity-70"
           : isUnclaimedEarned
-          ? "border-pb-pine bg-pb-leaf shadow-[2px_2px_0_black]"
+          ? "border-pb-primary bg-pb-surface shadow-[2px_2px_0_black]"
           : "border-black/20 bg-white/50"
       )}
     >
@@ -116,7 +116,7 @@ export default function AchievementCard({ def, unlock, progress = 0, onClaim }: 
       <div
         className={cn(
           "text-2xl w-10 h-10 flex items-center justify-center rounded-lg border-2 shrink-0",
-          isEarned ? "border-pb-pine bg-pb-grass/40" : "border-black/20 bg-white/30 grayscale opacity-50"
+          isEarned ? "border-pb-primary bg-pb-accent/40" : "border-black/20 bg-white/30 grayscale opacity-50"
         )}
       >
         {ACHIEVEMENT_SPRITES[def.id] ? (
@@ -138,13 +138,13 @@ export default function AchievementCard({ def, unlock, progress = 0, onClaim }: 
           <span
             className={cn(
               "font-black text-sm uppercase tracking-wide",
-              isEarned ? "text-pb-forest" : "text-black/40"
+              isEarned ? "text-pb-ink" : "text-black/40"
             )}
           >
             {def.label}
           </span>
           {isClaimed && (
-            <span className="text-[10px] font-bold uppercase tracking-widest text-pb-pine bg-pb-grass/30 px-1.5 py-0.5 rounded">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-pb-primary bg-pb-accent/30 px-1.5 py-0.5 rounded">
               ✓ Claimed
             </span>
           )}
@@ -158,7 +158,7 @@ export default function AchievementCard({ def, unlock, progress = 0, onClaim }: 
           <p
             className={cn(
               "text-[10px] font-bold mt-1",
-              isEarned ? "text-pb-pine" : "text-black/30"
+              isEarned ? "text-pb-primary" : "text-black/30"
             )}
           >
             🎁 {rewardLabel}
@@ -170,7 +170,7 @@ export default function AchievementCard({ def, unlock, progress = 0, onClaim }: 
           <div className="mt-2">
             <div className="h-1.5 rounded-full bg-black/10 overflow-hidden">
               <div
-                className="h-full bg-pb-pine rounded-full transition-all"
+                className="h-full bg-pb-primary rounded-full transition-all"
                 style={{ width: `${Math.min(progress, 100)}%` }}
               />
             </div>

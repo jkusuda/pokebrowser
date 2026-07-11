@@ -83,8 +83,8 @@ export default function AuthForm() {
             className={cn(
               "flex-1 h-auto py-4 font-black text-[13px] tracking-widest uppercase rounded-none",
               tab === t
-                ? "bg-pb-grass text-black hover:bg-pb-grass"
-                : "bg-gray-50 text-gray-400 hover:text-black hover:bg-pb-grass/50"
+                ? "bg-pb-accent text-black hover:bg-pb-accent"
+                : "bg-gray-50 text-gray-400 hover:text-black hover:bg-pb-accent/50"
             )}
           >
             {t === "login" ? "LOGIN" : "SIGN UP"}
@@ -142,7 +142,7 @@ export default function AuthForm() {
             <p className="font-bold text-xs text-red-600 text-center bg-red-100 border-2 border-red-600 p-2 rounded">{error}</p>
           )}
           {success && (
-            <p className="font-bold text-xs text-pb-forest text-center bg-pb-grass border-2 border-pb-forest p-2 rounded">{success}</p>
+            <p className="font-bold text-xs text-pb-ink text-center bg-pb-accent border-2 border-pb-ink p-2 rounded">{success}</p>
           )}
 
           <Button
@@ -157,9 +157,9 @@ export default function AuthForm() {
 
           <p className="text-[11px] text-gray-500 text-center font-bold leading-snug">
             By continuing you agree to our{" "}
-            <Link href="/terms" className="text-pb-pine underline">Terms</Link>{" "}
+            <Link href="/terms" className="text-pb-primary underline">Terms</Link>{" "}
             and{" "}
-            <Link href="/privacy" className="text-pb-pine underline">Privacy Policy</Link>.
+            <Link href="/privacy" className="text-pb-primary underline">Privacy Policy</Link>.
           </p>
         </form>
       </div>

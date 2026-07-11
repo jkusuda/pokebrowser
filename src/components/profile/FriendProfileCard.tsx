@@ -78,7 +78,7 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
       {/* Title */}
       <div className="flex justify-center mb-3 px-10 h-7 items-center">
         {loading ? (
-          <Shimmer className="bg-pb-pine/40 h-5 w-36 rounded-md" />
+          <Shimmer className="bg-pb-primary/40 h-5 w-36 rounded-md" />
         ) : (
           <h1 className="text-emboss text-xl text-center truncate">
             {fullProfile?.trainer_name ?? profile.trainer_name}
@@ -91,7 +91,7 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
 
         {failed ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-3 p-4">
-            <span className="font-black tracking-widest uppercase text-[11px] text-pb-forest text-center">
+            <span className="font-black tracking-widest uppercase text-[11px] text-pb-ink text-center">
               Couldn&apos;t load this trainer&apos;s profile
             </span>
             <Button
@@ -118,8 +118,8 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
         <div className="flex-1 relative overflow-hidden">
           {loading ? (
             <>
-              <Shimmer className="bg-pb-pine/40 absolute rounded-2xl" style={{ width: 96, height: 96, left: 8, bottom: 64 }} />
-              <Shimmer className="bg-pb-pine/40 absolute rounded-2xl" style={{ width: 160, height: 220, left: "50%", transform: "translateX(-50%)", bottom: 64 }} />
+              <Shimmer className="bg-pb-primary/40 absolute rounded-2xl" style={{ width: 96, height: 96, left: 8, bottom: 64 }} />
+              <Shimmer className="bg-pb-primary/40 absolute rounded-2xl" style={{ width: 160, height: 220, left: "50%", transform: "translateX(-50%)", bottom: 64 }} />
             </>
           ) : (
             <>
@@ -158,7 +158,7 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
           {/* Level badge */}
           <div className="flex flex-col items-center justify-center w-14 h-14 bg-white rounded-[8px] border-4 border-black shadow-[2px_2px_0_black] shrink-0">
             {loading ? (
-              <Shimmer className="bg-pb-pine/40 w-8 h-8 rounded" />
+              <Shimmer className="bg-pb-primary/40 w-8 h-8 rounded" />
             ) : (
               <>
                 <span className="font-bold text-[9px] text-black leading-none mt-1">LEVEL</span>
@@ -170,7 +170,7 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
           {/* XP bar */}
           <div className="flex flex-col justify-center px-1 h-14 flex-1 mt-1">
             {loading ? (
-              <Shimmer className="bg-pb-pine/40 w-full h-4 rounded-full" />
+              <Shimmer className="bg-pb-primary/40 w-full h-4 rounded-full" />
             ) : (
               <>
                 <div className="flex justify-between items-end mb-1">
@@ -181,7 +181,7 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
                 </div>
                 <div className="w-full h-4 bg-white border-[3px] border-black rounded-full overflow-hidden shadow-[2px_2px_0_rgba(0,0,0,0.5)]">
                   <div
-                    className="h-full bg-pb-pine transition-all duration-500"
+                    className="h-full bg-pb-primary transition-all duration-500"
                     style={{ width: `${xpProgress}%` }}
                   />
                 </div>

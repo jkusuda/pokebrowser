@@ -37,8 +37,8 @@ export default function ProfileTopBar({ activePage, onPageChange }: Props) {
             size="sm"
             onClick={() => onPageChange(page)}
             className={cn(
-              "text-black text-sm font-bold rounded-[8px] hover:bg-pb-grass-deep",
-              activePage === page && "bg-pb-grass-deep"
+              "text-black text-sm font-bold rounded-[8px] hover:bg-pb-accent-deep",
+              activePage === page && "bg-pb-accent-deep"
             )}
           >
             {label}

@@ -155,8 +155,8 @@ export default function AchievementsTab({
             className={cn(
               "h-auto px-3 py-1 rounded-full text-xs font-bold uppercase border-2",
               filter === f
-                ? "border-black bg-pb-pine text-white shadow-[2px_2px_0_black] hover:bg-pb-pine hover:text-white"
-                : "border-black/20 bg-white/60 text-black/50 hover:border-pb-pine"
+                ? "border-black bg-pb-primary text-white shadow-[2px_2px_0_black] hover:bg-pb-primary hover:text-white"
+                : "border-black/20 bg-white/60 text-black/50 hover:border-pb-primary"
             )}
           >
             {f === "earned" && unclaimedCount > 0 ? `Earned (${unclaimedCount})` : f.charAt(0).toUpperCase() + f.slice(1)}
@@ -166,8 +166,8 @@ export default function AchievementsTab({
 
       {/* Unopened tokens inventory — each one summons an encounter when opened */}
       {localTokens.length > 0 && (
-        <div className="bg-pb-leaf border-2 border-pb-pine rounded-lg p-3">
-          <h3 className="font-black text-xs uppercase tracking-widest text-pb-forest mb-2">
+        <div className="bg-pb-surface border-2 border-pb-primary rounded-lg p-3">
+          <h3 className="font-black text-xs uppercase tracking-widest text-pb-ink mb-2">
             🎁 Unopened Tokens
           </h3>
           <div className="flex flex-wrap gap-2">
@@ -187,7 +187,7 @@ export default function AchievementsTab({
                     "flex items-center gap-1.5 h-auto px-2.5 py-1.5 border-2 rounded-lg shadow-[2px_2px_0_black] !text-black [-webkit-text-stroke:0px] [text-shadow:none]",
                     needsType
                       ? "bg-amber-400 hover:bg-amber-500 active:bg-amber-500"
-                      : "bg-pb-grass hover:bg-pb-grass-deep active:bg-pb-grass-deep"
+                      : "bg-pb-accent hover:bg-pb-accent-deep active:bg-pb-accent-deep"
                   )}
                 >
                   <span className="text-base">
@@ -224,7 +224,7 @@ export default function AchievementsTab({
 
         return (
           <div key={category}>
-            <h3 className="font-black text-xs uppercase tracking-widest text-pb-forest mb-2 flex items-center gap-1.5">
+            <h3 className="font-black text-xs uppercase tracking-widest text-pb-ink mb-2 flex items-center gap-1.5">
               {CATEGORY_LABELS[category]}
               <span className="text-black/30 font-normal normal-case tracking-normal">
                 ({defs.filter((d) => unlockById[d.id]).length}/{defs.length})

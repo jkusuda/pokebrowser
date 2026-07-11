@@ -94,7 +94,7 @@ export default function PrivacyPage() {
             opt out of public leaderboards using the privacy toggle on your profile.
           </li>
         </LegalList>
-        <p className="font-bold text-pb-forest">
+        <p className="font-bold text-pb-ink">
           What the extension does NOT do:
         </p>
         <LegalList>

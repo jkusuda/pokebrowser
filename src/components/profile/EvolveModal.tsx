@@ -74,7 +74,7 @@ export default function EvolveModal({ pokemon, pokemonInfo, targetNumber, family
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-center px-6 py-4 border-b-4 border-black bg-pb-grass">
+        <div className="flex items-center justify-center px-6 py-4 border-b-4 border-black bg-pb-accent">
           <h2 className="text-emboss text-xl">EVOLVE</h2>
         </div>
 
@@ -95,7 +95,7 @@ export default function EvolveModal({ pokemon, pokemonInfo, targetNumber, family
 
           {/* Message */}
           {phase === "done" ? (
-            <p className="text-center font-bold text-sm text-pb-forest capitalize">
+            <p className="text-center font-bold text-sm text-pb-ink capitalize">
               {fromName} evolved into {toName}!
             </p>
           ) : phase === "error" ? (

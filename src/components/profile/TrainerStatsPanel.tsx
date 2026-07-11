@@ -38,7 +38,7 @@ function StreakChip({ label, value, accent }: { label: string; value: string; ac
   return (
     <div className="w-full bg-pb-bg rounded-lg border-2 border-black px-3 py-2.5 shadow-[1px_1px_0_black]">
       <p className="text-black/60 text-[10px] font-bold leading-tight uppercase tracking-wide">{label}</p>
-      <p className={`font-black text-2xl leading-tight ${accent ? "text-pb-poppy" : "text-black"}`}>{value}</p>
+      <p className={`font-black text-2xl leading-tight ${accent ? "text-orange-500" : "text-black"}`}>{value}</p>
     </div>
   );
 }
@@ -89,7 +89,7 @@ function MonthCalendar({ activeDays }: { activeDays: Set<string> }) {
 
   const navBtn =
     "w-6 h-6 flex items-center justify-center rounded-md border-2 border-black bg-pb-bg text-black font-black " +
-    "shadow-[1px_1px_0_black] hover:bg-pb-leaf active:shadow-none active:translate-x-px active:translate-y-px " +
+    "shadow-[1px_1px_0_black] hover:bg-pb-surface active:shadow-none active:translate-x-px active:translate-y-px " +
     "disabled:opacity-30 disabled:pointer-events-none";
 
   return (
@@ -123,7 +123,7 @@ function MonthCalendar({ activeDays }: { activeDays: Set<string> }) {
               title={key}
               className={`relative aspect-square rounded-md flex items-center justify-center text-[10px] font-bold
                 ${active ? "" : "text-black/40"}
-                ${isToday ? "ring-2 ring-pb-pine ring-offset-1 ring-offset-pb-leaf" : ""}`}
+                ${isToday ? "ring-2 ring-pb-primary ring-offset-1 ring-offset-pb-surface" : ""}`}
             >
               {active ? <PokeballDot /> : day}
             </div>
@@ -141,7 +141,7 @@ function TypeGrid({ caught }: { caught: Set<string> }) {
   return (
     <div className="w-full sm:w-auto">
       <p className="text-black/60 text-[10px] font-bold uppercase tracking-wide mb-2">
-        Types Caught <span className="text-pb-pine">{caught.size} / 18</span>
+        Types Caught <span className="text-pb-primary">{caught.size} / 18</span>
       </p>
       <div className="grid grid-cols-6 gap-1 justify-items-center">
         {TYPE_ORDER.map((type) => {
@@ -155,7 +155,7 @@ function TypeGrid({ caught }: { caught: Set<string> }) {
               style={
                 has
                   ? { backgroundColor: color.background, borderColor: color.border }
-                  : { backgroundColor: "#c9d3c4", borderColor: "#9aa895" }
+                  : { backgroundColor: "var(--color-pb-inactive)", borderColor: "var(--color-pb-inactive-border)" }
               }
             >
               <img

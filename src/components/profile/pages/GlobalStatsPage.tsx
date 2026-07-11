@@ -48,7 +48,7 @@ function ShimmerRow() {
 
 function LeaderboardRow({ entry, unit }: { entry: LeaderboardEntry; unit: string }) {
   const [copied, setCopied] = useState(false);
-  const masked = entry.is_private && !entry.is_me;
+  const masked = entry.trainer_name === null;
   const canCopy = !masked && !entry.is_me && !!entry.friend_code;
 
   const handleCopy = async () => {

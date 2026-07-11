@@ -6,6 +6,7 @@ import { TRAINER_BASE } from "@/lib/pokemon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SubTabButton } from "@/components/profile/SubTabButton";
+import RemoveFriendModal from "@/components/profile/RemoveFriendModal";
 import { postJson } from "@/lib/client-api";
 import { useRefresh } from "@/lib/hooks/useRefresh";
 import { cn, errorMessage } from "@/lib/utils";
@@ -207,17 +208,15 @@ function PendingSentRow({ friend }: { friend: FriendWithUser }) {
   );
 }
 
-function FriendRow({ friend, onView }: { friend: FriendWithUser; onView: () => void }) {
-  const { refresh } = useRefresh();
-  const [loading, setLoading] = useState(false);
-
-  const handleRemove = async () => {
-    if (!window.confirm(`Remove ${friend.friend.trainer_name} from your friends?`)) return;
-    setLoading(true);
-    await postJson("/api/friends/remove", { friendshipId: friend.id }).catch(() => {});
-    refresh();
-  };
-
+function FriendRow({
+  friend,
+  onView,
+  onRequestRemove,
+}: {
+  friend: FriendWithUser;
+  onView: () => void;
+  onRequestRemove: () => void;
+}) {
   return (
     <div className="flex items-center gap-3 p-3 bg-white rounded-xl border-2 border-black/20">
       <img
@@ -243,8 +242,7 @@ function FriendRow({ friend, onView }: { friend: FriendWithUser; onView: () => v
           VIEW
         </Button>
         <Button
-          onClick={handleRemove}
-          disabled={loading}
+          onClick={onRequestRemove}
           variant="ghost"
           size="icon"
           className="w-7 h-7 rounded-lg border-2 border-black/20 bg-white/50 hover:bg-red-100 hover:border-red-300 text-[10px] font-black text-pb-ink hover:text-red-600"
@@ -261,6 +259,7 @@ function FriendRow({ friend, onView }: { friend: FriendWithUser; onView: () => v
 
 export default function FriendsTab({ user, friends, incomingRequests, onFriendSelect }: Props) {
   const [subTab, setSubTab] = useState<SubTab>("friends");
+  const [removeTarget, setRemoveTarget] = useState<FriendWithUser | null>(null);
 
   const accepted = friends.filter((f) => f.status === "accepted");
   const pendingSent = friends.filter((f) => f.status === "pending");
@@ -335,7 +334,14 @@ export default function FriendsTab({ user, friends, incomingRequests, onFriendSe
               NO FRIENDS YET<br />ADD SOMEONE USING THEIR FRIEND CODE!
             </p>
           ) : (
-            accepted.map((f) => <FriendRow key={f.id} friend={f} onView={() => handleView(f)} />)
+            accepted.map((f) => (
+              <FriendRow
+                key={f.id}
+                friend={f}
+                onView={() => handleView(f)}
+                onRequestRemove={() => setRemoveTarget(f)}
+              />
+            ))
           )
         )}
 
@@ -355,6 +361,10 @@ export default function FriendsTab({ user, friends, incomingRequests, onFriendSe
           )
         )}
       </div>
+
+      {removeTarget && (
+        <RemoveFriendModal friend={removeTarget} onClose={() => setRemoveTarget(null)} />
+      )}
     </div>
   );
 }

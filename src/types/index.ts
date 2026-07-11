@@ -21,7 +21,15 @@ export type { PokemonData as PokemonInfo } from "pokemon-data";
 // App-level shapes returned by the get_leaderboard RPC — not Supabase row types.
 export type LeaderboardCategory = "catches" | "sites";
 
-/** One ranked row. Identity fields are null for masked (private, non-self) users. */
+/**
+ * One ranked row. Identity fields (`id`, `trainer_name`, `avatar_id`,
+ * `friend_code`, `displayed_badges`) are null when the row is masked — i.e.
+ * `is_private` is true, the row isn't the caller's own, and the caller isn't
+ * an accepted friend of that user. Accepted friends see a private user's
+ * full identity here, same as elsewhere in the app (e.g.
+ * `/api/friends/profile/[friendCode]`). `is_private` itself is always
+ * populated, even on unmasked rows.
+ */
 export interface LeaderboardEntry {
   rank: number;
   value: number;

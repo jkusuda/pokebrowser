@@ -11,6 +11,7 @@ import CollectionTab from "./tabs/CollectionTab";
 import FriendsTab from "./tabs/FriendsTab";
 import AchievementsTab from "./tabs/AchievementsTab";
 import CandySelectionModal from "@/components/rewards/CandySelectionModal";
+import ExtensionDownModal from "./ExtensionDownModal";
 import GlobalStatsPage from "./pages/GlobalStatsPage";
 import PokedexPage from "./pages/PokedexPage";
 import SettingsPage from "./pages/SettingsPage";
@@ -75,6 +76,7 @@ export default function ProfileContent({
   const [fading, setFading] = useState(false);
   const [selectedFriend, setSelectedFriend] = useState<FriendProfile | null>(null);
   const [collectionSearch, setCollectionSearch] = useState("");
+  const [showExtensionDownNotice, setShowExtensionDownNotice] = useState(true);
 
   useRealtimeRefresh(user.id);
 
@@ -215,13 +217,13 @@ export default function ProfileContent({
         </div>
 
         {/* Other pages — always mounted, hidden when inactive */}
-        <div style={{ display: activePage === "globalStats" ? "flex" : "none" }} className="flex-1">
+        <div style={{ display: activePage === "globalStats" ? "flex" : "none" }} className="flex-1 flex-col min-h-0">
           <GlobalStatsPage active={activePage === "globalStats"} />
         </div>
-        <div style={{ display: activePage === "pokedex" ? "flex" : "none" }} className="flex-1 flex-col overflow-y-auto custom-scrollbar">
+        <div style={{ display: activePage === "pokedex" ? "flex" : "none" }} className="flex-1 flex-col min-h-0 overflow-y-auto custom-scrollbar">
           <PokedexPage pokemon={pokemon} pokedexUnlocks={pokedexUnlocks} />
         </div>
-        <div style={{ display: activePage === "settings" ? "flex" : "none" }} className="flex-1">
+        <div style={{ display: activePage === "settings" ? "flex" : "none" }} className="flex-1 flex-col min-h-0">
           <SettingsPage user={user} />
         </div>
       </div>
@@ -244,6 +246,11 @@ export default function ProfileContent({
           pokedexUnlocks={pokedexUnlocks}
           pendingLevels={user.unclaimed_candy_levels}
         />
+      )}
+
+      {/* Extension-down notice — shown once per profile load */}
+      {showExtensionDownNotice && (
+        <ExtensionDownModal onClose={() => setShowExtensionDownNotice(false)} />
       )}
     </div>
   );

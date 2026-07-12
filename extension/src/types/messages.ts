@@ -2,6 +2,8 @@
 // script and the background service worker, plus the external auth messages
 // sent by the web app via externally_connectable.
 
+import type { ThemeId } from "shared-types";
+
 export type EncounterPayload = {
   pokedexNumber: number;
   isShiny: boolean;
@@ -25,7 +27,7 @@ export type ExternalResponse =
 
 export type GetSessionResponse =
   | { loggedIn: false }
-  | { loggedIn: true; boxIsFull: boolean; encounter: EncounterPayload };
+  | { loggedIn: true; boxIsFull: boolean; theme: ThemeId; encounter: EncounterPayload };
 
 export type PerformCatchError =
   | "UNAUTHENTICATED"
@@ -34,6 +36,7 @@ export type PerformCatchError =
   | "ENCOUNTER_EXPIRED"
   | "CATCH_LIMIT_REACHED"
   | "RATE_LIMITED"
+  | "DAILY_LIMIT_REACHED"
   | "INVALID_SENDER"
   | "INTERNAL";
 

@@ -49,3 +49,6 @@ ARCHITECTURE.md
 /.claude/
 /.playwright-mcp/
 CLAUDE.md
+
+# extension store packages
+extension/*.zip

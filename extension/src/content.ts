@@ -8,6 +8,7 @@ import { CONFIG } from "./lib/config";
 import { getPokemonSprite } from "./lib/sprites";
 import { runCatchAnimation } from "./lib/animation";
 import { getFontFaceCSS, getPopupCSS, getPopupHTML } from "./lib/popup";
+import type { ThemeId } from "./lib/theme";
 import type {
   EncounterPayload,
   ExtensionMessage,
@@ -18,7 +19,7 @@ import type {
 (() => {
 
 // Encounter UI Logic
-function showEncounterPopup(encounter: EncounterPayload, boxIsFull: boolean) {
+function showEncounterPopup(encounter: EncounterPayload, boxIsFull: boolean, theme: ThemeId) {
   if (document.getElementById("pokebrowse-encounter")) return;
 
   const host = document.createElement("div");
@@ -47,7 +48,7 @@ function showEncounterPopup(encounter: EncounterPayload, boxIsFull: boolean) {
   }
 
   const style = document.createElement("style");
-  style.textContent = getPopupCSS(grassUrl, pokeballUrl);
+  style.textContent = getPopupCSS(grassUrl, pokeballUrl, theme);
   shadow.appendChild(style);
 
   const overlay = document.createElement("div");
@@ -106,10 +107,12 @@ function showEncounterPopup(encounter: EncounterPayload, boxIsFull: boolean) {
 
               if (response?.ok) {
                 resultEl.textContent = `Gotcha! ${encounter.name} was caught!`;
+              } else if (response?.error === "CATCH_LIMIT_REACHED") {
+                resultEl.textContent = "Box is full!";
+              } else if (response?.error === "DAILY_LIMIT_REACHED") {
+                resultEl.textContent = "You've caught enough for today!";
               } else {
-                resultEl.textContent = response && response.error === "CATCH_LIMIT_REACHED"
-                  ? "Box is full!"
-                  : "Something went wrong...";
+                resultEl.textContent = "Something went wrong...";
               }
 
               buttonsDiv.innerHTML = "";
@@ -140,9 +143,9 @@ async function tryEncounter() {
       | undefined;
     if (!session?.loggedIn) return;
 
-    const { encounter, boxIsFull } = session;
+    const { encounter, boxIsFull, theme } = session;
     setTimeout(() => {
-      showEncounterPopup(encounter, boxIsFull);
+      showEncounterPopup(encounter, boxIsFull, theme);
     }, 1500);
   } catch {
     console.debug("Pokebrowser: Extension context invalidated.");

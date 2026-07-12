@@ -29,6 +29,7 @@ export const CONFIG = {
   WEBSITE_URL: env.VITE_WEBSITE_URL,
 
   SESSION_KEY: "pb_session",
+  THEME_KEY: "pb_theme",
 
   GAME: {
     SHINY_RATE: 1 / 512,

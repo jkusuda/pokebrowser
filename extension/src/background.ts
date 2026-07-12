@@ -1,33 +1,21 @@
 import { CONFIG } from "./lib/config";
 import { supabase } from "./lib/supabase";
-import { getFamilyId, getPokemonName, getRandomPokemonId, getPokemonData } from "pokemon-data";
+import { getPokemonName } from "pokemon-data";
+import { resolveTheme } from "./lib/theme";
 import type { ExtensionMessage, ExternalMessage } from "./types/messages";
 
 type StoredSession = { access_token: string; refresh_token: string };
-type PendingEncounter = {
+
+// Server response shape of the roll_encounter RPC. Encounters are rolled and
+// stored server-side (pending_encounters table) so a scripted client can't
+// choose what it catches — this worker only relays the roll to the popup.
+type RolledEncounter = {
   nonce: string;
-  pokedexNumber: number;
-  isShiny: boolean;
-  name: string;
-  createdAt: number;
+  pokedex_number: number;
+  is_shiny: boolean;
 };
 
-// Gen 1 legendary Pokémon ids
-const LEGENDARY_IDS = [144, 145, 146, 150, 151];
-
-const PENDING_PREFIX = "pb_enc_";
-const pendingKey = (userId: string) => `${PENDING_PREFIX}${userId}`;
-
-/**
- * Rolls a browsing encounter. Tokens no longer influence this — they are
- * opened as lootbox encounters on the website instead (redeem_token RPC).
- */
-function rollEncounter(): { pokedexNumber: number; isShiny: boolean } {
-  return {
-    pokedexNumber: getRandomPokemonId(CONFIG.GAME.CURRENT_GENERATION),
-    isShiny: Math.random() < CONFIG.GAME.SHINY_RATE,
-  };
-}
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
  * Restores the Supabase session from chrome.storage.local and returns the
@@ -113,31 +101,42 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendRes
       }
       const { userId } = auth;
 
-      const [{ data: user }, { count: pokemonCount }] = await Promise.all([
-        supabase.from("users").select("catch_limit").eq("id", userId).single(),
-        supabase.from("pokemon").select("*", { count: "exact", head: true }).eq("user_id", userId),
-      ]);
+      // The encounter is rolled server-side; the RPC is "sticky" (an
+      // unexpired pending encounter is returned again instead of rerolling).
+      const [{ data: user }, { count: pokemonCount }, { data: roll, error: rollError }] =
+        await Promise.all([
+          supabase.from("users").select("catch_limit, theme").eq("id", userId).single(),
+          supabase.from("pokemon").select("*", { count: "exact", head: true }).eq("user_id", userId),
+          supabase.rpc("roll_encounter"),
+        ]);
+
+      const encounter = roll as RolledEncounter | null;
+      if (rollError || !encounter) {
+        console.error("roll_encounter RPC failed", rollError);
+        sendResponse({ loggedIn: false });
+        return;
+      }
+
       const catchLimit = user?.catch_limit ?? CONFIG.GAME.DEFAULT_CATCH_LIMIT;
       const boxIsFull = (pokemonCount ?? 0) >= catchLimit;
 
-      const { pokedexNumber, isShiny } = rollEncounter();
+      // Keep the popup's cached theme fresh — encounters happen far more
+      // often than popup opens, so this piggybacks on an existing fetch.
+      const theme = resolveTheme(user?.theme);
+      chrome.storage.local.set({ [CONFIG.THEME_KEY]: theme });
 
-      const name = getPokemonName(pokedexNumber);
-      const nonce = crypto.randomUUID();
-
-      const pending: PendingEncounter = {
-        nonce,
-        pokedexNumber,
-        isShiny,
-        name,
-        createdAt: Date.now(),
-      };
-      await chrome.storage.session.set({ [pendingKey(userId)]: pending });
+      const pokedexNumber = encounter.pokedex_number;
 
       sendResponse({
         loggedIn: true,
         boxIsFull,
-        encounter: { pokedexNumber, isShiny, name, nonce },
+        theme,
+        encounter: {
+          pokedexNumber,
+          isShiny: encounter.is_shiny,
+          name: getPokemonName(pokedexNumber),
+          nonce: encounter.nonce,
+        },
       });
     })();
     return true;
@@ -151,10 +150,9 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendRes
           sendResponse({ ok: false, error: "UNAUTHENTICATED" });
           return;
         }
-        const { userId } = auth;
 
         const encounterNonce = message.payload?.encounterNonce;
-        if (typeof encounterNonce !== "string" || encounterNonce.length > 64) {
+        if (typeof encounterNonce !== "string" || !UUID_RE.test(encounterNonce)) {
           sendResponse({ ok: false, error: "BAD_REQUEST" });
           return;
         }
@@ -163,35 +161,11 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendRes
         const caughtOn =
           typeof rawCaughtOn === "string" && rawCaughtOn.length <= 253 ? rawCaughtOn : null;
 
-        // Look up — and consume — the server-rolled encounter.
-        const key = pendingKey(userId);
-        const stored = await chrome.storage.session.get(key);
-        const pending = stored[key] as PendingEncounter | undefined;
-        if (!pending || pending.nonce !== encounterNonce) {
-          sendResponse({ ok: false, error: "NO_PENDING_ENCOUNTER" });
-          return;
-        }
-        if (Date.now() - pending.createdAt > CONFIG.GAME.PENDING_ENCOUNTER_TTL_MS) {
-          await chrome.storage.session.remove(key);
-          sendResponse({ ok: false, error: "ENCOUNTER_EXPIRED" });
-          return;
-        }
-
-        // Rate-limit is enforced server-side in perform_catch; see migration
-        // server_side_catch_rate_limit. We just consume the nonce before the
-        // RPC so a single encounter can't be claimed twice.
-        await chrome.storage.session.remove(key);
-
-        const { pokedexNumber, isShiny, name } = pending;
-        const familyBaseId = getFamilyId(pokedexNumber);
-
-        // XP is computed server-side inside perform_catch from the pokedex
-        // number + shiny flag, so it is not sent here.
+        // The server owns the pending encounter: perform_catch validates and
+        // consumes the nonce, derives species/shiny/candy/XP from its own
+        // roll, and updates stats + achievements in the same transaction.
         const { data, error } = await supabase.rpc("perform_catch", {
-          p_pokedex_number: pokedexNumber,
-          p_is_shiny: isShiny,
-          p_family_base_id: familyBaseId,
-          p_nickname: name,
+          p_nonce: encounterNonce,
           p_caught_on: caughtOn,
         });
 
@@ -204,6 +178,18 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendRes
             sendResponse({ ok: false, error: "RATE_LIMITED" });
             return;
           }
+          if (error.message?.includes("daily_limit_reached")) {
+            sendResponse({ ok: false, error: "DAILY_LIMIT_REACHED" });
+            return;
+          }
+          if (error.message?.includes("no_pending_encounter")) {
+            sendResponse({ ok: false, error: "NO_PENDING_ENCOUNTER" });
+            return;
+          }
+          if (error.message?.includes("encounter_expired")) {
+            sendResponse({ ok: false, error: "ENCOUNTER_EXPIRED" });
+            return;
+          }
           console.error("perform_catch RPC failed", error);
           sendResponse({ ok: false, error: "INTERNAL" });
           return;
@@ -212,25 +198,6 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendRes
         const isNewSpecies = Boolean(
           (data as { is_new_species?: boolean } | null)?.is_new_species
         );
-
-        // Determine catch metadata for stat tracking
-        const pokemonData = getPokemonData(pokedexNumber);
-        const isLegendary = LEGENDARY_IDS.includes(pokedexNumber);
-        const types: string[] = pokemonData?.types ?? [];
-
-        // Fire stat update + achievement checks in background (non-blocking)
-        supabase
-          .rpc("update_catch_stats", {
-            p_is_shiny: isShiny,
-            p_is_legendary: isLegendary,
-            p_types: types,
-            p_caught_on: caughtOn,
-          })
-          .then(({ error: statsError }) => {
-            if (statsError) {
-              console.warn("update_catch_stats failed (non-fatal):", statsError);
-            }
-          });
 
         sendResponse({ ok: true, isNewSpecies });
       } catch (err) {

@@ -1,17 +1,33 @@
 import { useAuth } from "./hooks/useAuth";
 import { useRecentCatches } from "./hooks/useRecentCatches";
+import { useTheme } from "./hooks/useTheme";
 import { CONFIG } from "./lib/config";
 import { getPokemonSprite } from "./lib/sprites";
+import { themeVars, THEME_BACKGROUNDS } from "./lib/theme";
 
 export default function App() {
   const { user, loading, signOut, openLogin } = useAuth();
   const { catches, loading: catchesLoading } = useRecentCatches(user?.id, 6); // 2 rows × 3 cols
+  const theme = useTheme(user?.id);
+
+  // The website theme preference, applied as --pb-* custom properties on each
+  // branch's root so every var(--pb-*) below resolves to the active palette.
+  const themeStyle = themeVars(theme);
+  const backgroundStyle = {
+    ...themeStyle,
+    backgroundImage: `url('${THEME_BACKGROUNDS[theme]}')`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+  };
 
   /* ── Loading ─────────────────────────────────────────────────── */
   if (loading) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-[#9dcd9d]">
-        <div className="bg-[#e0f4d9] rounded-[8px] border-4 border-black shadow-[4px_4px_0_black] px-8 py-6 flex flex-col items-center gap-4">
+      <div
+        className="w-full h-full flex items-center justify-center bg-[var(--pb-accent)]"
+        style={themeStyle}
+      >
+        <div className="bg-[var(--pb-bg)] rounded-[8px] border-4 border-black shadow-[4px_4px_0_black] px-8 py-6 flex flex-col items-center gap-4">
           <img src="./icon128.png" alt="" className="w-12 h-12" />
           <h1
             className="font-black text-xl tracking-widest text-white uppercase"
@@ -19,7 +35,7 @@ export default function App() {
           >
             Pokebrowser
           </h1>
-          <div className="w-8 h-8 rounded-full border-4 border-black/10 border-t-[#6b9fff] animate-spin" />
+          <div className="w-8 h-8 rounded-full border-4 border-black/10 border-t-[var(--pb-primary)] animate-spin" />
         </div>
       </div>
     );
@@ -28,12 +44,8 @@ export default function App() {
   /* ── Not logged in ───────────────────────────────────────────── */
   if (!user) {
     return (
-      <div className="w-full h-full flex flex-col p-4 bg-[#9dcd9d]" style={{
-        backgroundImage: "url('./route101.webp')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}>
-        <div className="my-auto bg-[#e0f4d9] rounded-[8px] border-4 border-black shadow-[4px_4px_0_black] p-6 flex flex-col items-center text-center">
+      <div className="w-full h-full flex flex-col p-4 bg-[var(--pb-accent)]" style={backgroundStyle}>
+        <div className="my-auto bg-[var(--pb-bg)] rounded-[8px] border-4 border-black shadow-[4px_4px_0_black] p-6 flex flex-col items-center text-center">
           <h1
             className="font-black text-2xl tracking-widest text-white uppercase mb-4"
             style={{ WebkitTextStroke: "1.5px black", textShadow: "0 2px 0 black" }}
@@ -45,7 +57,7 @@ export default function App() {
           </p>
           <button
             onClick={openLogin}
-            className="w-full py-3 bg-[#8abf8a] hover:bg-[#9dcd9d] active:bg-[#9dcd9d] text-white font-black text-[12px] tracking-widest uppercase rounded-[6px] border-4 border-black shadow-[4px_4px_0_black] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all cursor-pointer"
+            className="w-full py-3 bg-[var(--pb-accent-deep)] hover:bg-[var(--pb-accent)] active:bg-[var(--pb-accent)] text-white font-black text-[12px] tracking-widest uppercase rounded-[6px] border-4 border-black shadow-[4px_4px_0_black] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all cursor-pointer"
             style={{ textShadow: "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000" }}
           >
             Login / Sign Up
@@ -61,15 +73,11 @@ export default function App() {
   };
 
   return (
-    /* Full-bleed route101 background */
-    <div className="w-full h-full flex flex-col gap-0" style={{
-      backgroundImage: "url('./route101.webp')",
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-    }}>
+    /* Full-bleed themed background */
+    <div className="w-full h-full flex flex-col gap-0" style={backgroundStyle}>
 
       {/* ── Section 1: Recent Catches — TabPanel-style card with margin ── */}
-      <div className="m-3 mb-0 bg-[#e0f4d9]/90 rounded-[8px] border-4 border-black shadow-[4px_4px_0_black] overflow-hidden flex flex-col p-3 gap-2">
+      <div className="m-3 mb-0 bg-[var(--pb-bg)]/90 rounded-[8px] border-4 border-black shadow-[4px_4px_0_black] overflow-hidden flex flex-col p-3 gap-2">
         {/* Header */}
         <div className="flex items-center">
           <span
@@ -89,7 +97,7 @@ export default function App() {
           ) : catches.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               <p
-                className="font-black tracking-widest uppercase text-[9px] text-[#3a5a00]/40 text-center leading-relaxed"
+                className="font-black tracking-widest uppercase text-[9px] text-[var(--pb-ink)]/40 text-center leading-relaxed"
               >
                 NO POKÉMON YET<br />GO CATCH SOME!
               </p>
@@ -131,7 +139,7 @@ export default function App() {
       <div className="px-3 pt-2">
         <button
           onClick={openProfile}
-          className="group w-full inline-flex items-center justify-center gap-3 px-6 py-3 text-[11px] tracking-widest text-white font-black italic bg-[#9dcd9d] border-4 border-black rounded-[8px] shadow-[4px_4px_0_black] transition-all duration-75 cursor-pointer uppercase hover:translate-y-px active:shadow-none"
+          className="group w-full inline-flex items-center justify-center gap-3 px-6 py-3 text-[11px] tracking-widest text-white font-black italic bg-[var(--pb-accent)] border-4 border-black rounded-[8px] shadow-[4px_4px_0_black] transition-all duration-75 cursor-pointer uppercase hover:translate-y-px active:shadow-none"
           style={{ textShadow: "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000" }}
         >
           VIEW PROFILE

@@ -1,6 +1,10 @@
 // Database schema types — single source of truth for both the web app and
 // the Chrome extension.
 
+import type { ThemeId } from "./themes";
+
+export * from "./themes";
+
 // public.users — trainer profile
 export interface User {
   id: string;
@@ -15,7 +19,9 @@ export interface User {
   is_private: boolean;
   unclaimed_candy_levels: number;
   displayed_badges: string[]; // achievement ids, max 3 (set via set_displayed_badges RPC)
-  theme: "green" | "blue"; // profile color theme — keep in sync with THEMES in src/lib/themes.ts and the users_theme_check DB constraint
+  theme: ThemeId; // profile color theme — ids/palettes live in ./themes.ts; keep the users_theme_check DB constraint in sync
+  catches_today: number; // daily catch cap counter, written only by _catch_pokemon
+  catches_today_date: string | null; // UTC date the counter applies to
 }
 
 // public.friends — friend relationships

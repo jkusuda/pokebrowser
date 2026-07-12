@@ -3,9 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { redeemToken } from "@/lib/queries";
 import { requireUser, badRequest, internalError, UUID_RE } from "@/lib/api-helpers";
 import { errorMessage } from "@/lib/utils";
-import { getPokemonData } from "@/lib/pokemon";
-
-const LEGENDARY_IDS = [144, 145, 146, 150, 151];
 
 export async function POST(request: Request) {
   try {
@@ -18,21 +15,9 @@ export async function POST(request: Request) {
       return badRequest("tokenId must be a UUID");
     }
 
+    // Stats + achievement checks happen inside the redeem_token RPC, in the
+    // same transaction as the catch.
     const result = await redeemToken(supabase, tokenId);
-
-    // Stats + achievement checks, same as the extension does after a catch.
-    // Awaited (serverless can't fire-and-forget) but non-fatal: the catch
-    // itself already committed.
-    try {
-      await supabase.rpc("update_catch_stats", {
-        p_is_shiny: result.isShiny,
-        p_is_legendary: LEGENDARY_IDS.includes(result.pokedexNumber),
-        p_types: getPokemonData(result.pokedexNumber)?.types ?? [],
-        p_caught_on: "pokebrowser.net",
-      });
-    } catch (statsError) {
-      console.error("POST /api/tokens/open: update_catch_stats failed", statsError);
-    }
 
     return NextResponse.json({ success: true, ...result });
   } catch (error) {

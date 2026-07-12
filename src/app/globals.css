@@ -70,9 +70,11 @@
 
 /* Blue "ocean" theme — activated via data-theme={user.theme} on the /profile
    wrapper (src/app/profile/page.tsx). Green needs no block; it's the @theme
-   default. Adding a theme: add a block here + an entry in src/lib/themes.ts +
-   the shared-types User["theme"] union + the users_theme_check DB constraint +
-   a background image in profile/page.tsx — keep all five in sync. */
+   default. The pb-* hexes mirror THEME_PALETTES in
+   packages/shared-types/src/themes.ts (the source shared with the extension).
+   Adding a theme: add the shared themes.ts entry + a block here + the
+   users_theme_check DB constraint + background images in profile/page.tsx and
+   extension/src/lib/theme.ts — keep all five in sync. */
 [data-theme="blue"] {
   --color-pb-bg: #d6e9f5;
   --color-pb-surface: #e9f1f7;

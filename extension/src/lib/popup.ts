@@ -2,6 +2,8 @@
 // the second Vite pass (vite.content.config.ts) still inlines it into the
 // fully-bundled content.js IIFE.
 
+import { themeVarsCSS, type ThemeId } from "./theme";
+
 // @font-face does not register inside a shadow root — content.ts injects this
 // into document.head so the shadow styles below can use the families by name.
 // Fonts are bundled in the extension (extension/public/fonts/ + manifest
@@ -25,11 +27,12 @@ export function getFontFaceCSS() {
   `;
 }
 
-export function getPopupCSS(grassUrl: string, pokeballUrl: string) {
+export function getPopupCSS(grassUrl: string, pokeballUrl: string, theme: ThemeId) {
   return `
     :host {
       all: initial;
       font-family: "Baloo 2", sans-serif;
+      ${themeVarsCSS(theme)}
     }
 
     .overlay {
@@ -80,7 +83,7 @@ export function getPopupCSS(grassUrl: string, pokeballUrl: string) {
     }
 
     .card {
-      background: #e0f4d9;
+      background: var(--pb-bg);
       border: 4px solid black;
       border-radius: 12px;
       box-shadow: 6px 6px 0 black;
@@ -198,17 +201,17 @@ export function getPopupCSS(grassUrl: string, pokeballUrl: string) {
     }
 
     .btn-catch {
-      background: #8abf8a;
+      background: var(--pb-accent-deep);
     }
     .btn-catch:hover {
-      background: #9dcd9d;
+      background: var(--pb-accent);
     }
 
     .btn-run {
-      background: #c0392b;
+      background: var(--pb-poppy);
     }
     .btn-run:hover {
-      background: #e74c3c;
+      background: var(--pb-poppy-hover);
     }
 
     .catch-result {

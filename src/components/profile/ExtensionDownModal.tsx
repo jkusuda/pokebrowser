@@ -6,6 +6,9 @@ import { Card } from "@/components/ui/card";
 import { ModalShell } from "@/components/ui/modal-shell";
 import sadEmoji from "@/assets/sad-emoji.png";
 
+const WEB_STORE_URL =
+  "https://chromewebstore.google.com/detail/pokebrowser/eakagongkfagdbnmmjjohljnabbfkkbb";
+
 type Props = { onClose: () => void };
 
 export default function ExtensionDownModal({ onClose }: Props) {
@@ -19,8 +22,7 @@ export default function ExtensionDownModal({ onClose }: Props) {
       >
         <div className="flex items-center justify-between px-6 py-4 border-b-4 border-black bg-pb-accent">
           <div className="flex items-center gap-2">
-            <Image src={sadEmoji} alt="" width={28} height={28} />
-            <h2 className="text-emboss text-xl">MAINTENANCE NOTICE</h2>
+            <h2 className="text-emboss text-xl">POKEBROWSER RELEASED!</h2>
           </div>
           <Button
             onClick={onClose}
@@ -35,18 +37,19 @@ export default function ExtensionDownModal({ onClose }: Props) {
 
         <div className="p-6 flex flex-col gap-5">
           <p className="font-bold text-sm text-black/80">
-            Pokemon catching is currently disabled as we investigate a major issue. The website is still fully operational.
-            Pokebrowser will return in the next 1-2 days with an official release on the Chrome Web Store. Sorry for the
-            inconvenience.
+            Pokebrowser is now officially available on the Chrome Web Store! Please uninstall the beta version and
+            download the official extension to keep catching Pokémon. Thank you so much for being part of the beta test!
           </p>
 
           <Button
-            onClick={onClose}
+            asChild
             variant="game"
             tone="mint"
             className="w-full h-auto py-3 text-[15px] tracking-wide mt-1"
           >
-            GOT IT
+            <a href={WEB_STORE_URL} target="_blank" rel="noopener noreferrer" onClick={onClose}>
+              DOWNLOAD FROM WEB STORE
+            </a>
           </Button>
         </div>
       </Card>

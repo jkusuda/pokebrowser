@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { FriendProfile, Pokemon } from "@/types";
+import { FriendProfile } from "@/types";
 import { requireUser, badRequest, internalError, FRIEND_CODE_RE } from "@/lib/api-helpers";
 
 export async function GET(
@@ -17,59 +17,25 @@ export async function GET(
       return badRequest("friendCode must be in the format XXXX-XXXX");
     }
 
-    const { data: targetUser } = await supabase
-      .from("users")
-      .select("id, trainer_name, avatar_id, level, xp, friend_code, favorite_pokemon_id, displayed_badges")
-      .eq("friend_code", friendCode.toUpperCase())
-      .single();
+    // Authorization (self or accepted friend), the buddy lookup, and the
+    // narrowed users-table visibility all live inside get_friend_profile, so
+    // a stranger's row is never exposed by a direct code lookup.
+    const { data, error } = await supabase.rpc("get_friend_profile", {
+      p_friend_code: friendCode.toUpperCase(),
+    });
 
-    if (!targetUser) {
-      return NextResponse.json({ error: "Trainer not found" }, { status: 404 });
-    }
-
-    // Look up the friendship once and use it for both authorization
-    // (self-lookup OR accepted friends only) and the remove-button payload.
-    let friendshipId = "";
-    if (targetUser.id !== auth.user.id) {
-      const { data: friendship } = await supabase
-        .from("friends")
-        .select("id")
-        .or(
-          `and(user_id.eq.${auth.user.id},friend_id.eq.${targetUser.id}),and(user_id.eq.${targetUser.id},friend_id.eq.${auth.user.id})`
-        )
-        .eq("status", "accepted")
-        .maybeSingle();
-
-      if (!friendship) {
+    if (error) {
+      const msg = error.message ?? "";
+      if (msg.includes("not_found")) {
+        return NextResponse.json({ error: "Trainer not found" }, { status: 404 });
+      }
+      if (msg.includes("not_authorized")) {
         return NextResponse.json({ error: "Not authorized to view this profile" }, { status: 403 });
       }
-      friendshipId = friendship.id;
+      throw error;
     }
 
-    let buddy: Pick<Pokemon, "id" | "pokedex_number" | "is_shiny" | "nickname"> | null = null;
-    if (targetUser.favorite_pokemon_id) {
-      const { data: buddyData } = await supabase
-        .from("pokemon")
-        .select("id, pokedex_number, is_shiny, nickname")
-        .eq("id", targetUser.favorite_pokemon_id)
-        .single();
-      buddy = buddyData ?? null;
-    }
-
-    const profile: FriendProfile = {
-      id: targetUser.id,
-      friendship_id: friendshipId,
-      trainer_name: targetUser.trainer_name,
-      avatar_id: targetUser.avatar_id,
-      level: targetUser.level,
-      xp: targetUser.xp,
-      friend_code: targetUser.friend_code,
-      favorite_pokemon_id: targetUser.favorite_pokemon_id,
-      displayed_badges: targetUser.displayed_badges ?? [],
-      buddy,
-    };
-
-    return NextResponse.json(profile);
+    return NextResponse.json(data as FriendProfile);
   } catch (error) {
     return internalError("GET /api/friends/profile/[friendCode]", error);
   }

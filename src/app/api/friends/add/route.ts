@@ -16,11 +16,10 @@ export async function POST(request: Request) {
 
     const normalized = friendCode.toUpperCase();
 
-    const { data: targetUser } = await supabase
-      .from("users")
-      .select("id, is_private")
-      .eq("friend_code", normalized)
-      .single();
+    const { data: matches } = await supabase.rpc("find_user_id_by_friend_code", {
+      p_friend_code: normalized,
+    });
+    const targetUser = (matches as { id: string; is_private: boolean }[] | null)?.[0] ?? null;
 
     if (!targetUser) {
       return NextResponse.json({ error: "Friend code not found" }, { status: 404 });

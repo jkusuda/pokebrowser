@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { ModalShell } from "@/components/ui/modal-shell";
 import { PokedexUnlock } from "@/types";
 import { getPokemonData, getPokedexSprite } from "@/lib/pokemon";
+import { getFamilyId } from "pokemon-data";
 import { postJson } from "@/lib/client-api";
 import { useRefresh } from "@/lib/hooks/useRefresh";
 import { cn, errorMessage } from "@/lib/utils";
@@ -130,7 +131,7 @@ export default function CandySelectionModal({ pokedexUnlocks, pendingLevels }: P
             {submitting
               ? "Claiming..."
               : selected
-              ? `Give 10 candies to ${getPokemonData(selected)?.name ?? `#${selected}`}`
+              ? `Give 10 ${getPokemonData(getFamilyId(selected))?.name ?? `#${selected}`} candies`
               : "Select a Pokémon"}
           </Button>
         </div>

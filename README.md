@@ -34,7 +34,7 @@ Pokebrowser is a Chrome extension paired with a web app. While you surf the inte
 
 | Layer | Tech |
 |---|---|
-| Web app | [Next.js](https://nextjs.org) · React · TypeScript · [Tailwind CSS v4](https://tailwindcss.com) · [shadcn/ui](https://ui.shadcn.com) |
+| Web app | [Next.js](https://nextjs.org) · React · TypeScript · [Tailwind CSS v4](https://tailwindcss.com) |
 | Extension | Chrome Extension (Manifest V3) · [Vite](https://vite.dev) · React |
 | Backend | [Supabase](https://supabase.com) (Postgres, Auth, Realtime, RLS) |
 | Data | [PokéAPI](https://pokeapi.co) (compiled to static data at build time) |

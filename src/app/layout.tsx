@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Baloo_2, Lilita_One } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import ExtensionAuthBridge from "@/components/auth/ExtensionAuthBridge";
 
@@ -38,6 +39,7 @@ export default function RootLayout({
       <body className={`${baseFont.variable} ${displayFont.variable} font-sans antialiased text-black`}>
         <ExtensionAuthBridge />
         {children}
+        <Analytics />
       </body>
     </html>
   );

@@ -76,7 +76,7 @@ export default function ProfileContent({
   const [fading, setFading] = useState(false);
   const [selectedFriend, setSelectedFriend] = useState<FriendProfile | null>(null);
   const [collectionSearch, setCollectionSearch] = useState("");
-  const [showExtensionDownNotice, setShowExtensionDownNotice] = useState(true);
+  const [showExtensionDownNotice, setShowExtensionDownNotice] = useState(false);
 
   useRealtimeRefresh(user.id);
 

@@ -1,12 +1,15 @@
 // Auth flows through the web app via externally_connectable (see
-// background.ts) — this script only handles encounters.
+// background.ts) — this script only handles encounters and the buddy
+// corner companion (lib/buddy.ts).
 //
 // Wrapped in an IIFE so nothing leaks into the shared isolated-world
 // global scope.
 
 import { CONFIG } from "./lib/config";
-import { getPokemonSprite } from "./lib/sprites";
+import { getPokemonSprite, getPokemonCry } from "./lib/sprites";
 import { runCatchAnimation } from "./lib/animation";
+import { initBuddy, celebrateBuddy } from "./lib/buddy";
+import { initSound, playSound } from "./lib/sound";
 import { getFontFaceCSS, getPopupCSS, getPopupHTML } from "./lib/popup";
 import type { ThemeId } from "./lib/theme";
 import type {
@@ -60,6 +63,10 @@ function showEncounterPopup(encounter: EncounterPayload, boxIsFull: boolean, the
   );
   shadow.appendChild(overlay);
 
+  // Announce the encounter with its cry (silent on pages the user hasn't
+  // interacted with yet — autoplay policy).
+  playSound(getPokemonCry(encounter.pokedexNumber), 0.4);
+
   const runBtn = shadow.getElementById("run-btn");
   const catchBtn = shadow.getElementById("catch-btn");
   if (!runBtn) {
@@ -107,6 +114,12 @@ function showEncounterPopup(encounter: EncounterPayload, boxIsFull: boolean, the
 
               if (response?.ok) {
                 resultEl.textContent = `Gotcha! ${encounter.name} was caught!`;
+                celebrateBuddy();
+                try {
+                  playSound(chrome.runtime.getURL("catch_success.wav"), 0.5);
+                } catch {
+                  // Extension context invalidated — skip the jingle.
+                }
               } else if (response?.error === "CATCH_LIMIT_REACHED") {
                 resultEl.textContent = "Box is full!";
               } else if (response?.error === "DAILY_LIMIT_REACHED") {
@@ -153,6 +166,8 @@ async function tryEncounter() {
 }
 
 if (!window.location.href.startsWith(CONFIG.WEBSITE_URL)) {
+  initSound();
+  void initBuddy();
   tryEncounter();
 }
 })();

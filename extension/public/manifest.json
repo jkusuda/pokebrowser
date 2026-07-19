@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Pokebrowser",
     "description": "Wild Pokemon appear while you browse the web. Catch them, build your collection, and track your progress.",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "icons": {
         "16": "icon16.png",
         "32": "icon32.png",
@@ -42,7 +42,7 @@
     },
     "web_accessible_resources": [
         {
-            "resources": ["grass-platform.webp", "pokeball-spritesheet.png", "fonts/*.woff2"],
+            "resources": ["grass-platform.webp", "pokeball-spritesheet.png", "fonts/*.woff2", "overworld/*.png", "catch_success.wav"],
             "matches": ["<all_urls>"]
         }
     ]

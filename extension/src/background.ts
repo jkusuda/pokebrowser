@@ -2,7 +2,7 @@ import { CONFIG } from "./lib/config";
 import { supabase } from "./lib/supabase";
 import { getPokemonName } from "pokemon-data";
 import { resolveTheme } from "./lib/theme";
-import type { ExtensionMessage, ExternalMessage } from "./types/messages";
+import type { BuddyPayload, ExtensionMessage, ExternalMessage } from "./types/messages";
 
 type StoredSession = { access_token: string; refresh_token: string };
 
@@ -16,6 +16,78 @@ type RolledEncounter = {
 };
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// Cached shape of the buddy (users.favorite_pokemon_id → own pokemon row),
+// stored under CONFIG.BUDDY_KEY so the content script can render it on every
+// page load without a Supabase round trip. buddy: null is a definitive
+// "nothing to show" (logged out, no buddy set, or buddy released).
+type BuddyCache = {
+  pokemonId: string | null;
+  buddy: BuddyPayload | null;
+  fetchedAt: number;
+};
+
+function writeBuddyCache(pokemonId: string | null, buddy: BuddyPayload | null): Promise<void> {
+  const cache: BuddyCache = { pokemonId, buddy, fetchedAt: Date.now() };
+  return chrome.storage.local.set({ [CONFIG.BUDDY_KEY]: cache });
+}
+
+/**
+ * Resolves a favorite_pokemon_id to a BuddyPayload and caches the result.
+ * Only definitive outcomes are cached — a transient query failure leaves the
+ * existing cache untouched and returns null.
+ */
+async function resolveBuddy(favoriteId: string | null): Promise<BuddyPayload | null> {
+  if (!favoriteId) {
+    await writeBuddyCache(null, null);
+    return null;
+  }
+
+  const { data: pokemon, error } = await supabase
+    .from("pokemon")
+    .select("pokedex_number, is_shiny, nickname")
+    .eq("id", favoriteId)
+    .maybeSingle();
+  if (error) return null;
+
+  // A missing row means the buddy was released — definitively nothing.
+  const buddy: BuddyPayload | null = pokemon
+    ? {
+        pokedexNumber: pokemon.pokedex_number,
+        isShiny: pokemon.is_shiny,
+        nickname: pokemon.nickname,
+      }
+    : null;
+  await writeBuddyCache(favoriteId, buddy);
+  return buddy;
+}
+
+async function fetchBuddy(userId: string): Promise<BuddyPayload | null> {
+  const { data: user, error } = await supabase
+    .from("users")
+    .select("favorite_pokemon_id")
+    .eq("id", userId)
+    .single();
+  if (error) return null;
+  return resolveBuddy(user?.favorite_pokemon_id ?? null);
+}
+
+/**
+ * Fire-and-forget refresh piggybacked on GET_SESSION's users fetch — keeps
+ * the cache current for active browsers so buddy swaps made on the website
+ * propagate without waiting out the TTL.
+ */
+async function keepBuddyCacheFresh(favoriteId: string | null): Promise<void> {
+  try {
+    const stored = await chrome.storage.local.get(CONFIG.BUDDY_KEY);
+    const cache = stored[CONFIG.BUDDY_KEY] as BuddyCache | undefined;
+    const stale = !cache || Date.now() - cache.fetchedAt >= CONFIG.BUDDY_TTL_MS;
+    if (!stale && cache.pokemonId === favoriteId) return;
+    await resolveBuddy(favoriteId);
+  } catch {
+    // Best effort — the TTL path catches up on a later page load.
+  }
+}
 
 /**
  * Restores the Supabase session from chrome.storage.local and returns the
@@ -71,12 +143,14 @@ chrome.runtime.onMessageExternal.addListener((message: ExternalMessage, sender, 
       return false;
     }
     chrome.storage.local.set({ [CONFIG.SESSION_KEY]: { access_token, refresh_token } });
+    // The tokens may belong to a different account — drop the buddy cache.
+    chrome.storage.local.remove(CONFIG.BUDDY_KEY);
     sendResponse({ ok: true });
     return false;
   }
 
   if (message?.type === "POKEBROWSE_AUTH_SIGNOUT") {
-    chrome.storage.local.remove(CONFIG.SESSION_KEY);
+    chrome.storage.local.remove([CONFIG.SESSION_KEY, CONFIG.BUDDY_KEY]);
     sendResponse({ ok: true });
     return false;
   }
@@ -105,7 +179,11 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendRes
       // unexpired pending encounter is returned again instead of rerolling).
       const [{ data: user }, { count: pokemonCount }, { data: roll, error: rollError }] =
         await Promise.all([
-          supabase.from("users").select("catch_limit, theme").eq("id", userId).single(),
+          supabase
+            .from("users")
+            .select("catch_limit, theme, favorite_pokemon_id")
+            .eq("id", userId)
+            .single(),
           supabase.from("pokemon").select("*", { count: "exact", head: true }).eq("user_id", userId),
           supabase.rpc("roll_encounter"),
         ]);
@@ -125,6 +203,10 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendRes
       const theme = resolveTheme(user?.theme);
       chrome.storage.local.set({ [CONFIG.THEME_KEY]: theme });
 
+      // Same idea for the buddy cache (only when the users row actually
+      // loaded — a query error must not be cached as "no buddy").
+      if (user) void keepBuddyCacheFresh(user.favorite_pokemon_id ?? null);
+
       const pokedexNumber = encounter.pokedex_number;
 
       sendResponse({
@@ -138,6 +220,26 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendRes
           nonce: encounter.nonce,
         },
       });
+    })();
+    return true;
+  }
+
+  if (message?.type === "GET_BUDDY") {
+    (async () => {
+      try {
+        const auth = await authenticate();
+        if (!auth) {
+          // Definitive: logged out. Cache it so logged-out browsing stops
+          // waking this worker on every page load until the TTL expires.
+          await writeBuddyCache(null, null);
+          sendResponse({ buddy: null });
+          return;
+        }
+        sendResponse({ buddy: await fetchBuddy(auth.userId) });
+      } catch (err) {
+        console.error("GET_BUDDY failed", err);
+        sendResponse({ buddy: null });
+      }
     })();
     return true;
   }

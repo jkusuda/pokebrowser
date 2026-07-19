@@ -30,6 +30,10 @@ export const CONFIG = {
 
   SESSION_KEY: "pb_session",
   THEME_KEY: "pb_theme",
+  BUDDY_KEY: "pb_buddy",
+  BUDDY_PREFS_KEY: "pb_buddy_prefs",
+  BUDDY_TTL_MS: 10 * 60 * 1000,
+  AUDIO_PREFS_KEY: "pb_audio_prefs",
 
   GAME: {
     SHINY_RATE: 1 / 512,

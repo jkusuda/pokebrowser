@@ -1,4 +1,6 @@
 import { useAuth } from "./hooks/useAuth";
+import { useAudioPrefs } from "./hooks/useAudioPrefs";
+import { useBuddyPrefs } from "./hooks/useBuddyPrefs";
 import { useRecentCatches } from "./hooks/useRecentCatches";
 import { useTheme } from "./hooks/useTheme";
 import { CONFIG } from "./lib/config";
@@ -7,8 +9,10 @@ import { themeVars, THEME_BACKGROUNDS } from "./lib/theme";
 
 export default function App() {
   const { user, loading, signOut, openLogin } = useAuth();
-  const { catches, loading: catchesLoading } = useRecentCatches(user?.id, 6); // 2 rows × 3 cols
+  const { catches, loading: catchesLoading } = useRecentCatches(user?.id, 3); // 1 row × 3 cols
   const theme = useTheme(user?.id);
+  const { prefs: buddyPrefs, toggleVisible: toggleBuddy, moveCorner: moveBuddy } = useBuddyPrefs();
+  const { prefs: audioPrefs, setVolume, toggleMuted } = useAudioPrefs();
 
   // The website theme preference, applied as --pb-* custom properties on each
   // branch's root so every var(--pb-*) below resolves to the active palette.
@@ -88,7 +92,7 @@ export default function App() {
           </span>
         </div>
 
-        {/* Grid — 2 rows × 4 cols, no scroll */}
+        {/* Grid — 1 row × 3 cols, no scroll */}
         <div>
           {catchesLoading ? (
             <div className="flex items-center justify-center h-full">
@@ -135,22 +139,72 @@ export default function App() {
         </div>
       </div>
 
-      {/* ── Section 2: View Profile — matches LandingHero button ── */}
-      <div className="px-3 pt-2">
+      {/* ── Section 2: Buddy — show/hide + move the corner companion ── */}
+      <div className="mx-3 mt-2 bg-[var(--pb-bg)]/90 rounded-[8px] border-4 border-black shadow-[4px_4px_0_black] px-3 py-2 flex items-center gap-2">
+        <span
+          className="font-display font-black text-white text-sm tracking-widest uppercase"
+          style={{ textShadow: "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000" }}
+        >
+          BUDDY
+        </span>
+        <div className="ml-auto flex gap-2">
+          <button
+            onClick={toggleBuddy}
+            className="py-1.5 px-3 bg-[var(--pb-accent-deep)] hover:bg-[var(--pb-accent)] text-white font-black text-[10px] tracking-wider uppercase rounded-[6px] border-2 border-black shadow-[2px_2px_0_black] transition-all duration-75 cursor-pointer hover:translate-y-px active:shadow-none"
+            style={{ textShadow: "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000" }}
+          >
+            {buddyPrefs.visible ? "HIDE" : "SHOW"}
+          </button>
+          <button
+            onClick={moveBuddy}
+            className="py-1.5 px-3 bg-[var(--pb-accent)] hover:bg-[var(--pb-accent-deep)] text-white font-black text-[10px] tracking-wider uppercase rounded-[6px] border-2 border-black shadow-[2px_2px_0_black] transition-all duration-75 cursor-pointer hover:translate-y-px active:shadow-none"
+            style={{ textShadow: "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000" }}
+            title={buddyPrefs.corner === "br" ? "Move to bottom-left" : "Move to bottom-right"}
+          >
+            {buddyPrefs.corner === "br" ? "◀ MOVE" : "MOVE ▶"}
+          </button>
+        </div>
+      </div>
+
+      {/* ── Section 3: Audio — master volume + mute for extension sounds ── */}
+      <div className="mx-3 mt-2 bg-[var(--pb-bg)]/90 rounded-[8px] border-4 border-black shadow-[4px_4px_0_black] px-3 py-2 flex items-center gap-3">
+        <span
+          className="font-display font-black text-white text-sm tracking-widest uppercase"
+          style={{ textShadow: "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000" }}
+        >
+          AUDIO
+        </span>
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={Math.round(audioPrefs.volume * 100)}
+          onChange={(e) => setVolume(Number(e.target.value) / 100)}
+          disabled={audioPrefs.muted}
+          aria-label="Extension sound volume"
+          className="flex-1 min-w-0 accent-[var(--pb-accent-deep)] cursor-pointer disabled:opacity-40 disabled:cursor-default"
+        />
+        <button
+          onClick={toggleMuted}
+          className="w-[76px] py-1.5 bg-[var(--pb-accent-deep)] hover:bg-[var(--pb-accent)] text-white font-black text-[10px] tracking-wider uppercase rounded-[6px] border-2 border-black shadow-[2px_2px_0_black] transition-all duration-75 cursor-pointer hover:translate-y-px active:shadow-none"
+          style={{ textShadow: "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000" }}
+        >
+          {audioPrefs.muted ? "UNMUTE" : "MUTE"}
+        </button>
+      </div>
+
+      {/* ── Section 4: View Profile + Log Out ── */}
+      <div className="px-3 pb-3 pt-2 flex gap-2">
         <button
           onClick={openProfile}
-          className="group w-full inline-flex items-center justify-center gap-3 px-6 py-3 text-[11px] tracking-widest text-white font-black italic bg-[var(--pb-accent)] border-4 border-black rounded-[8px] shadow-[4px_4px_0_black] transition-all duration-75 cursor-pointer uppercase hover:translate-y-px active:shadow-none"
+          className="flex-1 py-1.5 px-4 bg-[var(--pb-accent)] hover:bg-[var(--pb-accent-deep)] text-white font-black text-[10px] tracking-wider uppercase rounded-[6px] border-2 border-black shadow-[2px_2px_0_black] transition-all duration-75 cursor-pointer hover:translate-y-px active:shadow-none"
           style={{ textShadow: "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000" }}
         >
           VIEW PROFILE
         </button>
-      </div>
-
-      {/* ── Section 3: Log Out — smaller version of SettingsPage style ── */}
-      <div className="px-3 pb-3 pt-3 flex justify-center">
         <button
           onClick={signOut}
-          className="w-1/2 py-1.5 px-4 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white font-black text-[10px] tracking-wider rounded-[6px] border-2 border-black shadow-[2px_2px_0_black] transition-all duration-75 cursor-pointer hover:translate-y-px active:shadow-none"
+          className="flex-1 py-1.5 px-4 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white font-black text-[10px] tracking-wider uppercase rounded-[6px] border-2 border-black shadow-[2px_2px_0_black] transition-all duration-75 cursor-pointer hover:translate-y-px active:shadow-none"
         >
           LOG OUT
         </button>

@@ -11,9 +11,17 @@ export type EncounterPayload = {
   nonce: string;
 };
 
+/** The user's buddy (users.favorite_pokemon_id), resolved by the background. */
+export type BuddyPayload = {
+  pokedexNumber: number;
+  isShiny: boolean;
+  nickname: string | null;
+};
+
 /** Content script / extension pages → background. */
 export type ExtensionMessage =
   | { type: "GET_SESSION" }
+  | { type: "GET_BUDDY" }
   | { type: "PERFORM_CATCH"; payload: { encounterNonce: string; caughtOn?: string } };
 
 /** Web app → background via externally_connectable. */
@@ -24,6 +32,8 @@ export type ExternalMessage =
 export type ExternalResponse =
   | { ok: true }
   | { ok: false; error: "FORBIDDEN" | "BAD_REQUEST" | "UNKNOWN_TYPE" };
+
+export type GetBuddyResponse = { buddy: BuddyPayload | null };
 
 export type GetSessionResponse =
   | { loggedIn: false }

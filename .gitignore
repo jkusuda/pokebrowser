@@ -52,3 +52,7 @@ CLAUDE.md
 
 # extension store packages
 extension/*.zip
+
+# sprite source material (full multi-gen overworld rips; the shipped subset
+# lives in extension/public/overworld/)
+/_sprite_src/

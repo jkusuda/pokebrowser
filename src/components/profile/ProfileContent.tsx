@@ -12,6 +12,7 @@ import FriendsTab from "./tabs/FriendsTab";
 import AchievementsTab from "./tabs/AchievementsTab";
 import CandySelectionModal from "@/components/rewards/CandySelectionModal";
 import ExtensionDownModal from "./ExtensionDownModal";
+import TutorialModal from "./TutorialModal";
 import GlobalStatsPage from "./pages/GlobalStatsPage";
 import PokedexPage from "./pages/PokedexPage";
 import SettingsPage from "./pages/SettingsPage";
@@ -77,6 +78,7 @@ export default function ProfileContent({
   const [selectedFriend, setSelectedFriend] = useState<FriendProfile | null>(null);
   const [collectionSearch, setCollectionSearch] = useState("");
   const [showExtensionDownNotice, setShowExtensionDownNotice] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(!user.has_seen_tutorial);
 
   useRealtimeRefresh(user.id);
 
@@ -224,7 +226,7 @@ export default function ProfileContent({
           <PokedexPage pokemon={pokemon} pokedexUnlocks={pokedexUnlocks} />
         </div>
         <div style={{ display: activePage === "settings" ? "flex" : "none" }} className="flex-1 flex-col min-h-0">
-          <SettingsPage user={user} />
+          <SettingsPage user={user} onReplayTutorial={() => setShowTutorial(true)} />
         </div>
       </div>
 
@@ -252,6 +254,9 @@ export default function ProfileContent({
       {showExtensionDownNotice && (
         <ExtensionDownModal onClose={() => setShowExtensionDownNotice(false)} />
       )}
+
+      {/* Onboarding tutorial — auto-shows once per account, replayable from Settings */}
+      {showTutorial && <TutorialModal onClose={() => setShowTutorial(false)} />}
     </div>
   );
 }

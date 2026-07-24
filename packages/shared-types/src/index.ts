@@ -22,6 +22,7 @@ export interface User {
   theme: ThemeId; // profile color theme — ids/palettes live in ./themes.ts; keep the users_theme_check DB constraint in sync
   catches_today: number; // daily catch cap counter, written only by _catch_pokemon
   catches_today_date: string | null; // UTC date the counter applies to
+  has_seen_tutorial: boolean; // gates the onboarding tutorial popup to once per account
 }
 
 // public.friends — friend relationships

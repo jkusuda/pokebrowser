@@ -12,9 +12,10 @@ import { User } from "@/types";
 
 type Props = {
   user: User;
+  onReplayTutorial: () => void;
 };
 
-export default function SettingsPage({ user }: Props) {
+export default function SettingsPage({ user, onReplayTutorial }: Props) {
   const router = useRouter();
   const [isPrivate, setIsPrivate] = useState(user.is_private);
   const [privacyLoading, setPrivacyLoading] = useState(false);
@@ -144,6 +145,19 @@ export default function SettingsPage({ user }: Props) {
             ))}
           </div>
         </div>
+
+        {/* Divider */}
+        <div className="w-full border-t-[3px] border-black/20" />
+
+        {/* Replay tutorial */}
+        <Button
+          onClick={onReplayTutorial}
+          variant="game"
+          tone="neutral"
+          className="w-full h-auto py-3 px-6 text-lg border-[3px] shadow-[3px_3px_0_black] rounded-[6px] [-webkit-text-stroke:0px] [text-shadow:none]"
+        >
+          REPLAY TUTORIAL
+        </Button>
 
         {/* Divider */}
         <div className="w-full border-t-[3px] border-black/20" />

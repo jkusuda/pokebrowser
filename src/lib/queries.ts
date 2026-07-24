@@ -289,6 +289,16 @@ export async function updateTheme(
   if (error) throw error;
 }
 
+// ─── Tutorial ───────────────────────────────────────────────────────────────
+
+export async function markTutorialSeen(supabase: SupabaseClient, userId: string) {
+  const { error } = await supabase
+    .from("users")
+    .update({ has_seen_tutorial: true })
+    .eq("id", userId);
+  if (error) throw error;
+}
+
 // ─── Achievement helpers ─────────────────────────────────────────────────────
 
 /**

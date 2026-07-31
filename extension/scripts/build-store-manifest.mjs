@@ -4,10 +4,27 @@ import { dirname, resolve } from "node:path";
 
 const PROD_WEBSITE_URL = "https://www.pokebrowser.net";
 
-const distDir = resolve(dirname(fileURLToPath(import.meta.url)), "../dist");
+const scriptDir = dirname(fileURLToPath(import.meta.url));
+const distDir = resolve(scriptDir, "../dist");
 const manifestPath = resolve(distDir, "manifest.json");
 
 const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+
+// After an auto-update the extension opens <site>/whats-new?v=<manifest version>
+// (see extension/src/lib/update-notice.ts), so a manifest version with no
+// matching changelog entry ships users to release notes that don't mention the
+// release they just got. Shipping is the right moment to catch that.
+const updatesPath = resolve(scriptDir, "../../src/data/updates.json");
+const latestNotes = JSON.parse(readFileSync(updatesPath, "utf8")).updates[0];
+
+if (latestNotes?.version !== manifest.version) {
+  console.error(
+    `Version mismatch: manifest.json is ${manifest.version} but the newest ` +
+      `src/data/updates.json entry is ${latestNotes?.version ?? "(none)"}.\n` +
+      `Add the ${manifest.version} changelog entry (or fix the manifest) before building for the store.`
+  );
+  process.exit(1);
+}
 
 manifest.externally_connectable.matches = manifest.externally_connectable.matches.filter(
   (origin) => !origin.startsWith("http://localhost")

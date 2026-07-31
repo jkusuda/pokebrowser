@@ -34,6 +34,7 @@ export const CONFIG = {
   BUDDY_PREFS_KEY: "pb_buddy_prefs",
   BUDDY_TTL_MS: 10 * 60 * 1000,
   AUDIO_PREFS_KEY: "pb_audio_prefs",
+  UPDATE_NOTICE_KEY: "pb_update_notice",
 
   GAME: {
     SHINY_RATE: 1 / 512,

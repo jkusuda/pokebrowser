@@ -2,6 +2,7 @@ import { CONFIG } from "./lib/config";
 import { supabase } from "./lib/supabase";
 import { getPokemonName } from "pokemon-data";
 import { resolveTheme } from "./lib/theme";
+import { handleInstalled, restoreBadge } from "./lib/update-notice";
 import type { BuddyPayload, ExtensionMessage, ExternalMessage } from "./types/messages";
 
 type StoredSession = { access_token: string; refresh_token: string };
@@ -114,6 +115,17 @@ async function authenticate(): Promise<{ userId: string } | null> {
 
   return { userId: data.user.id };
 }
+
+// Post-install / post-update notification. Both listeners must be registered
+// synchronously at the top level or the service worker won't be woken for the
+// event; the policy itself lives in lib/update-notice.ts.
+chrome.runtime.onInstalled.addListener((details) => {
+  void handleInstalled(details);
+});
+
+chrome.runtime.onStartup.addListener(() => {
+  void restoreBadge();
+});
 
 // Auth tokens come from the Pokebrowser web app via externally_connectable.
 // Chrome enforces the origin allowlist via manifest, but we re-check sender.origin

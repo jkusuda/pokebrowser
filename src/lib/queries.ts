@@ -1,5 +1,5 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { User, Pokemon, Friend, FriendWithUser, IncomingRequest, PokedexUnlock, Candy, AchievementUnlock, Token, UserStats, LeaderboardCategory, LeaderboardResponse } from "@/types";
+import { User, Pokemon, Friend, FriendWithUser, IncomingRequest, PokedexUnlock, Candy, AchievementUnlock, Token, UserStats, LeaderboardCategory, LeaderboardResponse, GameEvent, EventsResponse } from "@/types";
 import { ThemeId } from "@/lib/themes";
 
 export async function getTrainerData(supabase: SupabaseClient, userId: string) {
@@ -175,6 +175,97 @@ export async function getLeaderboard(
     p_friends_only: friendsOnly,
   });
   if (error) throw error;
+  return data as LeaderboardResponse;
+}
+
+// ─── Events ─────────────────────────────────────────────────────────────────
+
+/**
+ * Fetches the current event (plus the caller's progress in it), the next 10
+ * upcoming events, and the last 10 past events. Direct table reads — the
+ * events SELECT policy is open to authenticated users and event_progress is
+ * RLS-scoped to self.
+ */
+export async function getEvents(supabase: SupabaseClient, userId: string): Promise<EventsResponse> {
+  const now = new Date().toISOString();
+
+  const [currentResult, upcomingResult, pastResult] = await Promise.all([
+    supabase
+      .from("events")
+      .select("*")
+      .lte("starts_at", now)
+      .gt("ends_at", now)
+      .maybeSingle(),
+    supabase
+      .from("events")
+      .select("*")
+      .gt("starts_at", now)
+      .order("starts_at", { ascending: true })
+      .limit(10),
+    supabase
+      .from("events")
+      .select("*")
+      .lte("ends_at", now)
+      .order("ends_at", { ascending: false })
+      .limit(10),
+  ]);
+
+  if (currentResult.error) throw currentResult.error;
+  if (upcomingResult.error) throw upcomingResult.error;
+  if (pastResult.error) throw pastResult.error;
+
+  const current = (currentResult.data as GameEvent | null) ?? null;
+
+  let myProgress: number | null = null;
+  if (current) {
+    // user_id is filtered explicitly rather than leaning on the self-only RLS
+    // policy — maybeSingle() would start throwing if that policy ever widened.
+    const { data, error } = await supabase
+      .from("event_progress")
+      .select("count")
+      .eq("event_id", current.id)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (error) throw error;
+    myProgress = data?.count ?? null;
+  }
+
+  return {
+    serverNow: now,
+    current,
+    myProgress,
+    upcoming: (upcomingResult.data as GameEvent[]) ?? [],
+    past: (pastResult.data as GameEvent[]) ?? [],
+  };
+}
+
+/**
+ * Every event, newest window first — the admin panel needs the full schedule,
+ * not the current + 10 upcoming + 10 past slice that `getEvents` returns.
+ */
+export async function getAllEvents(supabase: SupabaseClient): Promise<GameEvent[]> {
+  const { data, error } = await supabase
+    .from("events")
+    .select("*")
+    .order("starts_at", { ascending: false });
+  if (error) throw error;
+  return (data as GameEvent[]) ?? [];
+}
+
+/**
+ * Fetches the event leaderboard via the server-authoritative
+ * get_event_leaderboard RPC (event_progress RLS is self-read only; the RPC
+ * anonymizes private strangers the same way get_leaderboard does).
+ */
+export async function getEventLeaderboard(supabase: SupabaseClient, eventId: string) {
+  const { data, error } = await supabase.rpc("get_event_leaderboard", {
+    p_event_id: eventId,
+  });
+  if (error) {
+    const msg = error.message ?? "";
+    if (msg.includes("not_found")) throw new Error("Event not found");
+    throw error;
+  }
   return data as LeaderboardResponse;
 }
 
@@ -443,4 +534,67 @@ export async function devUnlockAchievement(supabase: SupabaseClient, achievement
     throw error;
   }
   return data as string[];
+}
+
+/** Maps the shared error codes raised by the dev event RPCs to readable messages. */
+function mapDevEventError(error: { message?: string }): Error | null {
+  const msg = error.message ?? "";
+  if (msg.includes("not_authorized")) return new Error("Not authorized");
+  if (msg.includes("overlapping_event")) return new Error("Overlaps an existing event");
+  if (msg.includes("not_found")) return new Error("Event not found");
+  if (msg.includes("invalid_window")) return new Error("Invalid event window");
+  if (msg.includes("invalid_tracked_stat")) return new Error("Invalid tracked stat");
+  if (msg.includes("invalid_type_filter")) return new Error("Invalid type filter");
+  if (msg.includes("invalid_bonuses")) return new Error("Invalid bonuses");
+  return null;
+}
+
+export interface DevEventInput {
+  name: string;
+  description: string;
+  startsAt: string; // ISO
+  endsAt: string; // ISO
+  trackedStat: string;
+  typeFilter: string | null;
+  bonuses: unknown[];
+}
+
+/** Creates an event via dev_create_event (admin-gated); returns the new event id. */
+export async function devCreateEvent(supabase: SupabaseClient, input: DevEventInput) {
+  const { data, error } = await supabase.rpc("dev_create_event", {
+    p_name: input.name,
+    p_description: input.description,
+    p_starts_at: input.startsAt,
+    p_ends_at: input.endsAt,
+    p_tracked_stat: input.trackedStat,
+    p_type_filter: input.typeFilter,
+    p_bonuses: input.bonuses,
+  });
+  if (error) throw mapDevEventError(error) ?? error;
+  return data as string;
+}
+
+/** Full-row event update via dev_update_event (admin-gated). */
+export async function devUpdateEvent(
+  supabase: SupabaseClient,
+  eventId: string,
+  input: DevEventInput
+) {
+  const { error } = await supabase.rpc("dev_update_event", {
+    p_event_id: eventId,
+    p_name: input.name,
+    p_description: input.description,
+    p_starts_at: input.startsAt,
+    p_ends_at: input.endsAt,
+    p_tracked_stat: input.trackedStat,
+    p_type_filter: input.typeFilter,
+    p_bonuses: input.bonuses,
+  });
+  if (error) throw mapDevEventError(error) ?? error;
+}
+
+/** Deletes an event via dev_delete_event (admin-gated); progress rows cascade. */
+export async function devDeleteEvent(supabase: SupabaseClient, eventId: string) {
+  const { error } = await supabase.rpc("dev_delete_event", { p_event_id: eventId });
+  if (error) throw mapDevEventError(error) ?? error;
 }

@@ -1,5 +1,7 @@
 // Database schema types — re-exported from the shared workspace package so
 // the extension and the web app stay in lockstep.
+import type { GameEvent } from "shared-types";
+
 export type {
   User,
   Friend,
@@ -12,6 +14,10 @@ export type {
   UserStats,
   AchievementUnlock,
   Token,
+  EventTrackedStat,
+  EventBonus,
+  GameEvent,
+  EventProgress,
 } from "shared-types";
 
 // Static Pokémon data — re-exported from the shared package
@@ -55,4 +61,15 @@ export interface LeaderboardMe {
 export interface LeaderboardResponse {
   top: LeaderboardEntry[];
   me: LeaderboardMe | null;
+}
+
+// ─── Events ──────────────────────────────────────────────────────────────────
+// Shape returned by GET /api/events. The event leaderboard
+// (GET /api/events/leaderboard) reuses LeaderboardResponse as-is.
+export interface EventsResponse {
+  serverNow: string; // route-stamped ISO time for drift-free countdowns
+  current: GameEvent | null;
+  myProgress: number | null; // caller's count in the current event
+  upcoming: GameEvent[]; // next 10, soonest first
+  past: GameEvent[]; // last 10, most recently ended first
 }

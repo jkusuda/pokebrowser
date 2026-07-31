@@ -13,6 +13,7 @@ import AchievementsTab from "./tabs/AchievementsTab";
 import CandySelectionModal from "@/components/rewards/CandySelectionModal";
 import ExtensionDownModal from "./ExtensionDownModal";
 import TutorialModal from "./TutorialModal";
+import EventsPage from "./pages/EventsPage";
 import GlobalStatsPage from "./pages/GlobalStatsPage";
 import PokedexPage from "./pages/PokedexPage";
 import SettingsPage from "./pages/SettingsPage";
@@ -219,6 +220,9 @@ export default function ProfileContent({
         </div>
 
         {/* Other pages — always mounted, hidden when inactive */}
+        <div style={{ display: activePage === "events" ? "flex" : "none" }} className="flex-1 flex-col min-h-0">
+          <EventsPage active={activePage === "events"} />
+        </div>
         <div style={{ display: activePage === "globalStats" ? "flex" : "none" }} className="flex-1 flex-col min-h-0">
           <GlobalStatsPage active={activePage === "globalStats"} />
         </div>

@@ -4,8 +4,9 @@ import { useState } from "react";
 import EditProfileModal from "./EditProfileModal";
 import BadgeStrip from "./BadgeStrip";
 import BuddyIndicator from "./BuddyIndicator";
+import BuddySpriteArea from "./BuddySpriteArea";
 import { User, Pokemon } from "@/types";
-import { TRAINER_BASE, getPokemonSprite, getBuddySpriteSize, getPokemonData, getLevelProgress } from "@/lib/pokemon";
+import { getLevelProgress } from "@/lib/pokemon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -30,9 +31,6 @@ export default function TrainerCard({ user, favoritePokemon, unlockedAchievement
   const [editOpen, setEditOpen] = useState(false);
   const { level, current: xpInLevel, required: xpRequired } = getLevelProgress(user.xp ?? 0);
 
-  const buddyData = favoritePokemon ? getPokemonData(favoritePokemon.pokedex_number) : null;
-  const buddySize = buddyData ? getBuddySpriteSize(buddyData.height) : 96;
-
   return (
     <>
       <Card variant="game" tone="grass" className="relative h-full p-4 gap-0">
@@ -54,37 +52,19 @@ export default function TrainerCard({ user, favoritePokemon, unlockedAchievement
             />
           )}
 
-          {/* Sprites — both bottom-aligned; trainer centres when no buddy, shifts right when buddy present */}
-          <div className="flex-1 relative overflow-hidden">
-            {favoritePokemon && (
-              <img
-                src={getPokemonSprite(favoritePokemon.pokedex_number, favoritePokemon.is_shiny)}
-                alt={favoritePokemon.nickname ?? `#${favoritePokemon.pokedex_number}`}
-                className="absolute z-10"
-                style={{
-                  imageRendering: "pixelated",
-                  height: buddySize,
-                  width: "auto",
-                  left: 8,
-                  bottom: 64,
-                }}
-              />
-            )}
-            <img
-              src={`${TRAINER_BASE}/${user.avatar_id}.png`}
-              alt={`Avatar ${user.avatar_id}`}
-              className="absolute object-contain z-20 pointer-events-none"
-              style={{
-                imageRendering: "pixelated",
-                width: "18rem",
-                height: "18rem",
-                bottom: 64,
-                ...(favoritePokemon
-                  ? { right: 8 }
-                  : { left: "50%", transform: "translateX(-50%)" }),
-              }}
-            />
-          </div>
+          <BuddySpriteArea
+            avatarId={user.avatar_id}
+            avatarAlt={`Avatar ${user.avatar_id}`}
+            buddy={
+              favoritePokemon
+                ? {
+                    pokedexNumber: favoritePokemon.pokedex_number,
+                    isShiny: favoritePokemon.is_shiny,
+                    nickname: favoritePokemon.nickname,
+                  }
+                : null
+            }
+          />
 
           {/* Bottom bar — level badge + edit button */}
           <div className="absolute bottom-4 left-4 right-4 flex items-end gap-3 z-30 pointer-events-none">

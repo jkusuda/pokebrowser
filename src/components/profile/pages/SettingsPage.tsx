@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import settingsIcon from "@/assets/settings.webp";
 import { Button } from "@/components/ui/button";
@@ -158,6 +159,21 @@ export default function SettingsPage({ user, onReplayTutorial }: Props) {
         >
           REPLAY TUTORIAL
         </Button>
+
+        {/* Admin tools — only rendered for accounts flagged is_admin */}
+        {user.is_admin && (
+          <>
+            <div className="w-full border-t-[3px] border-black/20" />
+            <Button
+              asChild
+              variant="game"
+              tone="forest"
+              className="w-full h-auto py-3 px-6 text-lg border-[3px] shadow-[3px_3px_0_black] rounded-[6px] [-webkit-text-stroke:0px] [text-shadow:none]"
+            >
+              <Link href="/admin">ADMIN TOOLS</Link>
+            </Button>
+          </>
+        )}
 
         {/* Divider */}
         <div className="w-full border-t-[3px] border-black/20" />

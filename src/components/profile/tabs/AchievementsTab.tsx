@@ -4,7 +4,6 @@ import { useState } from "react";
 import AchievementCard from "@/components/achievements/AchievementCard";
 import TypePickerModal from "@/components/rewards/TypePickerModal";
 import TokenEncounterModal from "@/components/rewards/TokenEncounterModal";
-import DevToolsPanel from "./DevToolsPanel";
 import { Button } from "@/components/ui/button";
 import {
   ACHIEVEMENTS_BY_CATEGORY,
@@ -142,8 +141,6 @@ export default function AchievementsTab({
 
   return (
     <div className="space-y-4">
-      {process.env.NODE_ENV !== "production" && <DevToolsPanel />}
-
       {/* Filter strip */}
       <div className="flex gap-2 flex-wrap">
         {(["all", "earned", "locked"] as const).map((f) => (

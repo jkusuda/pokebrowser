@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import BadgeStrip from "./BadgeStrip";
 import BuddyIndicator from "./BuddyIndicator";
+import BuddySpriteArea from "./BuddySpriteArea";
 import { FriendProfile } from "@/types";
-import { TRAINER_BASE, getPokemonSprite, getBuddySpriteSize, getPokemonData, getLevelProgress } from "@/lib/pokemon";
+import { getLevelProgress } from "@/lib/pokemon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Shimmer } from "@/components/ui/shimmer";
@@ -115,43 +116,26 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
         )}
 
         {/* Sprites — both bottom-aligned; trainer centres when no buddy, shifts right when buddy present */}
-        <div className="flex-1 relative overflow-hidden">
-          {loading ? (
-            <>
-              <Shimmer className="bg-pb-primary/40 absolute rounded-2xl" style={{ width: 96, height: 96, left: 8, bottom: 64 }} />
-              <Shimmer className="bg-pb-primary/40 absolute rounded-2xl" style={{ width: 160, height: 220, left: "50%", transform: "translateX(-50%)", bottom: 64 }} />
-            </>
-          ) : (
-            <>
-              {fullProfile?.buddy && (() => {
-                const bd = getPokemonData(fullProfile.buddy!.pokedex_number);
-                const sz = bd ? getBuddySpriteSize(bd.height) : 96;
-                return (
-                  <img
-                    src={getPokemonSprite(fullProfile.buddy!.pokedex_number, fullProfile.buddy!.is_shiny)}
-                    alt={fullProfile.buddy!.nickname ?? `#${fullProfile.buddy!.pokedex_number}`}
-                    className="absolute z-10"
-                    style={{ imageRendering: "pixelated", height: sz, width: "auto", left: 8, bottom: 64 }}
-                  />
-                );
-              })()}
-              <img
-                src={`${TRAINER_BASE}/${fullProfile?.avatar_id ?? profile.avatar_id}.png`}
-                alt={`${fullProfile?.trainer_name ?? profile.trainer_name}'s avatar`}
-                className="absolute object-contain z-20 pointer-events-none"
-                style={{
-                  imageRendering: "pixelated",
-                  width: "18rem",
-                  height: "18rem",
-                  bottom: 64,
-                  ...(fullProfile?.buddy
-                    ? { right: 8 }
-                    : { left: "50%", transform: "translateX(-50%)" }),
-                }}
-              />
-            </>
-          )}
-        </div>
+        {loading ? (
+          <div className="flex-1 relative overflow-hidden">
+            <Shimmer className="bg-pb-primary/40 absolute rounded-2xl" style={{ width: 96, height: 96, left: 8, bottom: 64 }} />
+            <Shimmer className="bg-pb-primary/40 absolute rounded-2xl" style={{ width: 160, height: 220, left: "50%", transform: "translateX(-50%)", bottom: 64 }} />
+          </div>
+        ) : (
+          <BuddySpriteArea
+            avatarId={fullProfile?.avatar_id ?? profile.avatar_id}
+            avatarAlt={`${fullProfile?.trainer_name ?? profile.trainer_name}'s avatar`}
+            buddy={
+              fullProfile?.buddy
+                ? {
+                    pokedexNumber: fullProfile.buddy.pokedex_number,
+                    isShiny: fullProfile.buddy.is_shiny,
+                    nickname: fullProfile.buddy.nickname,
+                  }
+                : null
+            }
+          />
+        )}
 
         {/* Bottom bar — level + XP */}
         <div className="absolute bottom-4 left-4 right-4 flex items-end gap-3 z-30 pointer-events-none">

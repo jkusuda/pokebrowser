@@ -1,8 +1,13 @@
 "use client";
 
-import { Fragment, useState, useMemo } from "react";
+import { Fragment, useState, useMemo, useRef } from "react";
 import { getPokemonSprite, getPokemonData, getPokemonName } from "@/lib/pokemon";
-import { getFamilyId } from "pokemon-data";
+import {
+  getFamilyId,
+  getGenerationRange,
+  POKEDEX_SIZE,
+  SHIPPED_GENERATIONS,
+} from "pokemon-data";
 import { Pokemon, PokedexUnlock } from "@/types";
 import { getTypeColor, getTypeIconPath } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -28,27 +33,30 @@ export interface PokedexEntry {
   firstCaughtAt?: string | null;
 }
 
-// Pokémon that branch into multiple evolutions — `evolvesTo` only models a
-// linear chain, so Eevee's eeveelutions need to live here explicitly.
-const BRANCHING_EVOLUTIONS: Record<number, number[]> = {
-  133: [134, 135, 136], // Eevee → Vaporeon / Jolteon / Flareon
-};
-
 type EvolutionShape =
   | { kind: "linear"; chain: number[] }
-  | { kind: "branching"; base: number; branches: number[] };
+  | { kind: "branching"; chain: number[]; branches: number[] };
 
+/**
+ * Walks a family's evolution tree from its base form. Lines that split
+ * (Eevee, Tyrogue, Gloom, Poliwhirl, Slowpoke) render as the single-target
+ * prefix followed by a fan of the final targets; everything else is a chain.
+ */
 function getEvolutionShape(id: number): EvolutionShape | null {
   const familyId = getFamilyId(id);
-  const branches = BRANCHING_EVOLUTIONS[familyId];
-  if (branches) return { kind: "branching", base: familyId, branches };
 
   const chain: number[] = [];
-  let current: number | null = familyId;
-  while (current !== null) {
+  let current: number = familyId;
+  for (;;) {
     chain.push(current);
-    current = getPokemonData(current)?.evolvesTo ?? null;
+    const next = getPokemonData(current)?.evolvesTo ?? [];
+    if (next.length === 0) break;
+    if (next.length > 1) return { kind: "branching", chain, branches: next };
+    current = next[0];
+    // Defensive: a cyclic chain would otherwise spin forever.
+    if (chain.includes(current)) break;
   }
+
   return chain.length > 1 ? { kind: "linear", chain } : null;
 }
 
@@ -142,14 +150,25 @@ function EvolutionLine({ shape, caughtSet }: { shape: EvolutionShape; caughtSet:
       </div>
     );
   }
-  // Branching (Eevee): base centered, branches at top / right / bottom.
-  const [top, right, bottom] = shape.branches;
+  // Branching: the single-target prefix, then a fan of every final target.
+  // Two columns once there are more than three (Eevee has five).
+  const columns = shape.branches.length > 3 ? 2 : 1;
   return (
-    <div className="grid grid-cols-3 grid-rows-3 gap-1 place-items-center max-w-[200px] mx-auto">
-      <EvoCell id={top} isCaught={caughtSet.has(top)} className="col-start-2 row-start-1" />
-      <EvoCell id={shape.base} isCaught={caughtSet.has(shape.base)} className="col-start-2 row-start-2" featured />
-      <EvoCell id={right} isCaught={caughtSet.has(right)} className="col-start-3 row-start-2" />
-      <EvoCell id={bottom} isCaught={caughtSet.has(bottom)} className="col-start-2 row-start-3" />
+    <div className="flex items-center justify-center gap-2">
+      {shape.chain.map((id, idx) => (
+        <Fragment key={id}>
+          <EvoCell id={id} isCaught={caughtSet.has(id)} featured={idx === shape.chain.length - 1} />
+          <span className="text-white/70 text-lg font-black leading-none" aria-hidden>→</span>
+        </Fragment>
+      ))}
+      <div
+        className="grid gap-1 place-items-center"
+        style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+      >
+        {shape.branches.map((id) => (
+          <EvoCell key={id} id={id} isCaught={caughtSet.has(id)} />
+        ))}
+      </div>
     </div>
   );
 }
@@ -198,6 +217,7 @@ function GridCell({
     <Button
       variant="ghost"
       onClick={onClick}
+      data-dex={entry.id}
       className={cn(
         "relative group h-auto p-0 flex items-center justify-center overflow-hidden rounded border-2 aspect-square",
         isSelected
@@ -374,6 +394,17 @@ function LeftPanel({
   selectedId: number;
   onSelect: (id: number) => void;
 }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Scrolls the grid so a dex number lands at the top. No-ops when the target
+  // is filtered out by an active search.
+  function jumpToDex(dex: number) {
+    const container = scrollRef.current;
+    const cell = container?.querySelector<HTMLElement>(`[data-dex="${dex}"]`);
+    if (!container || !cell) return;
+    container.scrollTo({ top: cell.offsetTop - container.clientTop, behavior: "smooth" });
+  }
+
   return (
     <div className="flex flex-col bg-pkd-panel border-r-4 border-pkd-shell w-[60%]">
       {/* Combined chrome strip: search + counter */}
@@ -396,7 +427,27 @@ function LeftPanel({
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 overflow-y-auto p-2 custom-scrollbar bg-pkd-screen-light">
+      {/* Region jumps — the grid stays one continuous 1…N scroll. */}
+      <div className="shrink-0 flex items-center gap-1 px-3 py-1.5 bg-pkd-panel border-b-2 border-pkd-shell">
+        {SHIPPED_GENERATIONS.map((gen) => {
+          const { start, name } = getGenerationRange(gen);
+          return (
+            <Button
+              key={gen}
+              variant="ghost"
+              onClick={() => jumpToDex(start)}
+              className="h-auto px-2.5 py-1 rounded border-2 border-pkd-accent/40 bg-pkd-screen-dark/40 text-[10px] font-black uppercase tracking-widest text-white hover:border-pkd-accent hover:bg-pkd-screen/70"
+            >
+              {name}
+            </Button>
+          );
+        })}
+      </div>
+
+      <div
+        ref={scrollRef}
+        className="relative flex-1 min-h-0 overflow-y-auto p-2 custom-scrollbar bg-pkd-screen-light"
+      >
         <div className="grid grid-cols-6 gap-1.5">
           {filtered.map((entry) => (
             <GridCell
@@ -429,14 +480,22 @@ export function PokedexOverlay({ pokemon = [], pokedexUnlocks = [] }: PokedexOve
   const caught = pokedexUnlocks.length > 0
     ? pokedexUnlocks.length
     : new Set(pokemon.map((p) => p.pokedex_number)).size;
-  const total = 151;
+  const total = POKEDEX_SIZE;
 
-  // All entries built synchronously from static data — no fetching needed
+  // All entries built synchronously from static data — no fetching needed.
+  // Both sources are indexed first: a `find` per dex number was O(n²), which
+  // stopped being free once the dex doubled.
   const entries = useMemo<PokedexEntry[]>(() => {
+    const caughtById = new Map<number, Pokemon>();
+    for (const p of pokemon) {
+      if (!caughtById.has(p.pokedex_number)) caughtById.set(p.pokedex_number, p);
+    }
+    const unlockById = new Map(pokedexUnlocks.map((u) => [u.pokedex_number, u]));
+
     return Array.from({ length: total }, (_, i) => {
       const id = i + 1;
-      const caughtRecord = pokemon.find((p) => p.pokedex_number === id);
-      const unlock = pokedexUnlocks.find((u) => u.pokedex_number === id);
+      const caughtRecord = caughtById.get(id);
+      const unlock = unlockById.get(id);
       const isCaught = !!unlock || !!caughtRecord;
       const data = getPokemonData(id);
 
@@ -452,7 +511,7 @@ export function PokedexOverlay({ pokemon = [], pokedexUnlocks = [] }: PokedexOve
         firstCaughtAt: unlock?.unlocked_at ?? caughtRecord?.caught_at ?? null,
       };
     });
-  }, [pokemon, pokedexUnlocks]);
+  }, [pokemon, pokedexUnlocks, total]);
 
   const caughtSet = useMemo(
     () => new Set(entries.filter((e) => e.isCaught).map((e) => e.id)),
@@ -470,7 +529,7 @@ export function PokedexOverlay({ pokemon = [], pokedexUnlocks = [] }: PokedexOve
     );
   }, [entries, search]);
 
-  const selectedEntry = entries.find((e) => e.id === selectedId) ?? entries[0];
+  const selectedEntry = entries[selectedId - 1] ?? entries[0];
 
   return (
     <div className="w-full px-1 pt-4 pb-2">

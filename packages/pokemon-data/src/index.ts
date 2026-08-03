@@ -6,6 +6,8 @@ export { getXpForLevel, getLevelForXp, getLevelProgress } from "./leveling";
 export type { LevelProgress } from "./leveling";
 export {
   GENERATIONS,
+  POKEDEX_SIZE,
+  SHIPPED_GENERATIONS,
   getGenerationRange,
   getPokemonsByGeneration,
   getRandomPokemonId,

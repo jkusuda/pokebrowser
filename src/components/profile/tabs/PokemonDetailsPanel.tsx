@@ -37,7 +37,8 @@ export default function PokemonDetailsPanel({
     ? candies?.find((c) => c.pokedex_number === getFamilyId(pokemon.pokedex_number))?.count ?? 0
     : 0;
   const evolveCost = pokemonInfo?.evolveCandyCost ?? null;
-  const canEvolve = pokemonInfo?.evolvesTo != null;
+  const evolveTargets = pokemonInfo?.evolvesTo ?? [];
+  const canEvolve = evolveTargets.length > 0;
   const canAfford = canEvolve && evolveCost != null && candyCount >= evolveCost;
   const familyName = familyInfo?.name?.replace(/-/g, " ") ?? pokemonInfo?.name?.replace(/-/g, " ") ?? "Pokémon";
 
@@ -207,11 +208,11 @@ export default function PokemonDetailsPanel({
       )}
     </Card>
 
-    {showEvolve && pokemon && pokemonInfo?.evolvesTo != null && (
+    {showEvolve && pokemon && pokemonInfo && canEvolve && (
       <EvolveModal
         pokemon={pokemon}
         pokemonInfo={pokemonInfo}
-        targetNumber={pokemonInfo.evolvesTo}
+        targets={evolveTargets}
         familyName={familyName}
         onClose={() => setShowEvolve(false)}
       />

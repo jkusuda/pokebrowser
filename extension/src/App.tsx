@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useAuth } from "./hooks/useAuth";
 import { useAudioPrefs } from "./hooks/useAudioPrefs";
 import { useBuddyPrefs } from "./hooks/useBuddyPrefs";
@@ -6,6 +7,7 @@ import { useTheme } from "./hooks/useTheme";
 import { CONFIG } from "./lib/config";
 import { getPokemonSprite } from "./lib/sprites";
 import { themeVars, THEME_BACKGROUNDS } from "./lib/theme";
+import { markBadgeSeen } from "./lib/update-notice";
 
 export default function App() {
   const { user, loading, signOut, openLogin } = useAuth();
@@ -13,6 +15,11 @@ export default function App() {
   const theme = useTheme(user?.id);
   const { prefs: buddyPrefs, toggleVisible: toggleBuddy, moveCorner: moveBuddy } = useBuddyPrefs();
   const { prefs: audioPrefs, setVolume, toggleMuted } = useAudioPrefs();
+
+  // Opening the popup is the "I saw the update" signal — drop the NEW badge.
+  useEffect(() => {
+    void markBadgeSeen();
+  }, []);
 
   // The website theme preference, applied as --pb-* custom properties on each
   // branch's root so every var(--pb-*) below resolves to the active palette.
@@ -74,6 +81,10 @@ export default function App() {
   /* ── Logged in ───────────────────────────────────────────────── */
   const openProfile = () => {
     chrome.tabs.create({ url: `${CONFIG.WEBSITE_URL}/profile` });
+  };
+
+  const openWhatsNew = () => {
+    chrome.tabs.create({ url: `${CONFIG.WEBSITE_URL}/whats-new` });
   };
 
   return (
@@ -193,18 +204,25 @@ export default function App() {
         </button>
       </div>
 
-      {/* ── Section 4: View Profile + Log Out ── */}
+      {/* ── Section 4: Profile + What's New + Log Out ── */}
       <div className="px-3 pb-3 pt-2 flex gap-2">
         <button
           onClick={openProfile}
-          className="flex-1 py-1.5 px-4 bg-[var(--pb-accent)] hover:bg-[var(--pb-accent-deep)] text-white font-black text-[10px] tracking-wider uppercase rounded-[6px] border-2 border-black shadow-[2px_2px_0_black] transition-all duration-75 cursor-pointer hover:translate-y-px active:shadow-none"
+          className="flex-1 py-1.5 px-2 bg-[var(--pb-accent)] hover:bg-[var(--pb-accent-deep)] text-white font-black text-[10px] tracking-wider uppercase whitespace-nowrap rounded-[6px] border-2 border-black shadow-[2px_2px_0_black] transition-all duration-75 cursor-pointer hover:translate-y-px active:shadow-none"
           style={{ textShadow: "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000" }}
         >
-          VIEW PROFILE
+          PROFILE
+        </button>
+        <button
+          onClick={openWhatsNew}
+          className="flex-[1.3] py-1.5 px-2 bg-[var(--pb-primary)] hover:bg-[var(--pb-accent-deep)] text-white font-black text-[10px] tracking-wider uppercase whitespace-nowrap rounded-[6px] border-2 border-black shadow-[2px_2px_0_black] transition-all duration-75 cursor-pointer hover:translate-y-px active:shadow-none"
+          style={{ textShadow: "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000" }}
+        >
+          WHAT&apos;S NEW
         </button>
         <button
           onClick={signOut}
-          className="flex-1 py-1.5 px-4 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white font-black text-[10px] tracking-wider uppercase rounded-[6px] border-2 border-black shadow-[2px_2px_0_black] transition-all duration-75 cursor-pointer hover:translate-y-px active:shadow-none"
+          className="flex-1 py-1.5 px-2 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white font-black text-[10px] tracking-wider uppercase whitespace-nowrap rounded-[6px] border-2 border-black shadow-[2px_2px_0_black] transition-all duration-75 cursor-pointer hover:translate-y-px active:shadow-none"
         >
           LOG OUT
         </button>

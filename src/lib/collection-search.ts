@@ -1,29 +1,29 @@
 import { Pokemon } from "@/types";
 import { getPokemonData } from "@/lib/pokemon";
-import { GEN1_TYPES, Gen1Type } from "@/lib/types";
-
-// Articuno, Zapdos, Moltres, Mewtwo. Deliberately excludes Mew (151) — Mew is
-// "mythical" for this search feature, even though the unrelated LEGENDARY_IDS
-// in src/app/api/tokens/open/route.ts lumps it into "legendary" for token rolls.
-const LEGENDARY_IDS = new Set([144, 145, 146, 150]);
-const MYTHICAL_IDS = new Set([151]);
+import { POKEMON_TYPES, PokemonType } from "@/lib/types";
 
 type Predicate = (p: Pokemon) => boolean;
 
 // Static keyword registry — add a new keyword by adding one entry here.
+//
+// Rarity reads the generated PokeAPI flags rather than a hand-typed id set, so
+// a new generation needs no edit here. Note these flags are mutually exclusive:
+// Mew and Celebi are mythical and NOT legendary, so `legendary:` excludes them
+// — which is what the search has always done. (The DB deliberately differs and
+// flags mythicals as both, so `legendary_encounter` still fires on them.)
 const KEYWORD_PREDICATES: Record<string, Predicate> = {
   shiny: (p) => p.is_shiny,
-  legendary: (p) => LEGENDARY_IDS.has(p.pokedex_number),
-  mythical: (p) => MYTHICAL_IDS.has(p.pokedex_number),
+  legendary: (p) => getPokemonData(p.pokedex_number)?.isLegendary ?? false,
+  mythical: (p) => getPokemonData(p.pokedex_number)?.isMythical ?? false,
 };
 
-const GEN1_TYPE_SET = new Set<string>(GEN1_TYPES);
+const TYPE_SET = new Set<string>(POKEMON_TYPES);
 
 function buildTermPredicate(term: string): Predicate {
   if (term in KEYWORD_PREDICATES) return KEYWORD_PREDICATES[term];
 
-  if (GEN1_TYPE_SET.has(term)) {
-    const type = term as Gen1Type;
+  if (TYPE_SET.has(term)) {
+    const type = term as PokemonType;
     return (p) => getPokemonData(p.pokedex_number)?.types.includes(type) ?? false;
   }
 
@@ -38,7 +38,7 @@ function buildTermPredicate(term: string): Predicate {
 
 /**
  * Filters a collection by a free-text query. `&`-separated terms are ANDed
- * together; each term matches as a known keyword, a Gen 1 type, or (fallback)
+ * together; each term matches as a known keyword, a Pokémon type, or (fallback)
  * a nickname/species substring.
  */
 export function filterCollection(pokemon: Pokemon[], query: string): Pokemon[] {

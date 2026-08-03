@@ -34,13 +34,16 @@ export const CONFIG = {
   BUDDY_PREFS_KEY: "pb_buddy_prefs",
   BUDDY_TTL_MS: 10 * 60 * 1000,
   AUDIO_PREFS_KEY: "pb_audio_prefs",
+  UPDATE_NOTICE_KEY: "pb_update_notice",
 
   GAME: {
+    // ENCOUNTER_RATE is the only live client-side knob — it gates how often
+    // content.ts asks the server for an encounter. The rest mirror values the
+    // server enforces and exist for reference.
     SHINY_RATE: 1 / 512,
     ENCOUNTER_RATE: 0.15,
     CATCH_COOLDOWN_MS: 1500,
     PENDING_ENCOUNTER_TTL_MS: 5 * 60 * 1000,
     DEFAULT_CATCH_LIMIT: 200,
-    CURRENT_GENERATION: 1 as const,
   },
 } as const;

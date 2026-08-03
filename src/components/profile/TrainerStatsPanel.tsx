@@ -3,7 +3,8 @@
 import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { UserStats } from "@/types";
-import { GEN1_TYPES, getTypeColor, getTypeIconPath } from "@/lib/types";
+import { POKEMON_TYPES, getTypeColor, getTypeIconPath } from "@/lib/types";
+import { POKEDEX_SIZE } from "pokemon-data";
 
 type Props = {
   userStats: UserStats | null;
@@ -58,7 +59,7 @@ function StreakCard({
     <Card variant="game" tone="grass" className="p-4 mt-4 gap-3 justify-between">
       <StreakChip label="Current Streak" value={`${current}d`} accent />
       <StreakChip label="Best Streak" value={`${best}d`} />
-      <StreakChip label="Pokédex" value={`${pokedexCount} / 151`} />
+      <StreakChip label="Pokédex" value={`${pokedexCount} / ${POKEDEX_SIZE}`} />
       <StreakChip label="Friends" value={`${friendCount}`} />
     </Card>
   );
@@ -134,17 +135,15 @@ function MonthCalendar({ activeDays }: { activeDays: Set<string> }) {
   );
 }
 
-// ── type grid (18 slots: 17 Gen 1 types + dark, always grayed) ───────────────
-const TYPE_ORDER = [...GEN1_TYPES, "dark"] as const;
-
+// ── type grid (all 18 types) ─────────────────────────────────────────────────
 function TypeGrid({ caught }: { caught: Set<string> }) {
   return (
     <div className="w-full sm:w-auto">
       <p className="text-black/60 text-[10px] font-bold uppercase tracking-wide mb-2">
-        Types Caught <span className="text-pb-primary">{caught.size} / 18</span>
+        Types Caught <span className="text-pb-primary">{caught.size} / {POKEMON_TYPES.length}</span>
       </p>
       <div className="grid grid-cols-6 gap-1 justify-items-center">
-        {TYPE_ORDER.map((type) => {
+        {POKEMON_TYPES.map((type) => {
           const has = caught.has(type);
           const color = getTypeColor(type);
           return (

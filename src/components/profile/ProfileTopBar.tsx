@@ -5,11 +5,12 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 /** Top-level profile pages, shared with ProfileContent's page switcher. */
-export type Page = "home" | "globalStats" | "pokedex" | "settings";
+export type Page = "home" | "events" | "globalStats" | "pokedex" | "settings";
 
 // Static — defined outside component to avoid recreation on every render
 const NAV_ITEMS: { label: string; page: Page }[] = [
   { label: "Home", page: "home" },
+  { label: "Events", page: "events" },
   { label: "Global Stats", page: "globalStats" },
   { label: "Pokedex", page: "pokedex" },
   { label: "Settings", page: "settings" },

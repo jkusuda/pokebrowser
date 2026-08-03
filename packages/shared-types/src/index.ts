@@ -22,6 +22,8 @@ export interface User {
   theme: ThemeId; // profile color theme — ids/palettes live in ./themes.ts; keep the users_theme_check DB constraint in sync
   catches_today: number; // daily catch cap counter, written only by _catch_pokemon
   catches_today_date: string | null; // UTC date the counter applies to
+  has_seen_tutorial: boolean; // gates the onboarding tutorial popup to once per account
+  is_admin: boolean; // unlocks /admin and the dev_* RPCs; set manually in the DB
 }
 
 // public.friends — friend relationships
@@ -113,6 +115,46 @@ export interface AchievementUnlock {
   achievement_id: string;
   unlocked_at: string;
   claimed_at: string | null;
+}
+
+// The stat an event ranks its leaderboard by — one per event.
+// Keep in sync with the events.tracked_stat CHECK constraint.
+export type EventTrackedStat =
+  | "total_catches"
+  | "shiny_catches"
+  | "type_catches"
+  | "evolutions"
+  | "unique_species";
+
+// Applied server-side while the event is active (via _event_bonus_multiplier):
+// xp/candy scale inside _catch_pokemon, shiny rate inside roll_encounter and
+// redeem_token. `label` is what the UI displays.
+export interface EventBonus {
+  type: "xp_multiplier" | "candy_multiplier" | "shiny_rate_multiplier";
+  value: number; // e.g. 2 for 2x
+  label: string; // e.g. "2x XP"
+}
+
+// public.events — admin-scheduled time-boxed events ("GameEvent" avoids the DOM Event clash)
+export interface GameEvent {
+  id: string;
+  name: string;
+  description: string;
+  starts_at: string;
+  ends_at: string;
+  tracked_stat: EventTrackedStat;
+  type_filter: string | null; // set iff tracked_stat is "type_catches"
+  bonuses: EventBonus[];
+  created_at: string;
+}
+
+// public.event_progress — per-user score in one event (written only by _record_event_progress)
+export interface EventProgress {
+  event_id: string;
+  user_id: string;
+  count: number;
+  species: number[]; // unique_species dedup only; empty otherwise
+  updated_at: string;
 }
 
 // public.tokens — special encounter tokens granted as achievement/level rewards

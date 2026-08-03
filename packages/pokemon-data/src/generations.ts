@@ -20,6 +20,21 @@ export const GENERATIONS: Record<Generation, GenerationInfo> = {
   9: { start: 906, end: 1025, name: "Paldea" },
 };
 
+/**
+ * Highest dex number we actually ship data for. Everything that renders or
+ * validates a full-Pokédex range should derive from this rather than hardcode
+ * a generation's end, so shipping a new generation is a data change only.
+ */
+export const POKEDEX_SIZE = Object.keys(POKEMON).reduce(
+  (max, key) => Math.max(max, Number(key)),
+  0
+);
+
+/** The generations we currently ship complete data for. */
+export const SHIPPED_GENERATIONS: Generation[] = (
+  Object.keys(GENERATIONS).map(Number) as Generation[]
+).filter((gen) => GENERATIONS[gen].end <= POKEDEX_SIZE);
+
 export function getGenerationRange(gen: Generation): GenerationInfo {
   return GENERATIONS[gen];
 }

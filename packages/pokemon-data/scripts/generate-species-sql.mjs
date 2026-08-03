@@ -1,29 +1,53 @@
-// Generates the INSERT statements for the `pokemon_species` reference table
-// (used by the `redeem_token` RPC to roll encounters server-side).
+// Generates the seed statements for the two server-side reference tables:
+//   pokemon_species     (id, name, types, is_legendary, is_mythical, family_base_id)
+//   pokemon_evolutions  (from_id, to_id, candy_cost)
+//
+// Together these are the authority for every server-side roll and catch fact —
+// species pools, candy pools, evolution targets/costs, and the XP tier
+// derivation inside _catch_pokemon. Nothing about evolution is hardcoded in SQL.
 //
 // Usage: node packages/pokemon-data/scripts/generate-species-sql.mjs
-// Paste the output into a Supabase migration whenever the data changes
-// (e.g. when a new generation is added).
+// Paste the output into a Supabase migration whenever the data changes.
 //
 // Requires Node >= 23 (native TypeScript type stripping for the .ts imports).
 
 import { POKEMON } from "../src/pokemon.ts";
 import { POKEMON_FAMILIES } from "../src/families.ts";
 
-const LEGENDARY_IDS = new Set([144, 145, 146, 150, 151]);
+const all = Object.values(POKEMON).sort((a, b) => a.id - b.id);
 
-const rows = Object.values(POKEMON)
-  .sort((a, b) => a.id - b.id)
-  .map((p) => {
-    const types = `'{${p.types.join(",")}}'`;
-    const name = `'${p.name.replace(/'/g, "''")}'`;
-    const legendary = LEGENDARY_IDS.has(p.id);
-    const family = POKEMON_FAMILIES[p.id];
-    if (!family) throw new Error(`No family for #${p.id}`);
-    return `  (${p.id}, ${name}, ${types}, ${legendary}, ${family})`;
-  });
+const speciesRows = all.map((p) => {
+  const types = `'{${p.types.join(",")}}'`;
+  const name = `'${p.name.replace(/'/g, "''")}'`;
+  const family = POKEMON_FAMILIES[p.id];
+  if (!family) throw new Error(`No family for #${p.id}`);
+  // PokeAPI flags mythicals as mythical-but-not-legendary. We store them as
+  // both so the legendary_encounter achievement still fires on Mew/Celebi;
+  // the roll pools exclude them via `not is_mythical`.
+  const legendary = p.isLegendary || p.isMythical;
+  return `  (${p.id}, ${name}, ${types}, ${legendary}, ${p.isMythical}, ${family})`;
+});
 
-console.log(
-  "insert into public.pokemon_species (id, name, types, is_legendary, family_base_id) values"
+const evolutionRows = all.flatMap((p) =>
+  p.evolvesTo.map((to) => `  (${p.id}, ${to}, ${p.evolveCandyCost})`)
 );
-console.log(rows.join(",\n") + ";");
+
+// Upserts rather than plain inserts — pokemon_species is already seeded with
+// dex 1–151, so a bare INSERT would conflict on the primary key.
+console.log(`-- ${speciesRows.length} species`);
+console.log(
+  "insert into public.pokemon_species (id, name, types, is_legendary, is_mythical, family_base_id) values"
+);
+console.log(speciesRows.join(",\n"));
+console.log(`on conflict (id) do update set
+  name           = excluded.name,
+  types          = excluded.types,
+  is_legendary   = excluded.is_legendary,
+  is_mythical    = excluded.is_mythical,
+  family_base_id = excluded.family_base_id;`);
+
+console.log(`\n-- ${evolutionRows.length} evolution edges`);
+console.log("insert into public.pokemon_evolutions (from_id, to_id, candy_cost) values");
+console.log(evolutionRows.join(",\n"));
+console.log(`on conflict (from_id, to_id) do update set
+  candy_cost = excluded.candy_cost;`);

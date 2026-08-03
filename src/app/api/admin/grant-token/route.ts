@@ -1,24 +1,23 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { devGrantToken } from "@/lib/queries";
-import { GEN1_TYPES } from "@/lib/types";
-import { requireUser, badRequest, internalError } from "@/lib/api-helpers";
+import { POKEMON_TYPES } from "@/lib/types";
+import { requireAdmin, badRequest, internalError, readJsonObject } from "@/lib/api-helpers";
 import { errorMessage } from "@/lib/utils";
 
 const VALID_TOKEN_TYPES = new Set(["legendary", "mythical", "type_pick", "shiny"]);
-const VALID_TYPES = new Set<string>(GEN1_TYPES);
+const VALID_TYPES = new Set<string>(POKEMON_TYPES);
 
 export async function POST(request: Request) {
-  if (process.env.NODE_ENV === "production") {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-
   try {
     const supabase = await createClient();
-    const auth = await requireUser(supabase);
+    const auth = await requireAdmin(supabase);
     if (auth.response) return auth.response;
 
-    const { tokenType, typeFilter } = await request.json();
+    const body = await readJsonObject(request);
+    if (body === null) return badRequest("body must be a JSON object");
+
+    const { tokenType, typeFilter } = body;
     if (typeof tokenType !== "string" || !VALID_TOKEN_TYPES.has(tokenType)) {
       return badRequest(`tokenType must be one of: ${[...VALID_TOKEN_TYPES].join(", ")}`);
     }
@@ -28,12 +27,16 @@ export async function POST(request: Request) {
       }
     }
 
-    await devGrantToken(supabase, tokenType, typeFilter ? typeFilter.toLowerCase() : null);
+    await devGrantToken(
+      supabase,
+      tokenType,
+      typeof typeFilter === "string" && typeFilter ? typeFilter.toLowerCase() : null
+    );
     return NextResponse.json({ success: true });
   } catch (error) {
     if (errorMessage(error) === "Not authorized") {
       return NextResponse.json({ error: "Not authorized" }, { status: 403 });
     }
-    return internalError("POST /api/dev/grant-token", error);
+    return internalError("POST /api/admin/grant-token", error);
   }
 }

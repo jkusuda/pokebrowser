@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ModalShell } from "@/components/ui/modal-shell";
-import { GEN1_TYPES, getTypeIconPath, getTypeColor } from "@/lib/types";
+import { POKEMON_TYPES, getTypeIconPath, getTypeColor } from "@/lib/types";
 import { postJson } from "@/lib/client-api";
 import { cn, errorMessage } from "@/lib/utils";
 
@@ -46,7 +46,7 @@ export default function TypePickerModal({ tokenId, onClose, onSelected }: Props)
 
         {/* Type grid */}
         <div className="grid grid-cols-4 gap-2 mb-4">
-          {GEN1_TYPES.map((type) => {
+          {POKEMON_TYPES.map((type) => {
             const { background, border } = getTypeColor(type);
             const isSelected = selected === type;
             return (

@@ -16,13 +16,13 @@
 
 ## What is Pokebrowser?
 
-Pokebrowser is a Chrome extension paired with a web app. While you surf the internet, wild Pokémon randomly pop up on the pages you visit — click to catch them, then head to your trainer profile to build your collection, fill out your Pokédex, and show off to friends. All 151 Gen 1 Pokémon are waiting.
+Pokebrowser is a Chrome extension paired with a web app. While you surf the internet, wild Pokémon randomly pop up on the pages you visit — click to catch them, then head to your trainer profile to build your collection, fill out your Pokédex, and show off to friends. All 251 Pokémon from Kanto and Johto are waiting.
 
 ## Features
 
 - 🌱 **Wild encounters** — Pokémon spawn on any webpage while you browse
 - ✨ **Shinies** — rare 1/512 shiny variants of every species
-- 📖 **Pokédex** — track all 151 Gen 1 Pokémon, with stats, entries, and evolution lines
+- 📖 **Pokédex** — track all 251 Kanto and Johto Pokémon, with stats, entries, and evolution lines
 - 🍬 **Evolution** — earn candy with every catch and evolve your Pokémon
 - 🏆 **Achievements** — unlock rewards like extra storage and special encounter tokens (legendary, mythical, shiny, type-pick)
 - ⭐ **Trainer levels** — gain XP per catch and level up for candy rewards

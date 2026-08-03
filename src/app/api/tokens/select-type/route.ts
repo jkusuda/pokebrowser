@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { selectTokenType } from "@/lib/queries";
-import { GEN1_TYPES } from "@/lib/types";
+import { POKEMON_TYPES } from "@/lib/types";
 import { requireUser, badRequest, internalError, UUID_RE } from "@/lib/api-helpers";
 
-const VALID_TYPES = new Set<string>(GEN1_TYPES);
+const VALID_TYPES = new Set<string>(POKEMON_TYPES);
 
 export async function POST(request: Request) {
   try {

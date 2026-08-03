@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { claimCandyReward } from "@/lib/queries";
+import { POKEDEX_SIZE } from "pokemon-data";
 import { requireUser, badRequest, internalError } from "@/lib/api-helpers";
 import { errorMessage } from "@/lib/utils";
 
@@ -15,9 +16,9 @@ export async function POST(request: Request) {
       typeof pokedexNumber !== "number" ||
       !Number.isInteger(pokedexNumber) ||
       pokedexNumber < 1 ||
-      pokedexNumber > 151
+      pokedexNumber > POKEDEX_SIZE
     ) {
-      return badRequest("pokedexNumber must be an integer between 1 and 151");
+      return badRequest(`pokedexNumber must be an integer between 1 and ${POKEDEX_SIZE}`);
     }
 
     await claimCandyReward(supabase, pokedexNumber);

@@ -42,6 +42,8 @@ const ACHIEVEMENT_SPRITES: Record<string, StaticImageData> = {
   just_my_type:         catchCharmImg,
   dedicated:            fireImg,
   love_of_the_game:     fireImg,
+  kanto_complete:       pokeRadarImg,
+  johto_complete:       pokeRadarImg,
   gotta_catch_em_all:   pokeRadarImg,
   lucky_color:          shinyCharmImg,
   shiny_hunter:         shinyCharmImg,

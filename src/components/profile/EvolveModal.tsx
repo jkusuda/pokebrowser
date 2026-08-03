@@ -18,14 +18,16 @@ type Phase = "confirm" | "evolving" | "done" | "error";
 type Props = {
   pokemon: Pokemon;
   pokemonInfo: PokemonInfo;
-  targetNumber: number;
+  /** Every species this can evolve into. Branching lines pass more than one. */
+  targets: number[];
   familyName: string;
   onClose: () => void;
 };
 
-export default function EvolveModal({ pokemon, pokemonInfo, targetNumber, familyName, onClose }: Props) {
+export default function EvolveModal({ pokemon, pokemonInfo, targets, familyName, onClose }: Props) {
   const [phase, setPhase] = useState<Phase>("confirm");
   const [error, setError] = useState<string | null>(null);
+  const [targetNumber, setTargetNumber] = useState(targets[0]);
   const { refresh } = useRefresh();
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
@@ -37,6 +39,7 @@ export default function EvolveModal({ pokemon, pokemonInfo, targetNumber, family
   const fromName = pokemon.nickname || getPokemonName(pokemon.pokedex_number);
   const toName = getPokemonName(targetNumber);
   const cost = pokemonInfo.evolveCandyCost ?? 0;
+  const isBranching = targets.length > 1;
   // During "evolving" the sprite shows the original; it swaps to the evolved
   // form once the animation completes (the "done" phase).
   const spriteNumber = phase === "done" ? targetNumber : pokemon.pokedex_number;
@@ -45,7 +48,11 @@ export default function EvolveModal({ pokemon, pokemonInfo, targetNumber, family
     setPhase("evolving");
     setError(null);
     try {
-      await postJson("/api/pokemon/evolve", { pokemonId: pokemon.id }, "Failed to evolve");
+      await postJson(
+        "/api/pokemon/evolve",
+        { pokemonId: pokemon.id, targetId: targetNumber },
+        "Failed to evolve"
+      );
 
       // Let the flash/pulse play before revealing the evolved sprite.
       timers.current.push(
@@ -79,6 +86,42 @@ export default function EvolveModal({ pokemon, pokemonInfo, targetNumber, family
         </div>
 
         <div className="p-6 flex flex-col items-center gap-4">
+          {/* Target chooser — branching lines only (Eevee, Tyrogue, Gloom, …) */}
+          {isBranching && phase === "confirm" && (
+            <div className="w-full">
+              <p className="text-[10px] font-black uppercase tracking-widest text-black/50 text-center mb-2">
+                Choose an evolution
+              </p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {targets.map((id) => {
+                  const selected = id === targetNumber;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => setTargetNumber(id)}
+                      aria-pressed={selected}
+                      title={getPokemonName(id)}
+                      className={cn(
+                        "h-14 w-14 rounded-[10px] border-4 flex items-center justify-center transition-transform",
+                        selected
+                          ? "border-black bg-pb-accent -translate-y-0.5 shadow-[2px_2px_0_black]"
+                          : "border-black/20 bg-white/60 hover:border-black/50"
+                      )}
+                    >
+                      <img
+                        src={getPokemonSprite(id, pokemon.is_shiny)}
+                        alt={getPokemonName(id)}
+                        className={cn("h-11 w-11 object-contain", !selected && "opacity-60")}
+                        style={{ imageRendering: "pixelated" }}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Sprite stage */}
           <div className="relative h-28 w-28 flex items-center justify-center">
             <img

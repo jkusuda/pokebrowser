@@ -1,87 +1,140 @@
-// Gen 1 Evolution Family Map
+// AUTO-GENERATED — do not edit manually.
+// Run `node packages/pokemon-data/scripts/generate.mjs` to regenerate.
+//
 // Maps every Pokémon to its base-form Pokédex number.
-// Used for shared candy pools (e.g. Sandslash → Sandshrew candy).
+// Used for shared candy pools (e.g. Sandslash → Sandshrew candy), and mirrored
+// by pokemon_species.family_base_id in the database.
 
 export const POKEMON_FAMILIES: Record<number, number> = {
-  1: 1, 2: 1, 3: 1,         // Bulbasaur line
-  4: 4, 5: 4, 6: 4,         // Charmander line
-  7: 7, 8: 7, 9: 7,         // Squirtle line
-  10: 10, 11: 10, 12: 10,   // Caterpie line
-  13: 13, 14: 13, 15: 13,   // Weedle line
-  16: 16, 17: 16, 18: 16,   // Pidgey line
-  19: 19, 20: 19,            // Rattata line
-  21: 21, 22: 21,            // Spearow line
-  23: 23, 24: 23,            // Ekans line
-  25: 25, 26: 25,            // Pikachu line
-  27: 27, 28: 27,            // Sandshrew line
-  29: 29, 30: 29, 31: 29,   // Nidoran♀ line
-  32: 32, 33: 32, 34: 32,   // Nidoran♂ line
-  35: 35, 36: 35,            // Clefairy line
-  37: 37, 38: 37,            // Vulpix line
-  39: 39, 40: 39,            // Jigglypuff line
-  41: 41, 42: 41,            // Zubat line
-  43: 43, 44: 43, 45: 43,   // Oddish line
-  46: 46, 47: 46,            // Paras line
-  48: 48, 49: 48,            // Venonat line
-  50: 50, 51: 50,            // Diglett line
-  52: 52, 53: 52,            // Meowth line
-  54: 54, 55: 54,            // Psyduck line
-  56: 56, 57: 56,            // Mankey line
-  58: 58, 59: 58,            // Growlithe line
-  60: 60, 61: 60, 62: 60,   // Poliwag line
-  63: 63, 64: 63, 65: 63,   // Abra line
-  66: 66, 67: 66, 68: 66,   // Machop line
-  69: 69, 70: 69, 71: 69,   // Bellsprout line
-  72: 72, 73: 72,            // Tentacool line
-  74: 74, 75: 74, 76: 74,   // Geodude line
-  77: 77, 78: 77,            // Ponyta line
-  79: 79, 80: 79,            // Slowpoke line
-  81: 81, 82: 81,            // Magnemite line
-  83: 83,                    // Farfetch'd
-  84: 84, 85: 84,            // Doduo line
-  86: 86, 87: 86,            // Seel line
-  88: 88, 89: 88,            // Grimer line
-  90: 90, 91: 90,            // Shellder line
-  92: 92, 93: 92, 94: 92,   // Gastly line
-  95: 95,                    // Onix
-  96: 96, 97: 96,            // Drowzee line
-  98: 98, 99: 98,            // Krabby line
-  100: 100, 101: 100,        // Voltorb line
-  102: 102, 103: 102,        // Exeggcute line
-  104: 104, 105: 104,        // Cubone line
-  106: 106,                  // Hitmonlee
-  107: 107,                  // Hitmonchan
-  108: 108,                  // Lickitung
-  109: 109, 110: 109,        // Koffing line
-  111: 111, 112: 111,        // Rhyhorn line
-  113: 113,                  // Chansey
-  114: 114,                  // Tangela
-  115: 115,                  // Kangaskhan
-  116: 116, 117: 116,        // Horsea line
-  118: 118, 119: 118,        // Goldeen line
-  120: 120, 121: 120,        // Staryu line
-  122: 122,                  // Mr. Mime
-  123: 123,                  // Scyther
-  124: 124,                  // Jynx
-  125: 125,                  // Electabuzz
-  126: 126,                  // Magmar
-  127: 127,                  // Pinsir
-  128: 128,                  // Tauros
-  129: 129, 130: 129,        // Magikarp line
-  131: 131,                  // Lapras
-  132: 132,                  // Ditto
-  133: 133, 134: 133, 135: 133, 136: 133, // Eevee + eeveelutions
-  137: 137,                  // Porygon
-  138: 138, 139: 138,        // Omanyte line
-  140: 140, 141: 140,        // Kabuto line
-  142: 142,                  // Aerodactyl
-  143: 143,                  // Snorlax
-  144: 144,                  // Articuno
-  145: 145,                  // Zapdos
-  146: 146,                  // Moltres
-  147: 147, 148: 147, 149: 147, // Dratini line
-  150: 150,                  // Mewtwo
-  151: 151,                  // Mew
+  1: 1, 2: 1, 3: 1,                  // bulbasaur line
+  4: 4, 5: 4, 6: 4,                  // charmander line
+  7: 7, 8: 7, 9: 7,                  // squirtle line
+  10: 10, 11: 10, 12: 10,            // caterpie line
+  13: 13, 14: 13, 15: 13,            // weedle line
+  16: 16, 17: 16, 18: 16,            // pidgey line
+  19: 19, 20: 19,                    // rattata line
+  21: 21, 22: 21,                    // spearow line
+  23: 23, 24: 23,                    // ekans line
+  27: 27, 28: 27,                    // sandshrew line
+  29: 29, 30: 29, 31: 29,            // nidoran-f line
+  32: 32, 33: 32, 34: 32,            // nidoran-m line
+  37: 37, 38: 37,                    // vulpix line
+  41: 41, 42: 41, 169: 41,           // zubat line
+  43: 43, 44: 43, 45: 43, 182: 43,   // oddish line
+  46: 46, 47: 46,                    // paras line
+  48: 48, 49: 48,                    // venonat line
+  50: 50, 51: 50,                    // diglett line
+  52: 52, 53: 52,                    // meowth line
+  54: 54, 55: 54,                    // psyduck line
+  56: 56, 57: 56,                    // mankey line
+  58: 58, 59: 58,                    // growlithe line
+  60: 60, 61: 60, 62: 60, 186: 60,   // poliwag line
+  63: 63, 64: 63, 65: 63,            // abra line
+  66: 66, 67: 66, 68: 66,            // machop line
+  69: 69, 70: 69, 71: 69,            // bellsprout line
+  72: 72, 73: 72,                    // tentacool line
+  74: 74, 75: 74, 76: 74,            // geodude line
+  77: 77, 78: 77,                    // ponyta line
+  79: 79, 80: 79, 199: 79,           // slowpoke line
+  81: 81, 82: 81,                    // magnemite line
+  83: 83,                            // farfetchd
+  84: 84, 85: 84,                    // doduo line
+  86: 86, 87: 86,                    // seel line
+  88: 88, 89: 88,                    // grimer line
+  90: 90, 91: 90,                    // shellder line
+  92: 92, 93: 92, 94: 92,            // gastly line
+  95: 95, 208: 95,                   // onix line
+  96: 96, 97: 96,                    // drowzee line
+  98: 98, 99: 98,                    // krabby line
+  100: 100, 101: 100,                // voltorb line
+  102: 102, 103: 102,                // exeggcute line
+  104: 104, 105: 104,                // cubone line
+  108: 108,                          // lickitung
+  109: 109, 110: 109,                // koffing line
+  111: 111, 112: 111,                // rhyhorn line
+  113: 113, 242: 113,                // chansey line
+  114: 114,                          // tangela
+  115: 115,                          // kangaskhan
+  116: 116, 117: 116, 230: 116,      // horsea line
+  118: 118, 119: 118,                // goldeen line
+  120: 120, 121: 120,                // staryu line
+  122: 122,                          // mr-mime
+  123: 123, 212: 123,                // scyther line
+  127: 127,                          // pinsir
+  128: 128,                          // tauros
+  129: 129, 130: 129,                // magikarp line
+  131: 131,                          // lapras
+  132: 132,                          // ditto
+  133: 133, 134: 133, 135: 133, 136: 133, 196: 133, 197: 133, // eevee line
+  137: 137, 233: 137,                // porygon line
+  138: 138, 139: 138,                // omanyte line
+  140: 140, 141: 140,                // kabuto line
+  142: 142,                          // aerodactyl
+  143: 143,                          // snorlax
+  144: 144,                          // articuno
+  145: 145,                          // zapdos
+  146: 146,                          // moltres
+  147: 147, 148: 147, 149: 147,      // dratini line
+  150: 150,                          // mewtwo
+  151: 151,                          // mew
+  152: 152, 153: 152, 154: 152,      // chikorita line
+  155: 155, 156: 155, 157: 155,      // cyndaquil line
+  158: 158, 159: 158, 160: 158,      // totodile line
+  161: 161, 162: 161,                // sentret line
+  163: 163, 164: 163,                // hoothoot line
+  165: 165, 166: 165,                // ledyba line
+  167: 167, 168: 167,                // spinarak line
+  170: 170, 171: 170,                // chinchou line
+  25: 172, 26: 172, 172: 172,        // pichu line
+  35: 173, 36: 173, 173: 173,        // cleffa line
+  39: 174, 40: 174, 174: 174,        // igglybuff line
+  175: 175, 176: 175,                // togepi line
+  177: 177, 178: 177,                // natu line
+  179: 179, 180: 179, 181: 179,      // mareep line
+  183: 183, 184: 183,                // marill line
+  185: 185,                          // sudowoodo
+  187: 187, 188: 187, 189: 187,      // hoppip line
+  190: 190,                          // aipom
+  191: 191, 192: 191,                // sunkern line
+  193: 193,                          // yanma
+  194: 194, 195: 194,                // wooper line
+  198: 198,                          // murkrow
+  200: 200,                          // misdreavus
+  201: 201,                          // unown
+  202: 202,                          // wobbuffet
+  203: 203,                          // girafarig
+  204: 204, 205: 204,                // pineco line
+  206: 206,                          // dunsparce
+  207: 207,                          // gligar
+  209: 209, 210: 209,                // snubbull line
+  211: 211,                          // qwilfish
+  213: 213,                          // shuckle
+  214: 214,                          // heracross
+  215: 215,                          // sneasel
+  216: 216, 217: 216,                // teddiursa line
+  218: 218, 219: 218,                // slugma line
+  220: 220, 221: 220,                // swinub line
+  222: 222,                          // corsola
+  223: 223, 224: 223,                // remoraid line
+  225: 225,                          // delibird
+  226: 226,                          // mantine
+  227: 227,                          // skarmory
+  228: 228, 229: 228,                // houndour line
+  231: 231, 232: 231,                // phanpy line
+  234: 234,                          // stantler
+  235: 235,                          // smeargle
+  106: 236, 107: 236, 236: 236, 237: 236, // tyrogue line
+  124: 238, 238: 238,                // smoochum line
+  125: 239, 239: 239,                // elekid line
+  126: 240, 240: 240,                // magby line
+  241: 241,                          // miltank
+  243: 243,                          // raikou
+  244: 244,                          // entei
+  245: 245,                          // suicune
+  246: 246, 247: 246, 248: 246,      // larvitar line
+  249: 249,                          // lugia
+  250: 250,                          // ho-oh
+  251: 251,                          // celebi
 };
 
 export function getFamilyId(pokedexNumber: number): number {

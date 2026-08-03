@@ -13,6 +13,8 @@ import level50Img from "@/assets/badges/level50_badge.png";
 import shinyImg from "@/assets/badges/shiny_badge.png";
 import legendaryImg from "@/assets/badges/legendary_badge.png";
 import masterCollectorImg from "@/assets/badges/master_collector_badge.png";
+import kantoImg from "@/assets/badges/kanto_badge.png";
+import johtoImg from "@/assets/badges/johto_badge.png";
 import pokedexImg from "@/assets/badges/pokedex_badge.png";
 import worldwideImg from "@/assets/badges/worldwide_badge.png";
 import thirtyDayImg from "@/assets/badges/thirty_day_badge.png";
@@ -30,6 +32,8 @@ export const BADGE_SPRITES: Record<string, StaticImageData> = {
   lucky_color: shinyImg,
   legendary_encounter: legendaryImg,
   master_collector: masterCollectorImg,
+  kanto_complete: kantoImg,
+  johto_complete: johtoImg,
   gotta_catch_em_all: pokedexImg,
   netizen: worldwideImg,
   love_of_the_game: thirtyDayImg,

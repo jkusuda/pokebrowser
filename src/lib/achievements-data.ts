@@ -10,6 +10,8 @@ export type AchievementTrigger =
   | "shiny_catch"
   | "legendary_catch"
   | "pokedex_complete"
+  | "kanto_complete"
+  | "johto_complete"
   | "shiny_complete"
   | "streak"
   | "level"
@@ -183,7 +185,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     description: "Catch at least one Pokémon of every type.",
     category: "type",
     trigger: "type_coverage",
-    threshold: 17, // 17 unique types across Gen 1 Pokémon
+    threshold: 18, // all 18 types across the supported Pokédex
     storageReward: 250,
     tokenReward: "type_pick",
     xpReward: 5000,
@@ -215,12 +217,34 @@ export const ACHIEVEMENTS: AchievementDef[] = [
 
   // ── Pokédex ────────────────────────────────────────────────────────────────
   {
+    id: "kanto_complete",
+    label: "Kanto Champion",
+    description: "Catch all 151 species from the Kanto region.",
+    category: "pokedex",
+    trigger: "kanto_complete",
+    threshold: 151,
+    storageReward: 500,
+    tokenReward: "legendary",
+    xpReward: 25000,
+  },
+  {
+    id: "johto_complete",
+    label: "Johto Champion",
+    description: "Catch all 100 species from the Johto region.",
+    category: "pokedex",
+    trigger: "johto_complete",
+    threshold: 100,
+    storageReward: 500,
+    tokenReward: "legendary",
+    xpReward: 25000,
+  },
+  {
     id: "gotta_catch_em_all",
     label: "Gotta Catch 'Em All",
-    description: "Complete the Gen 1 Pokédex — catch all 151 species.",
+    description: "Complete the Pokédex — catch all 251 species.",
     category: "pokedex",
     trigger: "pokedex_complete",
-    threshold: 151,
+    threshold: 251,
     storageReward: 0,
     tokenReward: "shiny",
     xpReward: 50000,
@@ -241,7 +265,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   {
     id: "shiny_hunter",
     label: "Shiny Hunter",
-    description: "Complete the shiny Pokédex by catching all 151 shiny species.",
+    description: "Complete the shiny Kanto Pokédex — all 151 species, shiny.",
     category: "shiny",
     trigger: "shiny_complete",
     threshold: 151,

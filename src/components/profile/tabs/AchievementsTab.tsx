@@ -12,6 +12,7 @@ import {
   type AchievementCategory,
 } from "@/lib/achievements-data";
 import { AchievementUnlock, Token, PokedexUnlock, UserStats } from "@/types";
+import { getGenerationRange, type Generation } from "pokemon-data";
 import { postJson } from "@/lib/client-api";
 import { useRefresh } from "@/lib/hooks/useRefresh";
 import { cn } from "@/lib/utils";
@@ -30,18 +31,31 @@ interface Props {
   friendCount: number;
 }
 
+/** Number of unlocked species whose dex number falls inside a generation. */
+function countInGeneration(unlocks: PokedexUnlock[], gen: Generation): number {
+  const { start, end } = getGenerationRange(gen);
+  return unlocks.filter(
+    (u) => u.pokedex_number >= start && u.pokedex_number <= end
+  ).length;
+}
+
 /** Compute rough progress percentage (0–100) for a given achievement */
 function getProgress(
   achievementId: string,
   userStats: UserStats | null,
   userLevel: number,
   friendCount: number,
-  pokedexCount: number
+  pokedexCount: number,
+  pokedexUnlocks: PokedexUnlock[]
 ): number {
   const def = ACHIEVEMENT_BY_ID[achievementId];
   if (!def) return 0;
 
   switch (def.trigger) {
+    case "kanto_complete":
+      return Math.min(100, (countInGeneration(pokedexUnlocks, 1) / def.threshold) * 100);
+    case "johto_complete":
+      return Math.min(100, (countInGeneration(pokedexUnlocks, 2) / def.threshold) * 100);
     case "catch_count":
       return Math.min(100, ((userStats?.total_catches ?? 0) / def.threshold) * 100);
     case "site_count":
@@ -232,7 +246,14 @@ export default function AchievementsTab({
                 const unlock = unlockById[def.id] ?? null;
                 const progress = unlock
                   ? 100
-                  : getProgress(def.id, userStats, userLevel, friendCount, pokedexCount);
+                  : getProgress(
+                      def.id,
+                      userStats,
+                      userLevel,
+                      friendCount,
+                      pokedexCount,
+                      pokedexUnlocks
+                    );
                 return (
                   <AchievementCard
                     key={def.id}

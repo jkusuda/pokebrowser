@@ -1,11 +1,11 @@
-/** All type names present in Gen 1 Pokémon (including fairy/steel retroactively). */
-export const GEN1_TYPES = [
+/** All 18 type names present across the supported Pokédex (Gen 1–2). */
+export const POKEMON_TYPES = [
   "normal", "fire", "water", "electric", "grass", "ice",
   "fighting", "poison", "ground", "flying", "psychic", "bug",
-  "rock", "ghost", "dragon", "steel", "fairy",
+  "rock", "ghost", "dragon", "dark", "steel", "fairy",
 ] as const;
 
-export type Gen1Type = (typeof GEN1_TYPES)[number];
+export type PokemonType = (typeof POKEMON_TYPES)[number];
 
 interface TypeStyle {
   background: string;
@@ -23,8 +23,7 @@ const FALLBACK: TypeStyle = {
 // previous bulbagarden hotlinks failed intermittently.
 const ICON_BASE = "/type-icons";
 
-// Single source of truth for type colors + icon URLs. `dark` is included for
-// PokedexOverlay rendering of non-Gen-1 references in shared data files.
+// Single source of truth for type colors + icon URLs.
 const TYPE_STYLES: Record<string, TypeStyle> = {
   normal:   { background: "#A8A878", border: "#8A8A59", icon: `${ICON_BASE}/normal.png` },
   fire:     { background: "#F08030", border: "#C06020", icon: `${ICON_BASE}/fire.png` },

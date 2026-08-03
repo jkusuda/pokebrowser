@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ACHIEVEMENTS } from "@/lib/achievements-data";
-import { GEN1_TYPES } from "@/lib/types";
+import { POKEMON_TYPES } from "@/lib/types";
 import { postJson } from "@/lib/client-api";
 import { useAdminAction } from "@/components/admin/useAdminAction";
 import {
@@ -59,7 +59,7 @@ export default function PlayerToolsSection() {
                 className={adminSelectClass}
               >
                 <option value="">— unset —</option>
-                {GEN1_TYPES.map((t) => (
+                {POKEMON_TYPES.map((t) => (
                   <option key={t} value={t}>{t}</option>
                 ))}
               </select>

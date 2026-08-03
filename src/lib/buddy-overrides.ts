@@ -129,6 +129,106 @@ export const BUDDY_OVERRIDES: Record<number, BuddyOverride> = {
 147: { scale: 0.44, dx: 24, dy: -2 },  // dratini
 151: { scale: 1.63, dx: 32, dy: 150 },  // mew
 
+152: { dx: 48, dy: 10 },  // chikorita
+153: { dx: 34, dy: 14 },  // bayleef
+154: { scale: 1.06, dx: 9, dy: 12 },  // meganium
+155: { scale: 1.22, dx: 35, dy: 14 },  // cyndaquil
+156: { scale: 1.05, dx: 3, dy: 8 },  // quilava
+157: { scale: 1.09, dy: 13 },  // typhlosion
+158: { scale: 1.63, dx: 26, dy: 17 },  // totodile
+159: { dx: 29, dy: 17 },  // croconaw
+160: { dy: 15 },  // feraligatr
+161: { scale: 1.16, dx: 27, dy: 14 },  // sentret
+162: { dx: -35, dy: 12 },  // furret
+163: { scale: 1.13, dx: 25, dy: 16 },  // hoothoot
+164: { scale: 0.94, dx: 8, dy: 14 },  // noctowl
+165: { scale: 0.75, dx: 25, dy: 123 },  // ledyba
+166: { scale: 0.89, dx: 12, dy: 150 },  // ledian
+167: { scale: 0.91, dx: 22, dy: 16 },  // spinarak
+168: { dy: 16 },  // ariados
+169: { scale: 0.93, dx: -12, dy: 150 },  // crobat
+170: { scale: 1.09, dx: 20, dy: 18 },  // chinchou
+171: { dx: -3, dy: 23 },  // lanturn
+172: { scale: 2.43, dx: 36, dy: 18 },  // pichu
+173: { scale: 1.82, dx: 27, dy: 15 },  // cleffa
+174: { scale: 2.4, dx: 11, dy: 27 },  // igglybuff
+175: { scale: 2.13, dx: 22, dy: 23 },  // togepi
+176: { scale: 1.91, dx: 44, dy: 21 },  // togetic
+177: { scale: 2.76, dx: 41, dy: 19 },  // natu
+178: { dy: 14 },  // xatu
+179: { dx: 26, dy: 18 },  // mareep
+180: { scale: 1.21, dx: 20, dy: 20 },  // flaaffy
+181: { scale: 1.08, dy: 14 },  // ampharos
+182: { scale: 2.14, dx: 31, dy: 18 },  // bellossom
+183: { scale: 1.52, dx: 21, dy: 17 },  // marill
+184: { scale: 1.81, dx: -21, dy: 18 },  // azumarill
+185: { scale: 1.14, dx: -25, dy: 17 },  // sudowoodo
+186: { scale: 1.37, dy: 17 },  // politoed
+187: { scale: 2.38, dx: 16, dy: 150 },  // hoppip
+188: { scale: 1.16, dx: 19, dy: 150 },  // skiploom
+189: { scale: 1.17, dx: 8, dy: 150 },  // jumpluff
+190: { scale: 1.21, dx: 34, dy: 20 },  // aipom
+191: { scale: 1.81, dx: 51, dy: 56 },  // sunkern
+192: { scale: 1.1, dx: 25, dy: 15 },  // sunflora
+193: { scale: 0.62, dy: 127 },  // yanma
+194: { scale: 1.31, dx: 39, dy: 24 },  // wooper
+195: { dx: -2, dy: 14 },  // quagsire
+196: { scale: 1.24, dx: 9, dy: 14 },  // espeon
+197: { scale: 1.02, dx: 19, dy: 18 },  // umbreon
+198: { scale: 1.15, dx: 44, dy: 20 },  // murkrow
+199: { dy: 16 },  // slowking
+200: { dx: 38, dy: 96 },  // misdreavus
+201: { dx: 60, dy: 150 },  // unown
+202: { dy: 19 },  // wobbuffet
+203: { dx: 12, dy: 19 },  // girafarig
+204: { scale: 1.34, dx: 40, dy: 10 },  // pineco
+205: { dx: -1, dy: 19 },  // forretress
+206: { scale: 0.89, dx: 19, dy: 14 },  // dunsparce
+207: { dx: -14, dy: 16 },  // gligar
+208: { scale: 0.3, dx: -11 },  // steelix
+209: { dx: 36, dy: 21 },  // snubbull
+210: { dy: 11 },  // granbull
+211: { scale: 1.58, dx: 21, dy: 27 },  // qwilfish
+212: { dx: -26, dy: 13 },  // scizor
+213: { dx: 21, dy: 22 },  // shuckle
+214: { dy: 18 },  // heracross
+215: { dy: 19 },  // sneasel
+216: { dx: 43, dy: 23 },  // teddiursa
+217: { dy: 15 },  // ursaring
+218: { dx: 19, dy: 15 },  // slugma
+219: { scale: 1.21, dx: 16, dy: 17 },  // magcargo
+220: { dx: 26, dy: 18 },  // swinub
+222: { dx: 18, dy: 14 },  // corsola
+223: { dx: 36, dy: 38 },  // remoraid
+224: { dy: 5 },  // octillery
+225: { dy: 15 },  // delibird
+226: { dx: -10, dy: 45 },  // mantine
+227: { dy: 14 },  // skarmory
+228: { scale: 1.16, dx: 8, dy: 18 },  // houndour
+229: { dy: 13 },  // houndoom
+230: { dx: 18, dy: 5 },  // kingdra
+231: { scale: 1.08, dy: 14 },  // phanpy
+232: { dy: 2 },  // donphan
+233: { scale: 1.36, dx: 19, dy: 84 },  // porygon2
+234: { dy: 17 },  // stantler
+235: { scale: 0.83, dy: 21 },  // smeargle
+236: { scale: 1.13, dx: 9, dy: 14 },  // tyrogue
+237: { dx: -40, dy: 7 },  // hitmontop
+238: { scale: 1.8, dx: 40, dy: 9 },  // smoochum
+239: { scale: 1.07, dx: 12, dy: 18 },  // elekid
+240: { scale: 1.25, dx: 34, dy: 13 },  // magby
+241: { dy: 8 },  // miltank
+242: { dy: 5 },  // blissey
+243: { dx: -6, dy: 7 },  // raikou
+244: { dx: -1, dy: 3 },  // entei
+245: { dy: 14 },  // suicune
+246: { scale: 1.22, dx: 38, dy: 17 },  // larvitar
+247: { dy: 12 },  // pupitar
+248: { dy: 9 },  // tyranitar
+249: { scale: 0.33, dx: -18, dy: 150 },  // lugia
+250: { scale: 0.56, dy: 150 },  // ho-oh
+251: { scale: 1.81, dx: 34, dy: 150 },  // celebi
+
   // --- The four giants: reined in enough to actually see them ---
   // Overflowing the card is intentional for these — the size *is* the reward —
   // but at true height-scale only 5–44% of the art landed inside the sprite

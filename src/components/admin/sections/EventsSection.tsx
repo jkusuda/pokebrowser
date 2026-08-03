@@ -20,7 +20,7 @@ import {
   EVENT_BONUS_TYPE_LABELS,
   MAX_BONUS_VALUE,
 } from "@/lib/events-data";
-import { GEN1_TYPES } from "@/lib/types";
+import { POKEMON_TYPES } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { EventBonus, EventTrackedStat, GameEvent } from "@/types";
 
@@ -164,7 +164,7 @@ export default function EventsSection() {
                 className={adminSelectClass}
               >
                 <option value="">— pick a type —</option>
-                {GEN1_TYPES.map((t) => (
+                {POKEMON_TYPES.map((t) => (
                   <option key={t} value={t}>{t}</option>
                 ))}
               </select>

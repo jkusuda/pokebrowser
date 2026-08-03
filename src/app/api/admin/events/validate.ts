@@ -1,10 +1,10 @@
 // Shared validation for the admin event create/update routes (not a route file).
 import type { DevEventInput } from "@/lib/queries";
-import { GEN1_TYPES } from "@/lib/types";
+import { POKEMON_TYPES } from "@/lib/types";
 import { EVENT_TRACKED_STAT_KEYS, EVENT_BONUS_TYPES, MAX_BONUS_VALUE } from "@/lib/events-data";
 
 const VALID_TRACKED_STATS = new Set<string>(EVENT_TRACKED_STAT_KEYS);
-const VALID_TYPES = new Set<string>(GEN1_TYPES);
+const VALID_TYPES = new Set<string>(POKEMON_TYPES);
 const VALID_BONUS_TYPES = new Set<string>(EVENT_BONUS_TYPES);
 
 type ValidationResult = { input: DevEventInput; error: null } | { input: null; error: string };

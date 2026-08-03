@@ -15,6 +15,8 @@ export const BADGE_ACHIEVEMENT_IDS = [
   "lucky_color",
   "legendary_encounter",
   "master_collector",
+  "kanto_complete",
+  "johto_complete",
   "gotta_catch_em_all",
   "netizen",
   "love_of_the_game",

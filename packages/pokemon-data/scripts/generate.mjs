@@ -1,5 +1,8 @@
-// One-time script to fetch all Gen 1 Pokémon data from PokeAPI
-// and generate a static TypeScript file.
+// One-time script to fetch Pokémon data from PokeAPI and generate the static
+// TypeScript data files:
+//   ../src/pokemon.ts   POKEMON record + lookup helpers
+//   ../src/families.ts  POKEMON_FAMILIES base-form map (shared candy pools)
+//   ../src/xp.ts        POKEMON_BASE_XP tiers, derived from evolution stage
 //
 // Usage: node packages/pokemon-data/scripts/generate.mjs
 
@@ -9,29 +12,67 @@ import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT = join(__dirname, "..", "src", "pokemon.ts");
+const FAMILIES_OUTPUT = join(__dirname, "..", "src", "families.ts");
+const XP_OUTPUT = join(__dirname, "..", "src", "xp.ts");
 const POKEAPI = "https://pokeapi.co/api/v2";
-const TOTAL = 151;
+const TOTAL = 251;
 
-// Family mapping for candy costs (inline, only used during generation)
-const FAMILIES = [
-  [1,2,3],[4,5,6],[7,8,9],[10,11,12],[13,14,15],[16,17,18],
-  [19,20],[21,22],[23,24],[25,26],[27,28],[29,30,31],[32,33,34],
-  [35,36],[37,38],[39,40],[41,42],[43,44,45],[46,47],[48,49],
-  [50,51],[52,53],[54,55],[56,57],[58,59],[60,61,62],[63,64,65],
-  [66,67,68],[69,70,71],[72,73],[74,75,76],[77,78],[79,80],[81,82],
-  [83],[84,85],[86,87],[88,89],[90,91],[92,93,94],[95],[96,97],
-  [98,99],[100,101],[102,103],[104,105],[106],[107],[108],[109,110],
-  [111,112],[113],[114],[115],[116,117],[118,119],[120,121],[122],
-  [123],[124],[125],[126],[127],[128],[129,130],[131],[132],
-  [133,134,135,136],[137],[138,139],[140,141],[142],[143],
-  [144],[145],[146],[147,148,149],[150],[151],
-];
+// PokeAPI resource URLs end in the numeric id, so evolution chains can be
+// walked without a fetch per node.
+function idFromUrl(url) {
+  const match = /\/(\d+)\/?$/.exec(url ?? "");
+  return match ? Number(match[1]) : 0;
+}
 
-function getFamilyOf(id) {
-  for (const fam of FAMILIES) {
-    if (fam.includes(id)) return fam;
+function inRange(id) {
+  return id >= 1 && id <= TOTAL;
+}
+
+function findChainNode(chain, id) {
+  if (idFromUrl(chain.species.url) === id) return chain;
+  for (const next of chain.evolves_to ?? []) {
+    const found = findChainNode(next, id);
+    if (found) return found;
   }
-  return [id];
+  return null;
+}
+
+function getDepth(chain, id, depth = 0) {
+  if (idFromUrl(chain.species.url) === id) return depth;
+  for (const next of chain.evolves_to ?? []) {
+    const result = getDepth(next, id, depth + 1);
+    if (result !== null) return result;
+  }
+  return null;
+}
+
+function getChainLength(chain) {
+  if (!chain.evolves_to?.length) return 1;
+  return 1 + Math.max(...chain.evolves_to.map(getChainLength));
+}
+
+/**
+ * The base form whose candy pool the whole family shares, resolved by walking
+ * *up* the evolution edges of the data we actually ship. Because out-of-range
+ * species are never fetched, a chain rooted in a later generation resolves to
+ * its earliest shipped member automatically (Happiny #440 → Chansey, Mantyke
+ * #458 → Mantine, Azurill #298 → Marill), while baby forms that are in range
+ * correctly lead their family (Pichu → Pikachu → Raichu is family 172).
+ */
+function resolveFamilyBases(allData) {
+  const parent = new Map();
+  for (const p of allData) {
+    for (const target of p.evolvesTo) parent.set(target, p.id);
+  }
+  for (const p of allData) {
+    let current = p.id;
+    const seen = new Set([current]);
+    while (parent.has(current) && !seen.has(parent.get(current))) {
+      current = parent.get(current);
+      seen.add(current);
+    }
+    p.familyBaseId = current;
+  }
 }
 
 async function fetchJSON(url) {
@@ -54,7 +95,7 @@ async function fetchPokemonData(id) {
     : "No description available.";
 
   // Evolution info
-  let evolvesTo = null;
+  let evolvesTo = [];
   let evolveCandyCost = null;
 
   try {
@@ -62,42 +103,21 @@ async function fetchPokemonData(id) {
     if (evoChainUrl) {
       const evoData = await fetchJSON(evoChainUrl);
 
-      const findNext = (chain, targetName) => {
-        if (chain.species.name === targetName) {
-          return chain.evolves_to?.[0]?.species?.name ?? null;
-        }
-        for (const next of chain.evolves_to ?? []) {
-          const result = findNext(next, targetName);
-          if (result !== null) return result;
-        }
-        return null;
-      };
+      const node = findChainNode(evoData.chain, id);
+      if (node) {
+        // Every branch, not just the first — Eevee, Tyrogue, Gloom, Poliwhirl
+        // and Slowpoke all split. Cross-generation targets we don't ship
+        // (Sylveon, Kleavor, Porygon-Z) are dropped.
+        evolvesTo = (node.evolves_to ?? [])
+          .map((next) => idFromUrl(next.species.url))
+          .filter(inRange)
+          .sort((a, b) => a - b);
 
-      const getDepth = (chain, targetName, depth = 0) => {
-        if (chain.species.name === targetName) return depth;
-        for (const next of chain.evolves_to ?? []) {
-          const result = getDepth(next, targetName, depth + 1);
-          if (result !== null) return result;
-        }
-        return null;
-      };
-
-      const getChainLength = (chain) => {
-        if (!chain.evolves_to?.length) return 1;
-        return 1 + Math.max(...chain.evolves_to.map(getChainLength));
-      };
-
-      const nextSpeciesName = findNext(evoData.chain, pkmn.name);
-      if (nextSpeciesName) {
-        // Resolve the next species' national dex number
-        const nextSpecies = await fetchJSON(`${POKEAPI}/pokemon-species/${nextSpeciesName}`);
-
-        // Only keep evolutions within the supported generation — cross-gen
-        // evolutions (Onix→Steelix, Scyther→Scizor, ...) don't exist in-game.
-        if (nextSpecies.id <= TOTAL) {
-          evolvesTo = nextSpecies.id;
-
-          const depth = getDepth(evoData.chain, pkmn.name) ?? 0;
+        if (evolvesTo.length > 0) {
+          // Cost comes from the *full* PokeAPI chain, including members outside
+          // our range. That's deliberate: it's why raising TOTAL adds new rows
+          // without shifting any existing species' cost.
+          const depth = getDepth(evoData.chain, id) ?? 0;
           const chainLength = getChainLength(evoData.chain);
           if (chainLength === 3) {
             evolveCandyCost = depth === 0 ? 25 : 100;
@@ -120,6 +140,11 @@ async function fetchPokemonData(id) {
     description,
     evolvesTo,
     evolveCandyCost,
+    // Rarity comes straight from PokeAPI rather than a hand-maintained id set.
+    // Note it flags Mew and Celebi as mythical but NOT legendary.
+    isLegendary: species.is_legendary === true,
+    isMythical: species.is_mythical === true,
+    familyBaseId: id, // replaced by resolveFamilyBases once the whole set is in
     baseStats: {
       hp: getStat("hp"),
       atk: getStat("attack"),
@@ -129,6 +154,178 @@ async function fetchPokemonData(id) {
       speed: getStat("speed"),
     },
   };
+}
+
+function buildPokemonFile(allData) {
+  const entries = allData.map((p) => {
+    const types = JSON.stringify(p.types);
+    const desc = JSON.stringify(p.description);
+    return `  ${p.id}: {
+    id: ${p.id},
+    name: ${JSON.stringify(p.name)},
+    types: ${types},
+    weight: ${p.weight},
+    height: ${p.height},
+    description: ${desc},
+    evolvesTo: [${p.evolvesTo.join(", ")}],
+    evolveCandyCost: ${p.evolveCandyCost ?? "null"},
+    isLegendary: ${p.isLegendary},
+    isMythical: ${p.isMythical},
+    baseStats: { hp: ${p.baseStats.hp}, atk: ${p.baseStats.atk}, def: ${p.baseStats.def}, spAtk: ${p.baseStats.spAtk}, spDef: ${p.baseStats.spDef}, speed: ${p.baseStats.speed} },
+  }`;
+  });
+
+  return `// AUTO-GENERATED — do not edit manually.
+// Run \`node packages/pokemon-data/scripts/generate.mjs\` to regenerate.
+
+export interface PokemonBaseStats {
+  hp: number;
+  atk: number;
+  def: number;
+  spAtk: number;
+  spDef: number;
+  speed: number;
+}
+
+export interface PokemonData {
+  id: number;
+  name: string;
+  types: string[];
+  weight: number;   // kg
+  height: number;   // m
+  description: string;
+  /** Every species this can evolve into. Empty when it's a final form. */
+  evolvesTo: number[];
+  /** Candy cost, identical across branches. Null when it can't evolve. */
+  evolveCandyCost: number | null;
+  /** PokeAPI rarity flags. Mythicals (Mew, Celebi) are NOT flagged legendary. */
+  isLegendary: boolean;
+  isMythical: boolean;
+  baseStats: PokemonBaseStats;
+}
+
+export const POKEMON: Record<number, PokemonData> = {
+${entries.join(",\n")}
+};
+
+/**
+ * Synchronous Pokémon data lookup.
+ * Returns the full data object for a Pokémon, or null if not found.
+ */
+export function getPokemonData(pokedexNumber: number): PokemonData | null {
+  return POKEMON[pokedexNumber] ?? null;
+}
+
+/**
+ * Get a Pokémon's display name, properly capitalized.
+ * Mirrored by the _pokemon_display_name SQL helper — keep the two in sync.
+ */
+export function getPokemonName(pokedexNumber: number): string {
+  const data = POKEMON[pokedexNumber];
+  if (!data) return \`Pokemon #\${pokedexNumber}\`;
+
+  // Names the generic rule below would mangle.
+  const name = data.name;
+  if (name === "nidoran-f") return "Nidoran♀";
+  if (name === "nidoran-m") return "Nidoran♂";
+  if (name === "mr-mime") return "Mr. Mime";
+  if (name === "farfetchd") return "Farfetch'd";
+  if (name === "ho-oh") return "Ho-Oh";
+  if (name === "porygon2") return "Porygon2";
+
+  return name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, " ");
+}
+`;
+}
+
+function buildFamiliesFile(allData) {
+  const byId = new Map(allData.map((p) => [p.id, p]));
+
+  // Group members under their base so the file reads one line per family.
+  const groups = new Map();
+  for (const p of allData) {
+    if (!groups.has(p.familyBaseId)) groups.set(p.familyBaseId, []);
+    groups.get(p.familyBaseId).push(p.id);
+  }
+
+  const lines = [...groups.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([base, members]) => {
+      const pairs = members.sort((a, b) => a - b).map((m) => `${m}: ${base},`).join(" ");
+      const baseName = byId.get(base)?.name ?? `#${base}`;
+      const label = members.length > 1 ? `${baseName} line` : baseName;
+      return `  ${pairs.padEnd(34)} // ${label}`;
+    });
+
+  return `// AUTO-GENERATED — do not edit manually.
+// Run \`node packages/pokemon-data/scripts/generate.mjs\` to regenerate.
+//
+// Maps every Pokémon to its base-form Pokédex number.
+// Used for shared candy pools (e.g. Sandslash → Sandshrew candy), and mirrored
+// by pokemon_species.family_base_id in the database.
+
+export const POKEMON_FAMILIES: Record<number, number> = {
+${lines.join("\n")}
+};
+
+export function getFamilyId(pokedexNumber: number): number {
+  return POKEMON_FAMILIES[pokedexNumber] ?? pokedexNumber;
+}
+`;
+}
+
+/**
+ * XP tier is a pure function of rarity and position in the evolution line, so
+ * it's derived rather than hand-maintained. Note the tier reflects a species'
+ * position in the range we *ship*: Onix counts as a basic once Steelix exists.
+ */
+function baseXpFor(p, evolutionTargets) {
+  if (p.isLegendary || p.isMythical) return 1000;
+  if (p.evolvesTo.length === 0) return 300; // final form or true single-stage
+  if (evolutionTargets.has(p.id)) return 200; // middle
+  return 100; // basic that evolves
+}
+
+function buildXpFile(allData) {
+  const targets = new Set(allData.flatMap((p) => p.evolvesTo));
+  const byId = new Map(allData.map((p) => [p.id, p]));
+
+  // One line per family, mirroring families.ts so the two read side by side.
+  const groups = new Map();
+  for (const p of allData) {
+    if (!groups.has(p.familyBaseId)) groups.set(p.familyBaseId, []);
+    groups.get(p.familyBaseId).push(p);
+  }
+
+  const lines = [...groups.entries()]
+    .sort((a, b) => Math.min(...a[1].map((p) => p.id)) - Math.min(...b[1].map((p) => p.id)))
+    .map(([base, members]) => {
+      const sorted = members.sort((a, b) => a.id - b.id);
+      const pairs = sorted.map((p) => `${p.id}: ${baseXpFor(p, targets)},`).join(" ");
+      const baseName = byId.get(base)?.name ?? `#${base}`;
+      const label = sorted.length > 1 ? `${baseName} line` : baseName;
+      return `  ${pairs.padEnd(34)} // ${label}`;
+    });
+
+  return `// AUTO-GENERATED — do not edit manually.
+// Run \`node packages/pokemon-data/scripts/generate.mjs\` to regenerate.
+//
+// Basic: 100, Middle: 200, Final/single-stage: 300, Legendary/Mythical: 1000
+// Shiny bonus: +2000 (stacks with base)
+//
+// DISPLAY ONLY. The awarded value is computed by the _catch_pokemon RPC, which
+// derives the same tiers from the pokemon_species and pokemon_evolutions
+// reference tables — so this file cannot drift out of sync with gameplay.
+
+export const POKEMON_BASE_XP: Record<number, number> = {
+${lines.join("\n")}
+};
+
+export function getPokemonBaseXp(pokedexNumber: number, isShiny: boolean): number {
+  const base = POKEMON_BASE_XP[pokedexNumber] ?? 100;
+  return isShiny ? base + 2000 : base;
+}
+`;
 }
 
 async function main() {
@@ -148,82 +345,17 @@ async function main() {
     if (end < TOTAL) await new Promise((r) => setTimeout(r, 500));
   }
 
-  // Sort by ID
   allData.sort((a, b) => a.id - b.id);
 
-  // Generate TypeScript
-  const entries = allData.map((p) => {
-    const types = JSON.stringify(p.types);
-    const desc = JSON.stringify(p.description);
-    return `  ${p.id}: {
-    id: ${p.id},
-    name: ${JSON.stringify(p.name)},
-    types: ${types},
-    weight: ${p.weight},
-    height: ${p.height},
-    description: ${desc},
-    evolvesTo: ${p.evolvesTo ?? "null"},
-    evolveCandyCost: ${p.evolveCandyCost ?? "null"},
-    baseStats: { hp: ${p.baseStats.hp}, atk: ${p.baseStats.atk}, def: ${p.baseStats.def}, spAtk: ${p.baseStats.spAtk}, spDef: ${p.baseStats.spDef}, speed: ${p.baseStats.speed} },
-  }`;
-  });
+  // Needs the whole set — a family base can be any member of the chain.
+  resolveFamilyBases(allData);
 
-  const ts = `// AUTO-GENERATED — do not edit manually.
-// Run \`node packages/pokemon-data/scripts/generate.mjs\` to regenerate.
-
-export interface PokemonBaseStats {
-  hp: number;
-  atk: number;
-  def: number;
-  spAtk: number;
-  spDef: number;
-  speed: number;
-}
-
-export interface PokemonData {
-  id: number;
-  name: string;
-  types: string[];
-  weight: number;   // kg
-  height: number;   // m
-  description: string;
-  evolvesTo: number | null;
-  evolveCandyCost: number | null;
-  baseStats: PokemonBaseStats;
-}
-
-export const POKEMON: Record<number, PokemonData> = {
-${entries.join(",\n")}
-};
-
-/**
- * Synchronous Pokémon data lookup.
- * Returns the full data object for a Gen 1 Pokémon, or null if not found.
- */
-export function getPokemonData(pokedexNumber: number): PokemonData | null {
-  return POKEMON[pokedexNumber] ?? null;
-}
-
-/**
- * Get a Pokémon's display name, properly capitalized.
- */
-export function getPokemonName(pokedexNumber: number): string {
-  const data = POKEMON[pokedexNumber];
-  if (!data) return \`Pokemon #\${pokedexNumber}\`;
-  
-  // Handle Gen 1 special cases
-  const name = data.name;
-  if (name === "nidoran-f") return "Nidoran♀";
-  if (name === "nidoran-m") return "Nidoran♂";
-  if (name === "mr-mime") return "Mr. Mime";
-  if (name === "farfetchd") return "Farfetch'd";
-  
-  return name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, " ");
-}
-`;
-
-  writeFileSync(OUTPUT, ts, "utf-8");
+  writeFileSync(OUTPUT, buildPokemonFile(allData), "utf-8");
+  writeFileSync(FAMILIES_OUTPUT, buildFamiliesFile(allData), "utf-8");
+  writeFileSync(XP_OUTPUT, buildXpFile(allData), "utf-8");
   console.log(`\n✅ Generated ${OUTPUT} with ${allData.length} Pokémon.`);
+  console.log(`✅ Generated ${FAMILIES_OUTPUT}.`);
+  console.log(`✅ Generated ${XP_OUTPUT}.`);
 }
 
 main().catch((err) => {

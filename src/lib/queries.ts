@@ -150,9 +150,19 @@ export async function releasePokemon(supabase: SupabaseClient, pokemonId: string
   if (error) throw error;
 }
 
-/** Evolve a caught Pokémon in place via the server-authoritative RPC. */
-export async function evolvePokemon(supabase: SupabaseClient, pokemonId: string) {
-  const { data, error } = await supabase.rpc("evolve_pokemon", { p_pokemon_id: pokemonId });
+/**
+ * Evolve a caught Pokémon in place via the server-authoritative RPC.
+ * `targetId` picks a branch on lines that split; null takes the canonical one.
+ */
+export async function evolvePokemon(
+  supabase: SupabaseClient,
+  pokemonId: string,
+  targetId: number | null = null
+) {
+  const { data, error } = await supabase.rpc("evolve_pokemon", {
+    p_pokemon_id: pokemonId,
+    p_target_id: targetId,
+  });
   if (error) throw error;
   return data as { to_pokedex_number: number; is_new_species: boolean };
 }

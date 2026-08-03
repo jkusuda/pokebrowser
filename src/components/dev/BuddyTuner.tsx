@@ -18,12 +18,13 @@ import {
   getPokemonData,
   getPokemonName,
 } from "@/lib/pokemon";
+import { POKEDEX_SIZE } from "pokemon-data";
 import { THEMES, type ThemeId } from "@/lib/themes";
 import { cn } from "@/lib/utils";
 import route101 from "@/assets/route101.webp";
 import themeBackground2 from "@/assets/theme_background_2.webp";
 
-const DEX_IDS = Array.from({ length: 151 }, (_, i) => i + 1);
+const DEX_IDS = Array.from({ length: POKEDEX_SIZE }, (_, i) => i + 1);
 
 /** A fully-specified override — the tuner always has concrete values to slide. */
 type Draft = Required<BuddyOverride>;
@@ -97,7 +98,7 @@ export default function BuddyTuner() {
       const step = e.shiftKey ? 10 : 1;
       switch (e.key) {
         case "[": setDex((d) => Math.max(1, d - 1)); break;
-        case "]": setDex((d) => Math.min(151, d + 1)); break;
+        case "]": setDex((d) => Math.min(POKEDEX_SIZE, d + 1)); break;
         case "ArrowLeft": nudge("dx", -step); break;
         case "ArrowRight": nudge("dx", step); break;
         case "ArrowUp": nudge("dy", step); break;
@@ -223,7 +224,7 @@ export default function BuddyTuner() {
               <Button variant="game" tone="neutral" size="sm" onClick={() => setDex((d) => Math.max(1, d - 1))}>
                 ← prev [
               </Button>
-              <Button variant="game" tone="neutral" size="sm" onClick={() => setDex((d) => Math.min(151, d + 1))}>
+              <Button variant="game" tone="neutral" size="sm" onClick={() => setDex((d) => Math.min(POKEDEX_SIZE, d + 1))}>
                 ] next →
               </Button>
             </div>

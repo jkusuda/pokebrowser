@@ -91,7 +91,6 @@ export const POKEMON_FAMILIES: Record<number, number> = {
   175: 175, 176: 175,                // togepi line
   177: 177, 178: 177,                // natu line
   179: 179, 180: 179, 181: 179,      // mareep line
-  183: 183, 184: 183,                // marill line
   185: 185,                          // sudowoodo
   187: 187, 188: 187, 189: 187,      // hoppip line
   190: 190,                          // aipom
@@ -101,7 +100,6 @@ export const POKEMON_FAMILIES: Record<number, number> = {
   198: 198,                          // murkrow
   200: 200,                          // misdreavus
   201: 201,                          // unown
-  202: 202,                          // wobbuffet
   203: 203,                          // girafarig
   204: 204, 205: 204,                // pineco line
   206: 206,                          // dunsparce
@@ -135,6 +133,81 @@ export const POKEMON_FAMILIES: Record<number, number> = {
   249: 249,                          // lugia
   250: 250,                          // ho-oh
   251: 251,                          // celebi
+  252: 252, 253: 252, 254: 252,      // treecko line
+  255: 255, 256: 255, 257: 255,      // torchic line
+  258: 258, 259: 258, 260: 258,      // mudkip line
+  261: 261, 262: 261,                // poochyena line
+  263: 263, 264: 263,                // zigzagoon line
+  265: 265, 266: 265, 267: 265, 268: 265, 269: 265, // wurmple line
+  270: 270, 271: 270, 272: 270,      // lotad line
+  273: 273, 274: 273, 275: 273,      // seedot line
+  276: 276, 277: 276,                // taillow line
+  278: 278, 279: 278,                // wingull line
+  280: 280, 281: 280, 282: 280,      // ralts line
+  283: 283, 284: 283,                // surskit line
+  285: 285, 286: 285,                // shroomish line
+  287: 287, 288: 287, 289: 287,      // slakoth line
+  290: 290, 291: 290, 292: 290,      // nincada line
+  293: 293, 294: 293, 295: 293,      // whismur line
+  296: 296, 297: 296,                // makuhita line
+  183: 298, 184: 298, 298: 298,      // azurill line
+  299: 299,                          // nosepass
+  300: 300, 301: 300,                // skitty line
+  302: 302,                          // sableye
+  303: 303,                          // mawile
+  304: 304, 305: 304, 306: 304,      // aron line
+  307: 307, 308: 307,                // meditite line
+  309: 309, 310: 309,                // electrike line
+  311: 311,                          // plusle
+  312: 312,                          // minun
+  313: 313,                          // volbeat
+  314: 314,                          // illumise
+  315: 315,                          // roselia
+  316: 316, 317: 316,                // gulpin line
+  318: 318, 319: 318,                // carvanha line
+  320: 320, 321: 320,                // wailmer line
+  322: 322, 323: 322,                // numel line
+  324: 324,                          // torkoal
+  325: 325, 326: 325,                // spoink line
+  327: 327,                          // spinda
+  328: 328, 329: 328, 330: 328,      // trapinch line
+  331: 331, 332: 331,                // cacnea line
+  333: 333, 334: 333,                // swablu line
+  335: 335,                          // zangoose
+  336: 336,                          // seviper
+  337: 337,                          // lunatone
+  338: 338,                          // solrock
+  339: 339, 340: 339,                // barboach line
+  341: 341, 342: 341,                // corphish line
+  343: 343, 344: 343,                // baltoy line
+  345: 345, 346: 345,                // lileep line
+  347: 347, 348: 347,                // anorith line
+  349: 349, 350: 349,                // feebas line
+  351: 351,                          // castform
+  352: 352,                          // kecleon
+  353: 353, 354: 353,                // shuppet line
+  355: 355, 356: 355,                // duskull line
+  357: 357,                          // tropius
+  358: 358,                          // chimecho
+  359: 359,                          // absol
+  202: 360, 360: 360,                // wynaut line
+  361: 361, 362: 361,                // snorunt line
+  363: 363, 364: 363, 365: 363,      // spheal line
+  366: 366, 367: 366, 368: 366,      // clamperl line
+  369: 369,                          // relicanth
+  370: 370,                          // luvdisc
+  371: 371, 372: 371, 373: 371,      // bagon line
+  374: 374, 375: 374, 376: 374,      // beldum line
+  377: 377,                          // regirock
+  378: 378,                          // regice
+  379: 379,                          // registeel
+  380: 380,                          // latias
+  381: 381,                          // latios
+  382: 382,                          // kyogre
+  383: 383,                          // groudon
+  384: 384,                          // rayquaza
+  385: 385,                          // jirachi
+  386: 386,                          // deoxys-normal
 };
 
 export function getFamilyId(pokedexNumber: number): number {

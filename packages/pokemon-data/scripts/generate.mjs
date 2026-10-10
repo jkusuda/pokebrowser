@@ -15,7 +15,7 @@ const OUTPUT = join(__dirname, "..", "src", "pokemon.ts");
 const FAMILIES_OUTPUT = join(__dirname, "..", "src", "families.ts");
 const XP_OUTPUT = join(__dirname, "..", "src", "xp.ts");
 const POKEAPI = "https://pokeapi.co/api/v2";
-const TOTAL = 251;
+const TOTAL = 386;
 
 // PokeAPI resource URLs end in the numeric id, so evolution chains can be
 // walked without a fetch per node.
@@ -232,6 +232,7 @@ export function getPokemonName(pokedexNumber: number): string {
   if (name === "farfetchd") return "Farfetch'd";
   if (name === "ho-oh") return "Ho-Oh";
   if (name === "porygon2") return "Porygon2";
+  if (name === "deoxys-normal") return "Deoxys";
 
   return name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, " ");
 }

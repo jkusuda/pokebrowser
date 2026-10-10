@@ -229,6 +229,144 @@ export const BUDDY_OVERRIDES: Record<number, BuddyOverride> = {
 250: { scale: 0.56, dy: 150 },  // ho-oh
 251: { scale: 1.81, dx: 34, dy: 150 },  // celebi
 
+  // --- Gen 3: first pass, generated from the measured sprites with rules fitted
+  // to the hand-tuned Gen 2 values above. Fine-tune in /dev/buddy. ---
+252: { scale: 1.96, dx: 36, dy: 15 },  // treecko
+253: { scale: 1.22, dx: 11, dy: 15 },  // grovyle
+254: { dy: 8 },  // sceptile
+255: { scale: 1.85, dx: 48, dy: 15 },  // torchic
+256: { dx: 10, dy: 15 },  // combusken
+257: { dy: 8 },  // blaziken
+258: { scale: 1.93, dx: 36, dy: 15 },  // mudkip
+259: { scale: 1.3, dx: 23, dy: 15 },  // marshtomp
+260: { dy: 15 },  // swampert
+261: { scale: 1.37, dx: 26, dy: 15 },  // poochyena
+262: { dy: 15 },  // mightyena
+263: { scale: 1.69, dx: 19, dy: 15 },  // zigzagoon
+264: { scale: 1.28, dy: 15 },  // linoone
+265: { scale: 2.4, dx: 44, dy: 15 },  // wurmple
+266: { scale: 1.23, dx: 28, dy: 15 },  // silcoon
+267: { dy: 150 },  // beautifly
+268: { dx: 14, dy: 15 },  // cascoon
+269: { dy: 150 },  // dustox
+270: { scale: 1.28, dx: 35, dy: 15 },  // lotad
+271: { dy: 15 },  // lombre
+272: { dy: 15 },  // ludicolo
+273: { dx: 53, dy: 15 },  // seedot
+274: { dx: 29, dy: 15 },  // nuzleaf
+275: { dy: 15 },  // shiftry
+276: { scale: 1.88, dx: 37, dy: 15 },  // taillow
+277: { scale: 1.32, dx: 2, dy: 150 },  // swellow
+278: { dx: 24, dy: 150 },  // wingull
+279: { dy: 150 },  // pelipper
+280: { scale: 1.53, dx: 55, dy: 15 },  // ralts
+281: { scale: 1.23, dx: 45, dy: 15 },  // kirlia
+282: { dy: 15 },  // gardevoir
+283: { scale: 1.59, dx: 7, dy: 15 },  // surskit
+284: { scale: 1.27, dy: 150 },  // masquerain
+285: { scale: 1.89, dx: 35, dy: 15 },  // shroomish
+286: { dx: 14, dy: 15 },  // breloom
+287: { dy: 15 },  // slakoth
+288: { dy: 15 },  // vigoroth
+289: { dy: 8 },  // slaking
+290: { dx: 18, dy: 15 },  // nincada
+291: { dx: 19, dy: 150 },  // ninjask
+292: { dx: 33, dy: 90 },  // shedinja
+293: { dx: 45, dy: 15 },  // whismur
+294: { dx: 10, dy: 15 },  // loudred
+295: { dy: 15 },  // exploud
+296: { dx: 12, dy: 15 },  // makuhita
+297: { dy: 8 },  // hariyama
+298: { scale: 4.8, dx: 35, dy: 15 },  // azurill
+299: { dx: 18, dy: 15 },  // nosepass
+300: { dx: 34, dy: 15 },  // skitty
+301: { dy: 15 },  // delcatty
+302: { scale: 1.53, dx: 36, dy: 15 },  // sableye
+303: { scale: 1.33, dy: 15 },  // mawile
+304: { scale: 1.22, dx: 50, dy: 15 },  // aron
+305: { dx: 1, dy: 15 },  // lairon
+306: { dy: 8 },  // aggron
+307: { scale: 1.41, dx: 35, dy: 15 },  // meditite
+308: { dx: 29, dy: 15 },  // medicham
+309: { dx: 24, dy: 15 },  // electrike
+310: { dy: 15 },  // manectric
+311: { scale: 1.93, dx: 42, dy: 15 },  // plusle
+312: { scale: 1.93, dx: 39, dy: 15 },  // minun
+313: { scale: 1.21, dx: 12, dy: 15 },  // volbeat
+314: { scale: 1.36, dx: 22, dy: 15 },  // illumise
+315: { scale: 2.87, dx: 14, dy: 15 },  // roselia
+316: { scale: 1.73, dx: 46, dy: 15 },  // gulpin
+317: { dy: 8 },  // swalot
+318: { dx: 22, dy: 30 },  // carvanha
+319: { dy: 30 },  // sharpedo
+320: { dy: 8 },  // wailmer
+321: { scale: 0.16, dy: 8 },  // wailord
+322: { dx: 35, dy: 15 },  // numel
+323: { dy: 8 },  // camerupt
+324: { scale: 2.06, dx: 11, dy: 15 },  // torkoal
+325: { scale: 1.48, dx: 45, dy: 15 },  // spoink
+326: { dx: 28, dy: 15 },  // grumpig
+327: { dx: 25, dy: 15 },  // spinda
+328: { dx: 38, dy: 15 },  // trapinch
+329: { dx: 2, dy: 150 },  // vibrava
+330: { dy: 150 },  // flygon
+331: { scale: 1.61, dx: 19, dy: 15 },  // cacnea
+332: { dy: 15 },  // cacturne
+333: { scale: 1.93, dy: 150 },  // swablu
+334: { dx: 9, dy: 150 },  // altaria
+335: { dy: 15 },  // zangoose
+336: { dy: 8 },  // seviper
+337: { dx: 28, dy: 120 },  // lunatone
+338: { dy: 120 },  // solrock
+339: { scale: 1.38, dx: 30, dy: 30 },  // barboach
+340: { dx: 3, dy: 30 },  // whiscash
+341: { dx: 29, dy: 15 },  // corphish
+342: { dy: 15 },  // crawdaunt
+343: { scale: 1.25, dx: 39, dy: 15 },  // baltoy
+344: { dy: 90 },  // claydol
+345: { dx: 13, dy: 15 },  // lileep
+346: { dx: 2, dy: 15 },  // cradily
+347: { dx: 43, dy: 15 },  // anorith
+348: { dy: 15 },  // armaldo
+349: { scale: 1.36, dx: 42, dy: 30 },  // feebas
+350: { scale: 0.38, dy: 8 },  // milotic
+351: { scale: 2.45, dx: 32, dy: 120 },  // castform
+352: { dy: 15 },  // kecleon
+353: { scale: 1.51, dx: 41, dy: 120 },  // shuppet
+354: { dy: 15 },  // banette
+355: { dx: 18, dy: 120 },  // duskull
+356: { dy: 40 },  // dusclops
+357: { dy: 8 },  // tropius
+358: { scale: 1.7, dx: 46, dy: 150 },  // chimecho
+359: { dy: 15 },  // absol
+360: { scale: 1.46, dx: 28, dy: 15 },  // wynaut
+361: { dx: 44, dy: 15 },  // snorunt
+362: { dy: 15 },  // glalie
+363: { dx: 18, dy: 15 },  // spheal
+364: { dy: 15 },  // sealeo
+365: { dy: 15 },  // walrein
+366: { scale: 1.65, dx: 34, dy: 30 },  // clamperl
+367: { dy: 30 },  // huntail
+368: { dy: 30 },  // gorebyss
+369: { dy: 30 },  // relicanth
+370: { dx: 51, dy: 30 },  // luvdisc
+371: { scale: 1.33, dx: 37, dy: 15 },  // bagon
+372: { dx: 9, dy: 15 },  // shelgon
+373: { dy: 15 },  // salamence
+374: { dx: 39, dy: 90 },  // beldum
+375: { dy: 90 },  // metang
+376: { dy: 15 },  // metagross
+377: { dy: 8 },  // regirock
+378: { dy: 8 },  // regice
+379: { dy: 8 },  // registeel
+380: { dy: 150 },  // latias
+381: { dy: 150 },  // latios
+382: { scale: 0.52, dy: 8 },  // kyogre
+383: { scale: 0.67, dy: 8 },  // groudon
+384: { scale: 0.34, dy: 150 },  // rayquaza
+385: { scale: 2.45, dx: 22, dy: 150 },  // jirachi
+386: { dy: 30 },  // deoxys
+
   // --- The four giants: reined in enough to actually see them ---
   // Overflowing the card is intentional for these — the size *is* the reward —
   // but at true height-scale only 5–44% of the art landed inside the sprite

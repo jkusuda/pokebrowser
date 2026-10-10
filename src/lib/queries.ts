@@ -602,6 +602,7 @@ function mapDevEventError(error: { message?: string }): Error | null {
   if (msg.includes("invalid_bonuses")) return new Error("Invalid bonuses");
   if (msg.includes("invalid_spotlight")) return new Error("Invalid spotlight");
   if (msg.includes("invalid_type_boost")) return new Error("Invalid type boost");
+  if (msg.includes("invalid_generation_boost")) return new Error("Invalid generation boost");
   if (msg.includes("invalid_community_goal")) return new Error("Invalid community goal");
   if (msg.includes("invalid_reward")) return new Error("Invalid community reward");
   if (msg.includes("goal_already_reached")) {
@@ -618,6 +619,7 @@ export const DEV_EVENT_INPUT_ERRORS = new Set([
   "Invalid bonuses",
   "Invalid spotlight",
   "Invalid type boost",
+  "Invalid generation boost",
   "Invalid community goal",
   "Invalid community reward",
 ]);
@@ -634,6 +636,8 @@ export interface DevEventInput {
   spotlightRate: number | null;
   boostedTypes: string[];
   typeBoost: number;
+  boostedGenerations: number[];
+  generationBoost: number;
   communityGoal: number | null;
   rewardTokenType: string | null;
   rewardPokedex: number | null;
@@ -653,6 +657,8 @@ function devEventParams(input: DevEventInput) {
     p_spotlight_rate: input.spotlightRate,
     p_boosted_types: input.boostedTypes,
     p_type_boost: input.typeBoost,
+    p_boosted_generations: input.boostedGenerations,
+    p_generation_boost: input.generationBoost,
     p_community_goal: input.communityGoal,
     p_reward_token_type: input.rewardTokenType,
     p_reward_pokedex: input.rewardPokedex,

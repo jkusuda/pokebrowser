@@ -32,8 +32,8 @@ const evolutionRows = all.flatMap((p) =>
   p.evolvesTo.map((to) => `  (${p.id}, ${to}, ${p.evolveCandyCost})`)
 );
 
-// Upserts rather than plain inserts — pokemon_species is already seeded with
-// dex 1–151, so a bare INSERT would conflict on the primary key.
+// Upserts rather than plain inserts — pokemon_species already holds every
+// previously shipped generation, so a bare INSERT would conflict on the primary key.
 console.log(`-- ${speciesRows.length} species`);
 console.log(
   "insert into public.pokemon_species (id, name, types, is_legendary, is_mythical, family_base_id) values"

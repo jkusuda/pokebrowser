@@ -24,10 +24,11 @@ import {
   MAX_SPOTLIGHT_RATE,
   MAX_TYPE_BOOST,
   MAX_BOOSTED_TYPES,
+  MAX_GENERATION_BOOST,
   tokenLabel,
 } from "@/lib/events-data";
 import { POKEMON_TYPES } from "@/lib/types";
-import { POKEMON, getPokemonName } from "pokemon-data";
+import { GENERATIONS, POKEMON, SHIPPED_GENERATIONS, getPokemonName, type Generation } from "pokemon-data";
 import { cn } from "@/lib/utils";
 import { EventBonus, EventRewardTokenType, EventTrackedStat, GameEvent } from "@/types";
 
@@ -45,6 +46,8 @@ const EMPTY_FORM = {
   spotlightPercent: "25",
   boostedTypes: [] as string[],
   typeBoost: "3",
+  boostedGenerations: [] as number[],
+  generationBoost: "2",
   // Community goal — empty goal means "off".
   communityGoal: "",
   rewardTokenType: "species" as EventRewardTokenType,
@@ -63,6 +66,9 @@ function modifierSummary(event: GameEvent): string {
   }
   if (event.boosted_types.length > 0) {
     parts.push(`${event.boosted_types.join("/")} ×${event.type_boost}`);
+  }
+  if (event.boosted_generations.length > 0) {
+    parts.push(`Gen ${event.boosted_generations.join("/")} ×${event.generation_boost}`);
   }
   if (event.community_goal !== null && event.reward_token_type !== null) {
     parts.push(
@@ -140,6 +146,9 @@ export default function EventsSection() {
         event.spotlight_rate === null ? EMPTY_FORM.spotlightPercent : String(Math.round(event.spotlight_rate * 100)),
       boostedTypes: event.boosted_types,
       typeBoost: event.boosted_types.length > 0 ? String(event.type_boost) : EMPTY_FORM.typeBoost,
+      boostedGenerations: event.boosted_generations,
+      generationBoost:
+        event.boosted_generations.length > 0 ? String(event.generation_boost) : EMPTY_FORM.generationBoost,
       communityGoal: event.community_goal === null ? "" : String(event.community_goal),
       rewardTokenType: event.reward_token_type ?? EMPTY_FORM.rewardTokenType,
       rewardPokedex:
@@ -162,6 +171,8 @@ export default function EventsSection() {
       spotlightRate: form.spotlightPokedex ? Number(form.spotlightPercent) / 100 : null,
       boostedTypes: form.boostedTypes,
       typeBoost: form.boostedTypes.length > 0 ? Number(form.typeBoost) : 1,
+      boostedGenerations: form.boostedGenerations,
+      generationBoost: form.boostedGenerations.length > 0 ? Number(form.generationBoost) : 1,
       communityGoal: form.communityGoal ? Number(form.communityGoal) : null,
       rewardTokenType: form.communityGoal ? form.rewardTokenType : null,
       rewardPokedex:
@@ -185,6 +196,16 @@ export default function EventsSection() {
     setForm({
       ...form,
       boostedTypes: has ? form.boostedTypes.filter((t) => t !== type) : [...form.boostedTypes, type],
+    });
+  };
+
+  const toggleBoostedGeneration = (gen: number) => {
+    const has = form.boostedGenerations.includes(gen);
+    setForm({
+      ...form,
+      boostedGenerations: has
+        ? form.boostedGenerations.filter((g) => g !== gen)
+        : [...form.boostedGenerations, gen].sort((a, b) => a - b),
     });
   };
 
@@ -412,6 +433,40 @@ export default function EventsSection() {
                 className={`!w-24 ${adminInputClass}`}
                 min={1.5}
                 max={MAX_TYPE_BOOST}
+                step={0.5}
+              />
+            </Field>
+          )}
+          <Field label="Boosted generations" hint="multiplies with the type boost">
+            <div className="flex flex-wrap gap-1.5">
+              {SHIPPED_GENERATIONS.map((g) => {
+                const on = form.boostedGenerations.includes(g);
+                return (
+                  <button
+                    key={g}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => toggleBoostedGeneration(g)}
+                    className={cn(
+                      "px-2 py-0.5 rounded border-2 font-bold text-[10px] uppercase tracking-wide",
+                      on ? "bg-pb-primary text-white border-black" : "bg-white text-pb-ink/70 border-black/15"
+                    )}
+                  >
+                    Gen {g} · {GENERATIONS[g as Generation].name}
+                  </button>
+                );
+              })}
+            </div>
+          </Field>
+          {form.boostedGenerations.length > 0 && (
+            <Field label="Generation boost" hint={`spawn weight ×, max ${MAX_GENERATION_BOOST}`}>
+              <Input
+                type="number"
+                value={form.generationBoost}
+                onChange={(e) => setForm({ ...form, generationBoost: e.target.value })}
+                className={`!w-24 ${adminInputClass}`}
+                min={1.5}
+                max={MAX_GENERATION_BOOST}
                 step={0.5}
               />
             </Field>

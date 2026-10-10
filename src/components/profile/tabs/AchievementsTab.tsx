@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 
 const CATEGORY_ORDER: AchievementCategory[] = [
   "catch", "website", "streak", "pokedex", "shiny", "level",
-  "type", "legendary", "social", "customization",
+  "type", "legendary", "event", "social", "customization",
 ];
 
 interface Props {
@@ -57,6 +57,8 @@ function getProgress(
       return Math.min(100, (countInGeneration(pokedexUnlocks, 1) / def.threshold) * 100);
     case "johto_complete":
       return Math.min(100, (countInGeneration(pokedexUnlocks, 2) / def.threshold) * 100);
+    case "hoenn_complete":
+      return Math.min(100, (countInGeneration(pokedexUnlocks, 3) / def.threshold) * 100);
     case "catch_count":
       return Math.min(100, ((userStats?.total_catches ?? 0) / def.threshold) * 100);
     case "site_count":

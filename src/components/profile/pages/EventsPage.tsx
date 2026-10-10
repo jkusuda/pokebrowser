@@ -10,6 +10,7 @@ import { useCountdown } from "@/lib/hooks/useCountdown";
 import { EVENT_TRACKED_STATS, tokenLabel } from "@/lib/events-data";
 import { getTypeColor, getTypeIconPath } from "@/lib/types";
 import { getPokedexSprite, getPokemonName } from "@/lib/pokemon";
+import { GENERATIONS, type Generation } from "pokemon-data";
 import { cn } from "@/lib/utils";
 import { EventsResponse, GameEvent, LeaderboardResponse } from "@/types";
 
@@ -78,9 +79,24 @@ function PokemonPill({ pokedex, prefix }: { pokedex: number; prefix?: string }) 
   );
 }
 
-/** Spotlight Pokémon and boosted types — what's spawning more while the event runs. */
+/** Neutral pill naming a boosted generation, e.g. "Gen 2 · Johto". */
+function GenerationChip({ gen }: { gen: number }) {
+  return (
+    <span className="inline-flex items-center px-1.5 py-0.5 rounded border border-black/40 bg-white font-bold normal-case tracking-normal text-[9px] text-pb-ink">
+      Gen {gen} · {GENERATIONS[gen as Generation]?.name}
+    </span>
+  );
+}
+
+/** Spotlight Pokémon and boosted types/generations — what's spawning more while the event runs. */
 function SpawnModifiers({ event }: { event: GameEvent }) {
-  if (event.spotlight_pokedex === null && event.boosted_types.length === 0) return null;
+  if (
+    event.spotlight_pokedex === null &&
+    event.boosted_types.length === 0 &&
+    event.boosted_generations.length === 0
+  ) {
+    return null;
+  }
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       {event.spotlight_pokedex !== null && (
@@ -91,6 +107,14 @@ function SpawnModifiers({ event }: { event: GameEvent }) {
           More common:
           {event.boosted_types.map((t) => (
             <TypeChip key={t} type={t} />
+          ))}
+        </span>
+      )}
+      {event.boosted_generations.length > 0 && (
+        <span className="inline-flex flex-wrap items-center gap-1 font-black tracking-widest uppercase text-[9px] text-pb-ink/60">
+          {event.boosted_types.length > 0 ? "And from:" : "More common:"}
+          {event.boosted_generations.map((g) => (
+            <GenerationChip key={g} gen={g} />
           ))}
         </span>
       )}
@@ -174,6 +198,9 @@ function EventListRow({ event, dimmed }: { event: GameEvent; dimmed?: boolean })
         {event.spotlight_pokedex !== null && <PokemonPill pokedex={event.spotlight_pokedex} prefix="★ " />}
         {event.boosted_types.map((t) => (
           <TypeChip key={t} type={t} />
+        ))}
+        {event.boosted_generations.map((g) => (
+          <GenerationChip key={g} gen={g} />
         ))}
         {event.bonuses.map((b, i) => (
           <BonusPill key={i} label={b.label} />

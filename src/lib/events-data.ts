@@ -50,6 +50,8 @@ export const MAX_SPOTLIGHT_RATE = 0.9;
 export const MAX_TYPE_BOOST = 20;
 /** Most types one event can boost. */
 export const MAX_BOOSTED_TYPES = 3;
+/** Upper bound on the spawn weight given to boosted generations. */
+export const MAX_GENERATION_BOOST = 20;
 
 export const EVENT_REWARD_TOKEN_TYPES: EventRewardTokenType[] = [
   "species",

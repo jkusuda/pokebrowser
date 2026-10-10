@@ -158,6 +158,8 @@ export interface GameEvent {
   spotlight_rate: number | null; // share of wild spawns, (0, 0.9]; set iff spotlight_pokedex is
   boosted_types: string[]; // at most 3
   type_boost: number; // spawn weight for boosted types; 1 iff boosted_types is empty
+  boosted_generations: number[]; // shipped generations only
+  generation_boost: number; // spawn weight for boosted generations (multiplies with type_boost); 1 iff none
   // Community goal: sum of everyone's tracked-stat score. Reaching it grants
   // every participant one reward token. All null when the event has no goal.
   community_goal: number | null;

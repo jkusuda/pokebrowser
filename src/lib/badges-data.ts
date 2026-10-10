@@ -17,10 +17,13 @@ export const BADGE_ACHIEVEMENT_IDS = [
   "master_collector",
   "kanto_complete",
   "johto_complete",
+  "hoenn_complete",
   "gotta_catch_em_all",
   "netizen",
   "love_of_the_game",
   "social_butterfly",
+  "team_player",
+  "event_champion",
 ] as const;
 
 /** Fast membership check for validation. */

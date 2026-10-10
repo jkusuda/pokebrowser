@@ -15,6 +15,9 @@ import legendaryImg from "@/assets/badges/legendary_badge.png";
 import masterCollectorImg from "@/assets/badges/master_collector_badge.png";
 import kantoImg from "@/assets/badges/kanto_badge.png";
 import johtoImg from "@/assets/badges/johto_badge.png";
+import hoennImg from "@/assets/badges/hoenn_badge.png";
+import eventParticipantImg from "@/assets/badges/event_participant_badge.png";
+import eventChampionImg from "@/assets/badges/event_champion_badge.png";
 import pokedexImg from "@/assets/badges/pokedex_badge.png";
 import worldwideImg from "@/assets/badges/worldwide_badge.png";
 import thirtyDayImg from "@/assets/badges/thirty_day_badge.png";
@@ -34,10 +37,13 @@ export const BADGE_SPRITES: Record<string, StaticImageData> = {
   master_collector: masterCollectorImg,
   kanto_complete: kantoImg,
   johto_complete: johtoImg,
+  hoenn_complete: hoennImg,
   gotta_catch_em_all: pokedexImg,
   netizen: worldwideImg,
   love_of_the_game: thirtyDayImg,
   social_butterfly: friendsImg,
+  team_player: eventParticipantImg,
+  event_champion: eventChampionImg,
 };
 
 /** Chunky hover label; parent must be `relative group`. Position via className. */

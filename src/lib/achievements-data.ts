@@ -12,6 +12,7 @@ export type AchievementTrigger =
   | "pokedex_complete"
   | "kanto_complete"
   | "johto_complete"
+  | "hoenn_complete"
   | "shiny_complete"
   | "streak"
   | "level"
@@ -20,7 +21,9 @@ export type AchievementTrigger =
   | "friend_count"
   | "trainer_name_change"
   | "avatar_change"
-  | "type_coverage";
+  | "type_coverage"
+  | "event_goal"
+  | "event_podium";
 
 export type AchievementCategory =
   | "catch"
@@ -32,7 +35,8 @@ export type AchievementCategory =
   | "shiny"
   | "customization"
   | "level"
-  | "legendary";
+  | "legendary"
+  | "event";
 
 export interface AchievementDef {
   id: string;
@@ -239,12 +243,23 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     xpReward: 25000,
   },
   {
+    id: "hoenn_complete",
+    label: "Hoenn Champion",
+    description: "Catch all 135 species from the Hoenn region.",
+    category: "pokedex",
+    trigger: "hoenn_complete",
+    threshold: 135,
+    storageReward: 500,
+    tokenReward: "legendary",
+    xpReward: 25000,
+  },
+  {
     id: "gotta_catch_em_all",
     label: "Gotta Catch 'Em All",
-    description: "Complete the Pokédex — catch all 251 species.",
+    description: "Complete the Pokédex — catch all 386 species.",
     category: "pokedex",
     trigger: "pokedex_complete",
-    threshold: 251,
+    threshold: 386,
     storageReward: 0,
     tokenReward: "shiny",
     xpReward: 50000,
@@ -378,6 +393,33 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     tokenReward: null,
     xpReward: 5000,
   },
+
+  // ── Events ─────────────────────────────────────────────────────────────────
+  // Both are unlocked server-side, not on a catch: team_player when a community
+  // goal is reached (_maybe_complete_community_goal / _grant_event_reward), and
+  // event_champion by the _finalize_ended_events cron job once an event ends.
+  {
+    id: "team_player",
+    label: "Team Player",
+    description: "Help reach an event's community goal.",
+    category: "event",
+    trigger: "event_goal",
+    threshold: 1,
+    storageReward: 0,
+    tokenReward: "legendary",
+    xpReward: 5000,
+  },
+  {
+    id: "event_champion",
+    label: "Event Champion",
+    description: "Finish in the top 3 of any event.",
+    category: "event",
+    trigger: "event_podium",
+    threshold: 1,
+    storageReward: 0,
+    tokenReward: "legendary",
+    xpReward: 15000,
+  },
 ];
 
 /** Quick lookup by achievement id. */
@@ -406,4 +448,5 @@ export const CATEGORY_LABELS: Record<AchievementCategory, string> = {
   customization: "Customization",
   level: "Leveling Up",
   legendary: "Legendary",
+  event: "Events",
 };

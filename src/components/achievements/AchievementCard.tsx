@@ -44,6 +44,7 @@ const ACHIEVEMENT_SPRITES: Record<string, StaticImageData> = {
   love_of_the_game:     fireImg,
   kanto_complete:       pokeRadarImg,
   johto_complete:       pokeRadarImg,
+  hoenn_complete:       pokeRadarImg,
   gotta_catch_em_all:   pokeRadarImg,
   lucky_color:          shinyCharmImg,
   shiny_hunter:         shinyCharmImg,
@@ -56,6 +57,8 @@ const ACHIEVEMENT_SPRITES: Record<string, StaticImageData> = {
   level_40:             ribbonImg,
   level_50:             ribbonImg,
   legendary_encounter:  dragonSkullImg,
+  team_player:          friendImg,
+  event_champion:       ribbonImg,
 };
 
 const TOKEN_LABELS: Record<string, string> = {

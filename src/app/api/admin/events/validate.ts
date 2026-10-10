@@ -1,7 +1,7 @@
 // Shared validation for the admin event create/update routes (not a route file).
 import type { DevEventInput } from "@/lib/queries";
 import { POKEMON_TYPES } from "@/lib/types";
-import { getPokemonData } from "pokemon-data";
+import { getPokemonData, SHIPPED_GENERATIONS } from "pokemon-data";
 import {
   EVENT_TRACKED_STAT_KEYS,
   EVENT_BONUS_TYPES,
@@ -10,12 +10,14 @@ import {
   MAX_SPOTLIGHT_RATE,
   MAX_TYPE_BOOST,
   MAX_BOOSTED_TYPES,
+  MAX_GENERATION_BOOST,
 } from "@/lib/events-data";
 
 const VALID_TRACKED_STATS = new Set<string>(EVENT_TRACKED_STAT_KEYS);
 const VALID_TYPES = new Set<string>(POKEMON_TYPES);
 const VALID_BONUS_TYPES = new Set<string>(EVENT_BONUS_TYPES);
 const VALID_REWARD_TOKEN_TYPES = new Set<string>(EVENT_REWARD_TOKEN_TYPES);
+const VALID_GENERATIONS = new Set<number>(SHIPPED_GENERATIONS);
 
 /** True for a pokedex number that exists in the shipped data. */
 function isPokedexNumber(value: unknown): value is number {
@@ -31,6 +33,7 @@ export function validateEventInput(body: Record<string, unknown> | null): Valida
   const {
     name, description, startsAt, endsAt, trackedStat, typeFilter, bonuses,
     spotlightPokedex, spotlightRate, boostedTypes, typeBoost,
+    boostedGenerations, generationBoost,
     communityGoal, rewardTokenType, rewardPokedex,
   } = body;
 
@@ -121,6 +124,29 @@ export function validateEventInput(body: Record<string, unknown> | null): Valida
     };
   }
 
+  const gens = boostedGenerations ?? [];
+  if (
+    !Array.isArray(gens) ||
+    gens.some((g) => typeof g !== "number" || !VALID_GENERATIONS.has(g)) ||
+    new Set(gens).size !== gens.length
+  ) {
+    return {
+      input: null,
+      error: `boostedGenerations must be distinct shipped generations: ${[...VALID_GENERATIONS].join(", ")}`,
+    };
+  }
+  const genBoost = generationBoost ?? 1;
+  if (
+    typeof genBoost !== "number" || !Number.isFinite(genBoost) ||
+    genBoost < 1 || genBoost > MAX_GENERATION_BOOST ||
+    (gens.length === 0) !== (genBoost === 1)
+  ) {
+    return {
+      input: null,
+      error: `generationBoost must be in (1, ${MAX_GENERATION_BOOST}] with boosted generations, or 1 without`,
+    };
+  }
+
   const goal = communityGoal ?? null;
   if (goal !== null && (typeof goal !== "number" || !Number.isInteger(goal) || goal <= 0)) {
     return { input: null, error: "communityGoal must be a positive integer" };
@@ -153,6 +179,8 @@ export function validateEventInput(body: Record<string, unknown> | null): Valida
       spotlightRate: spotRate as number | null,
       boostedTypes: boostedLower,
       typeBoost: boost,
+      boostedGenerations: gens as number[],
+      generationBoost: genBoost,
       communityGoal: goal as number | null,
       rewardTokenType: rewardType as string | null,
       rewardPokedex: rewardMon as number | null,

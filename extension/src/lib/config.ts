@@ -35,13 +35,20 @@ export const CONFIG = {
   BUDDY_TTL_MS: 10 * 60 * 1000,
   AUDIO_PREFS_KEY: "pb_audio_prefs",
   UPDATE_NOTICE_KEY: "pb_update_notice",
+  NEXT_ROLL_KEY: "pb_next_roll",
+  ACCOUNT_PREFS_KEY: "pb_account_prefs",
 
   GAME: {
-    // ENCOUNTER_RATE is the only live client-side knob — it gates how often
-    // content.ts asks the server for an encounter. The rest mirror values the
-    // server enforces and exist for reference.
+    // Every value here mirrors one the server enforces — none of them are
+    // live knobs. The encounter rate itself lives only in the roll_encounter
+    // RPC, so editing a local build can't change how often Pokemon appear.
+    //
+    // ROLL_THROTTLE_MS is the optimistic hold the content script takes while
+    // waiting for roll_encounter to answer; the real wait comes back from the
+    // server as retry_after_ms. It only skips round trips that would return
+    // empty anyway — stripping it wastes requests and gains nothing.
+    ROLL_THROTTLE_MS: 15 * 1000,
     SHINY_RATE: 1 / 512,
-    ENCOUNTER_RATE: 0.15,
     CATCH_COOLDOWN_MS: 1500,
     PENDING_ENCOUNTER_TTL_MS: 5 * 60 * 1000,
     DEFAULT_CATCH_LIMIT: 200,

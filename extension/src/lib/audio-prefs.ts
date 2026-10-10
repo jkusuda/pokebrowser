@@ -1,16 +1,17 @@
-// Extension sound preferences — device-level, stored in chrome.storage.local
+// Extension sound volume — device-level, stored in chrome.storage.local
 // under CONFIG.AUDIO_PREFS_KEY. Shared by the content-script sound player
 // (lib/sound.ts) and the popup settings hook (hooks/useAudioPrefs.ts).
 //
 // volume is a 0–1 master multiplier applied on top of each sound's base
-// volume; muted silences everything regardless of volume.
+// volume. Whether sound plays at all is an account-level setting instead
+// (users.sound_enabled — see lib/account-prefs.ts), so it follows the user
+// between devices and can be changed from the website.
 
 export type AudioPrefs = {
   volume: number;
-  muted: boolean;
 };
 
-export const DEFAULT_AUDIO_PREFS: AudioPrefs = { volume: 0.5, muted: false };
+export const DEFAULT_AUDIO_PREFS: AudioPrefs = { volume: 0.5 };
 
 /** Narrows an unknown storage value to valid prefs, falling back per-field. */
 export function resolveAudioPrefs(value: unknown): AudioPrefs {
@@ -20,8 +21,5 @@ export function resolveAudioPrefs(value: unknown): AudioPrefs {
     typeof v.volume === "number" && Number.isFinite(v.volume)
       ? Math.min(1, Math.max(0, v.volume))
       : DEFAULT_AUDIO_PREFS.volume;
-  return {
-    volume,
-    muted: typeof v.muted === "boolean" ? v.muted : DEFAULT_AUDIO_PREFS.muted,
-  };
+  return { volume };
 }

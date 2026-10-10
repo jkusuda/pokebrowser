@@ -12,7 +12,8 @@ import {
   type AchievementCategory,
 } from "@/lib/achievements-data";
 import { AchievementUnlock, Token, PokedexUnlock, UserStats } from "@/types";
-import { getGenerationRange, type Generation } from "pokemon-data";
+import { getGenerationRange, getPokemonName, type Generation } from "pokemon-data";
+import { getPokedexSprite } from "@/lib/pokemon";
 import { postJson } from "@/lib/client-api";
 import { useRefresh } from "@/lib/hooks/useRefresh";
 import { cn } from "@/lib/utils";
@@ -120,6 +121,8 @@ export default function AchievementsTab({
         user_id: "",
         token_type: tokenGranted,
         type_filter: null,
+        pokedex_number: null,
+        event_id: null,
         created_at: new Date().toISOString(),
         used_at: null,
       };
@@ -201,18 +204,28 @@ export default function AchievementsTab({
                       : "bg-pb-accent hover:bg-pb-accent-deep active:bg-pb-accent-deep"
                   )}
                 >
-                  <span className="text-base">
-                    {token.token_type === "legendary" ? "🌟" :
-                     token.token_type === "mythical" ? "🔮" :
-                     token.token_type === "shiny" ? "✨" : "💎"}
-                  </span>
+                  {token.token_type === "species" && token.pokedex_number !== null ? (
+                    <img
+                      src={getPokedexSprite(token.pokedex_number)}
+                      alt=""
+                      className="w-6 h-6 -my-1 [image-rendering:pixelated]"
+                    />
+                  ) : (
+                    <span className="text-base">
+                      {token.token_type === "legendary" ? "🌟" :
+                       token.token_type === "mythical" ? "🔮" :
+                       token.token_type === "shiny" ? "✨" : "💎"}
+                    </span>
+                  )}
                   <span className="text-[10px] font-black uppercase">
                     {needsType
                       ? "Choose Type ▼"
                       : `Open ${
                           token.token_type === "type_pick"
                             ? `${token.type_filter} type`
-                            : token.token_type
+                            : token.token_type === "species" && token.pokedex_number !== null
+                              ? getPokemonName(token.pokedex_number)
+                              : token.token_type
                         }`}
                   </span>
                 </Button>

@@ -10,6 +10,7 @@ import { getPokemonSprite, getPokemonCry } from "./lib/sprites";
 import { runCatchAnimation } from "./lib/animation";
 import { initBuddy, celebrateBuddy } from "./lib/buddy";
 import { initSound, playSound } from "./lib/sound";
+import { isBlockedHost, resolveAccountPrefs } from "./lib/account-prefs";
 import { getFontFaceCSS, getPopupCSS, getPopupHTML } from "./lib/popup";
 import type { ThemeId } from "./lib/theme";
 import type {
@@ -22,7 +23,12 @@ import type {
 (() => {
 
 // Encounter UI Logic
-function showEncounterPopup(encounter: EncounterPayload, boxIsFull: boolean, theme: ThemeId) {
+function showEncounterPopup(
+  encounter: EncounterPayload,
+  boxIsFull: boolean,
+  theme: ThemeId,
+  animate: boolean
+) {
   if (document.getElementById("pokebrowse-encounter")) return;
 
   const host = document.createElement("div");
@@ -96,8 +102,18 @@ function showEncounterPopup(encounter: EncounterPayload, boxIsFull: boolean, the
       const pokeballEl = shadow.querySelector(".pokeball-canvas") as HTMLElement;
       const buttonsDiv = shadow.querySelector(".buttons") as HTMLElement;
 
-      // Trigger visual sequence before executing network request
-      runCatchAnimation(pokeballEl, pokemonImg).then(() => {
+      // Trigger visual sequence before executing network request. With
+      // animations off we skip straight to the request, but still apply the
+      // one side effect the rest of the flow depends on: runCatchAnimation
+      // hides the sprite partway through, and without that the result text
+      // renders on top of a still-visible Pokemon.
+      const sequence = animate
+        ? runCatchAnimation(pokeballEl, pokemonImg)
+        : Promise.resolve().then(() => {
+            pokemonImg.style.opacity = "0";
+          });
+
+      sequence.then(() => {
         try {
           const catchMessage: ExtensionMessage = {
             type: "PERFORM_CATCH",
@@ -146,28 +162,91 @@ function showEncounterPopup(encounter: EncounterPayload, boxIsFull: boolean, the
 }
 
 // Extension Initialization
-async function tryEncounter() {
-  if (Math.random() > CONFIG.GAME.ENCOUNTER_RATE) return;
 
+/**
+ * Local mirror of the server's roll cooldown, in the same spirit as the buddy
+ * cache: it only skips round trips the server would answer with "no encounter"
+ * anyway. It is not a limit — roll_encounter enforces the real one, so a build
+ * with this stripped out just makes wasted requests.
+ *
+ * The wait comes from the server (retryAfterMs) rather than a local timer, so
+ * the two windows can't drift apart. ROLL_THROTTLE_MS is only the optimistic
+ * hold taken before the answer arrives, which also keeps a burst of tabs from
+ * all asking at once.
+ */
+async function claimRollSlot(): Promise<boolean> {
+  const stored = await chrome.storage.local.get(CONFIG.NEXT_ROLL_KEY);
+  const nextRollAt = stored[CONFIG.NEXT_ROLL_KEY] as number | undefined;
+  if (typeof nextRollAt === "number" && Date.now() < nextRollAt) return false;
+
+  await chrome.storage.local.set({
+    [CONFIG.NEXT_ROLL_KEY]: Date.now() + CONFIG.GAME.ROLL_THROTTLE_MS,
+  });
+  return true;
+}
+
+function holdUntil(retryAfterMs: number): void {
+  void chrome.storage.local.set({
+    [CONFIG.NEXT_ROLL_KEY]: Date.now() + Math.max(0, retryAfterMs),
+  });
+}
+
+async function tryEncounter() {
   try {
+    if (!(await claimRollSlot())) return;
+
     const sessionMessage: ExtensionMessage = { type: "GET_SESSION" };
     const session = (await chrome.runtime.sendMessage(sessionMessage)) as
       | GetSessionResponse
       | undefined;
+    // Logged out: keep the optimistic hold so we don't ask on every page load.
     if (!session?.loggedIn) return;
 
-    const { encounter, boxIsFull, theme } = session;
+    const { encounter, boxIsFull, theme, retryAfterMs, encounterAnimations } = session;
+    holdUntil(retryAfterMs);
+
+    // The server declined to spawn one this time — the common case.
+    if (!encounter) return;
+
     setTimeout(() => {
-      showEncounterPopup(encounter, boxIsFull, theme);
+      showEncounterPopup(encounter, boxIsFull, theme, encounterAnimations);
     }, 1500);
   } catch {
     console.debug("Pokebrowser: Extension context invalidated.");
   }
 }
 
-if (!window.location.href.startsWith(CONFIG.WEBSITE_URL)) {
+/**
+ * True when the user has turned Pokebrowser off for this site. Reads the
+ * cached account prefs the background worker writes during GET_SESSION; a
+ * missing cache means nothing is blocked, which is the right default for a
+ * fresh install that hasn't synced yet.
+ */
+async function isSiteBlocked(): Promise<boolean> {
+  try {
+    const stored = await chrome.storage.local.get(CONFIG.ACCOUNT_PREFS_KEY);
+    const prefs = resolveAccountPrefs(stored[CONFIG.ACCOUNT_PREFS_KEY]);
+    return isBlockedHost(window.location.hostname, prefs.blockedSites);
+  } catch {
+    return false;
+  }
+}
+
+void (async () => {
+  if (window.location.href.startsWith(CONFIG.WEBSITE_URL)) return;
+
+  // Must come before tryEncounter specifically: claimRollSlot() writes the
+  // cross-tab roll throttle, so letting a blocked page get that far would
+  // burn an encounter slot that other tabs are waiting on.
+  //
+  // Returning here means no storage.onChanged listener is registered on this
+  // page — a deliberate divergence from the "subscribe first" ordering in
+  // buddy.ts, and the reason unblocking a site takes effect on next reload
+  // rather than instantly.
+  if (await isSiteBlocked()) return;
+
   initSound();
   void initBuddy();
   tryEncounter();
-}
+})();
 })();

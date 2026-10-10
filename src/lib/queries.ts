@@ -390,6 +390,48 @@ export async function updateTheme(
   if (error) throw error;
 }
 
+// ─── Extension preferences ──────────────────────────────────────────────────
+//
+// Account-level settings the extension mirrors into chrome.storage. Plain
+// column updates like the ones above — the extension re-reads them, it never
+// writes anything the server needs to validate.
+
+export async function updateSoundEnabled(
+  supabase: SupabaseClient,
+  userId: string,
+  soundEnabled: boolean
+) {
+  const { error } = await supabase
+    .from("users")
+    .update({ sound_enabled: soundEnabled })
+    .eq("id", userId);
+  if (error) throw error;
+}
+
+export async function updateEncounterAnimations(
+  supabase: SupabaseClient,
+  userId: string,
+  enabled: boolean
+) {
+  const { error } = await supabase
+    .from("users")
+    .update({ encounter_animations_enabled: enabled })
+    .eq("id", userId);
+  if (error) throw error;
+}
+
+export async function updateBlockedSites(
+  supabase: SupabaseClient,
+  userId: string,
+  sites: string[]
+) {
+  const { error } = await supabase
+    .from("users")
+    .update({ blocked_sites: sites })
+    .eq("id", userId);
+  if (error) throw error;
+}
+
 // ─── Tutorial ───────────────────────────────────────────────────────────────
 
 export async function markTutorialSeen(supabase: SupabaseClient, userId: string) {
@@ -509,11 +551,13 @@ export async function selectTokenType(
 export async function devGrantToken(
   supabase: SupabaseClient,
   tokenType: string,
-  typeFilter: string | null
+  typeFilter: string | null,
+  pokedexNumber: number | null
 ) {
   const { error } = await supabase.rpc("dev_grant_token", {
     p_token_type: tokenType,
     p_type_filter: typeFilter,
+    p_pokedex_number: pokedexNumber,
   });
   if (error) {
     const msg = error.message ?? "";
@@ -556,8 +600,27 @@ function mapDevEventError(error: { message?: string }): Error | null {
   if (msg.includes("invalid_tracked_stat")) return new Error("Invalid tracked stat");
   if (msg.includes("invalid_type_filter")) return new Error("Invalid type filter");
   if (msg.includes("invalid_bonuses")) return new Error("Invalid bonuses");
+  if (msg.includes("invalid_spotlight")) return new Error("Invalid spotlight");
+  if (msg.includes("invalid_type_boost")) return new Error("Invalid type boost");
+  if (msg.includes("invalid_community_goal")) return new Error("Invalid community goal");
+  if (msg.includes("invalid_reward")) return new Error("Invalid community reward");
+  if (msg.includes("goal_already_reached")) {
+    return new Error("Goal already reached — its scoring and reward are locked");
+  }
   return null;
 }
+
+/** Messages from mapDevEventError that mean the admin sent a bad event (→ 400). */
+export const DEV_EVENT_INPUT_ERRORS = new Set([
+  "Invalid event window",
+  "Invalid tracked stat",
+  "Invalid type filter",
+  "Invalid bonuses",
+  "Invalid spotlight",
+  "Invalid type boost",
+  "Invalid community goal",
+  "Invalid community reward",
+]);
 
 export interface DevEventInput {
   name: string;
@@ -567,11 +630,18 @@ export interface DevEventInput {
   trackedStat: string;
   typeFilter: string | null;
   bonuses: unknown[];
+  spotlightPokedex: number | null;
+  spotlightRate: number | null;
+  boostedTypes: string[];
+  typeBoost: number;
+  communityGoal: number | null;
+  rewardTokenType: string | null;
+  rewardPokedex: number | null;
 }
 
-/** Creates an event via dev_create_event (admin-gated); returns the new event id. */
-export async function devCreateEvent(supabase: SupabaseClient, input: DevEventInput) {
-  const { data, error } = await supabase.rpc("dev_create_event", {
+/** The RPC params shared by dev_create_event and dev_update_event. */
+function devEventParams(input: DevEventInput) {
+  return {
     p_name: input.name,
     p_description: input.description,
     p_starts_at: input.startsAt,
@@ -579,7 +649,19 @@ export async function devCreateEvent(supabase: SupabaseClient, input: DevEventIn
     p_tracked_stat: input.trackedStat,
     p_type_filter: input.typeFilter,
     p_bonuses: input.bonuses,
-  });
+    p_spotlight_pokedex: input.spotlightPokedex,
+    p_spotlight_rate: input.spotlightRate,
+    p_boosted_types: input.boostedTypes,
+    p_type_boost: input.typeBoost,
+    p_community_goal: input.communityGoal,
+    p_reward_token_type: input.rewardTokenType,
+    p_reward_pokedex: input.rewardPokedex,
+  };
+}
+
+/** Creates an event via dev_create_event (admin-gated); returns the new event id. */
+export async function devCreateEvent(supabase: SupabaseClient, input: DevEventInput) {
+  const { data, error } = await supabase.rpc("dev_create_event", devEventParams(input));
   if (error) throw mapDevEventError(error) ?? error;
   return data as string;
 }
@@ -592,13 +674,7 @@ export async function devUpdateEvent(
 ) {
   const { error } = await supabase.rpc("dev_update_event", {
     p_event_id: eventId,
-    p_name: input.name,
-    p_description: input.description,
-    p_starts_at: input.startsAt,
-    p_ends_at: input.endsAt,
-    p_tracked_stat: input.trackedStat,
-    p_type_filter: input.typeFilter,
-    p_bonuses: input.bonuses,
+    ...devEventParams(input),
   });
   if (error) throw mapDevEventError(error) ?? error;
 }

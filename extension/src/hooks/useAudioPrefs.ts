@@ -7,9 +7,12 @@ import {
 } from "../lib/audio-prefs";
 
 /**
- * The extension sound preferences (device-level, chrome.storage.local).
- * Writes propagate to open tabs via chrome.storage.onChanged, which the
+ * The extension sound volume (device-level, chrome.storage.local). Writes
+ * propagate to open tabs via chrome.storage.onChanged, which the
  * content-script sound player (lib/sound.ts) subscribes to.
+ *
+ * Whether sound plays at all lives on the account instead — see
+ * hooks/useSoundEnabled.ts.
  */
 export function useAudioPrefs() {
   const [prefs, setPrefs] = useState<AudioPrefs>(DEFAULT_AUDIO_PREFS);
@@ -37,10 +40,5 @@ export function useAudioPrefs() {
     [prefs, update]
   );
 
-  const toggleMuted = useCallback(
-    () => update({ ...prefs, muted: !prefs.muted }),
-    [prefs, update]
-  );
-
-  return { prefs, setVolume, toggleMuted };
+  return { prefs, setVolume };
 }

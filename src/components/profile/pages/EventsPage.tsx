@@ -7,8 +7,9 @@ import { Shimmer } from "@/components/ui/shimmer";
 import RefreshButton from "@/components/profile/RefreshButton";
 import { LeaderboardRow, ShimmerRow } from "@/components/profile/LeaderboardRow";
 import { useCountdown } from "@/lib/hooks/useCountdown";
-import { EVENT_TRACKED_STATS } from "@/lib/events-data";
+import { EVENT_TRACKED_STATS, tokenLabel } from "@/lib/events-data";
 import { getTypeColor, getTypeIconPath } from "@/lib/types";
+import { getPokedexSprite, getPokemonName } from "@/lib/pokemon";
 import { cn } from "@/lib/utils";
 import { EventsResponse, GameEvent, LeaderboardResponse } from "@/types";
 
@@ -36,27 +37,123 @@ function BonusPill({ label }: { label: string }) {
   );
 }
 
+/** Small coloured type badge with its icon. */
+function TypeChip({ type }: { type: string }) {
+  const color = getTypeColor(type);
+  const icon = getTypeIconPath(type);
+  return (
+    <span
+      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border font-bold normal-case tracking-normal text-[9px] text-white"
+      style={{ backgroundColor: color.background, borderColor: color.border }}
+    >
+      {icon && <img src={icon} alt="" className="w-3 h-3" />}
+      {type}
+    </span>
+  );
+}
+
 /** Tracked-stat line with the type icon when the event is type-filtered. */
 function TrackedStatLabel({ event }: { event: GameEvent }) {
   const meta = EVENT_TRACKED_STATS[event.tracked_stat];
   return (
     <span className="inline-flex items-center gap-1.5 font-black tracking-widest uppercase text-[9px] text-pb-ink/60">
       Tracking: {meta.label}
-      {event.type_filter && (
-        <span
-          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border font-bold normal-case tracking-normal text-[9px] text-white"
-          style={{
-            backgroundColor: getTypeColor(event.type_filter).background,
-            borderColor: getTypeColor(event.type_filter).border,
-          }}
-        >
-          {getTypeIconPath(event.type_filter) && (
-            <img src={getTypeIconPath(event.type_filter)} alt="" className="w-3 h-3" />
-          )}
-          {event.type_filter}
+      {event.type_filter && <TypeChip type={event.type_filter} />}
+    </span>
+  );
+}
+
+/** Small sprite + name pill, used for the spotlight Pokémon. */
+function PokemonPill({ pokedex, prefix }: { pokedex: number; prefix?: string }) {
+  return (
+    <span className="inline-flex items-center gap-1 pl-0.5 pr-2 py-0.5 rounded-lg border-2 border-black bg-white shadow-[2px_2px_0_black] font-black text-[10px] uppercase tracking-wider text-black">
+      <img
+        src={getPokedexSprite(pokedex)}
+        alt=""
+        className="w-6 h-6 -my-1 [image-rendering:pixelated]"
+      />
+      {prefix}
+      {getPokemonName(pokedex)}
+    </span>
+  );
+}
+
+/** Spotlight Pokémon and boosted types — what's spawning more while the event runs. */
+function SpawnModifiers({ event }: { event: GameEvent }) {
+  if (event.spotlight_pokedex === null && event.boosted_types.length === 0) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      {event.spotlight_pokedex !== null && (
+        <PokemonPill pokedex={event.spotlight_pokedex} prefix="★ Spotlight: " />
+      )}
+      {event.boosted_types.length > 0 && (
+        <span className="inline-flex flex-wrap items-center gap-1 font-black tracking-widest uppercase text-[9px] text-pb-ink/60">
+          More common:
+          {event.boosted_types.map((t) => (
+            <TypeChip key={t} type={t} />
+          ))}
         </span>
       )}
-    </span>
+    </div>
+  );
+}
+
+/** Shared progress toward the event's community goal, and what it unlocks. */
+function CommunityGoalPanel({ event, myProgress }: { event: GameEvent; myProgress: number }) {
+  if (event.community_goal === null || event.reward_token_type === null) return null;
+  const goal = event.community_goal;
+  const progress = Math.min(event.community_progress, goal);
+  const pct = Math.round((progress / goal) * 100);
+  const reached = event.goal_reached_at !== null;
+  const unit = EVENT_TRACKED_STATS[event.tracked_stat].unit;
+  const reward = tokenLabel(event.reward_token_type, event.reward_pokedex);
+
+  return (
+    <div className="flex flex-col gap-1.5 pt-2 border-t-2 border-black/10">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="font-black tracking-widest uppercase text-[10px] text-pb-ink/70">
+          Community Goal
+        </span>
+        <span className="inline-flex items-center gap-1 font-black text-[10px] uppercase tracking-wider text-pb-ink/70">
+          Reward:
+          {event.reward_token_type === "species" && event.reward_pokedex !== null && (
+            <img
+              src={getPokedexSprite(event.reward_pokedex)}
+              alt=""
+              className="w-6 h-6 -my-1 [image-rendering:pixelated]"
+            />
+          )}
+          {reward}
+        </span>
+      </div>
+      <div
+        className="h-4 w-full rounded-full border-2 border-black bg-white overflow-hidden"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={goal}
+        aria-valuenow={progress}
+        aria-label="Community goal progress"
+      >
+        <div
+          className={cn("h-full transition-[width]", reached ? "bg-pb-accent" : "bg-pb-primary")}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <span className="font-mono tracking-wide text-[10px] text-pb-ink/70">
+        {event.community_progress.toLocaleString()} / {goal.toLocaleString()} {unit} by all trainers
+      </span>
+      {reached ? (
+        <span className="font-black tracking-widest uppercase text-[10px] text-pb-poppy">
+          {myProgress > 0
+            ? `Goal reached! Your ${reward} is in Achievements → Unopened Tokens`
+            : `Goal reached! Score once before the event ends to get your ${reward}`}
+        </span>
+      ) : (
+        <span className="font-bold text-[10px] text-pb-ink/60">
+          Every trainer who scores during the event gets the reward when the goal is reached.
+        </span>
+      )}
+    </div>
   );
 }
 
@@ -73,10 +170,17 @@ function EventListRow({ event, dimmed }: { event: GameEvent; dimmed?: boolean })
         <p className="font-bold text-sm text-pb-ink truncate">{event.name}</p>
         <TrackedStatLabel event={event} />
       </div>
-      <div className="flex items-center gap-1.5">
+      <div className="flex flex-wrap items-center gap-1.5">
+        {event.spotlight_pokedex !== null && <PokemonPill pokedex={event.spotlight_pokedex} prefix="★ " />}
+        {event.boosted_types.map((t) => (
+          <TypeChip key={t} type={t} />
+        ))}
         {event.bonuses.map((b, i) => (
           <BonusPill key={i} label={b.label} />
         ))}
+        {event.community_goal !== null && event.reward_token_type !== null && (
+          <BonusPill label={`Goal → ${tokenLabel(event.reward_token_type, event.reward_pokedex)}`} />
+        )}
       </div>
       <span className="font-mono tracking-wide text-[10px] text-pb-ink/60 shrink-0">
         {formatDateRange(event)}
@@ -246,6 +350,7 @@ export default function EventsPage({ active }: Props) {
                   <p className="text-sm text-pb-ink/80 font-medium">{current.description}</p>
                 )}
                 <TrackedStatLabel event={current} />
+                <SpawnModifiers event={current} />
                 {current.bonuses.length > 0 && (
                   <div className="flex flex-wrap items-center gap-1.5">
                     {current.bonuses.map((b, i) => (
@@ -253,6 +358,7 @@ export default function EventsPage({ active }: Props) {
                     ))}
                   </div>
                 )}
+                <CommunityGoalPanel event={current} myProgress={data.myProgress ?? 0} />
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t-2 border-black/10">
                   <span className="font-black tracking-widest uppercase text-[10px] text-pb-primary">
                     My progress: {data.myProgress ?? 0} {unit}

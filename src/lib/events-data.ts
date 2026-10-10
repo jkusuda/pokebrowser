@@ -3,7 +3,8 @@
 // Server-safe: imported by API routes — no static image imports allowed here
 // (same rule as achievements-data.ts).
 
-import type { EventBonus, EventTrackedStat } from "@/types";
+import { getPokemonName } from "pokemon-data";
+import type { EventBonus, EventRewardTokenType, EventTrackedStat } from "@/types";
 
 export const EVENT_TRACKED_STATS: Record<
   EventTrackedStat,
@@ -39,3 +40,37 @@ export const EVENT_BONUS_TYPE_LABELS: Record<EventBonus["type"], string> = {
  * DB helper and the clamp in `_event_bonus_multiplier` — keep the three in sync.
  */
 export const MAX_BONUS_VALUE = 100;
+
+// Spawn-modifier and community-goal limits. Mirrored by the events CHECK
+// constraints and the _validate_event_modifiers DB helper — keep in sync.
+
+/** Upper bound on a spotlight's share of wild spawns (0.9 = 90%). */
+export const MAX_SPOTLIGHT_RATE = 0.9;
+/** Upper bound on the spawn weight given to boosted types. */
+export const MAX_TYPE_BOOST = 20;
+/** Most types one event can boost. */
+export const MAX_BOOSTED_TYPES = 3;
+
+export const EVENT_REWARD_TOKEN_TYPES: EventRewardTokenType[] = [
+  "species",
+  "mythical",
+  "legendary",
+  "shiny",
+  "type_pick",
+];
+
+export const TOKEN_TYPE_LABELS: Record<EventRewardTokenType, string> = {
+  species: "Pokémon Token",
+  mythical: "Mythical Token",
+  legendary: "Legendary Token",
+  shiny: "Shiny Token",
+  type_pick: "Type Token",
+};
+
+/** Display name for a token, e.g. "Celebi Token" for a species token. */
+export function tokenLabel(tokenType: EventRewardTokenType, pokedexNumber: number | null): string {
+  if (tokenType === "species" && pokedexNumber !== null) {
+    return `${getPokemonName(pokedexNumber)} Token`;
+  }
+  return TOKEN_TYPE_LABELS[tokenType];
+}

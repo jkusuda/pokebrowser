@@ -24,6 +24,14 @@ export interface User {
   catches_today_date: string | null; // UTC date the counter applies to
   has_seen_tutorial: boolean; // gates the onboarding tutorial popup to once per account
   is_admin: boolean; // unlocks /admin and the dev_* RPCs; set manually in the DB
+
+  // Account-level extension preferences, set from the website's settings page.
+  // The extension mirrors these into chrome.storage during GET_SESSION (see
+  // extension/src/lib/account-prefs.ts) — device-level prefs like audio volume
+  // and buddy corner live only in chrome.storage and are not represented here.
+  sound_enabled: boolean;
+  encounter_animations_enabled: boolean; // gates the pokeball catch sequence
+  blocked_sites: string[]; // bare lowercase hostnames; an entry covers its subdomains
 }
 
 // public.friends — friend relationships
@@ -145,8 +153,22 @@ export interface GameEvent {
   tracked_stat: EventTrackedStat;
   type_filter: string | null; // set iff tracked_stat is "type_catches"
   bonuses: EventBonus[];
+  // Spawn modifiers, applied by _roll_wild_species while the event is live.
+  spotlight_pokedex: number | null; // never a mythical
+  spotlight_rate: number | null; // share of wild spawns, (0, 0.9]; set iff spotlight_pokedex is
+  boosted_types: string[]; // at most 3
+  type_boost: number; // spawn weight for boosted types; 1 iff boosted_types is empty
+  // Community goal: sum of everyone's tracked-stat score. Reaching it grants
+  // every participant one reward token. All null when the event has no goal.
+  community_goal: number | null;
+  community_progress: number;
+  goal_reached_at: string | null;
+  reward_token_type: EventRewardTokenType | null;
+  reward_pokedex: number | null; // set iff reward_token_type is "species"
   created_at: string;
 }
+
+export type EventRewardTokenType = Token["token_type"];
 
 // public.event_progress — per-user score in one event (written only by _record_event_progress)
 export interface EventProgress {
@@ -157,12 +179,14 @@ export interface EventProgress {
   updated_at: string;
 }
 
-// public.tokens — special encounter tokens granted as achievement/level rewards
+// public.tokens — special encounter tokens granted as achievement/level/event rewards
 export interface Token {
   id: string;
   user_id: string;
-  token_type: "legendary" | "mythical" | "type_pick" | "shiny";
+  token_type: "legendary" | "mythical" | "type_pick" | "shiny" | "species";
   type_filter: string | null; // null until user selects a type (type_pick only)
+  pokedex_number: number | null; // the exact species (species only)
+  event_id: string | null; // set when granted as an event's community reward
   created_at: string;
   used_at: string | null;     // null = available
 }

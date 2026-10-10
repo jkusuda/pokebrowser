@@ -27,7 +27,18 @@ export type ExtensionMessage =
 /** Web app → background via externally_connectable. */
 export type ExternalMessage =
   | { type: "POKEBROWSE_AUTH_TOKENS"; payload?: { access_token?: unknown; refresh_token?: unknown } }
-  | { type: "POKEBROWSE_AUTH_SIGNOUT" };
+  | { type: "POKEBROWSE_AUTH_SIGNOUT" }
+  // Sent right after a settings save so the change lands without waiting for
+  // the next GET_SESSION. Fields are optional — only what changed is sent, and
+  // the users columns remain the source of truth either way.
+  | {
+      type: "POKEBROWSE_PREFS";
+      payload?: {
+        soundEnabled?: unknown;
+        encounterAnimations?: unknown;
+        blockedSites?: unknown;
+      };
+    };
 
 export type ExternalResponse =
   | { ok: true }
@@ -37,7 +48,24 @@ export type GetBuddyResponse = { buddy: BuddyPayload | null };
 
 export type GetSessionResponse =
   | { loggedIn: false }
-  | { loggedIn: true; boxIsFull: boolean; theme: ThemeId; encounter: EncounterPayload };
+  // encounter is null when the server declined to spawn one — either the rate
+  // roll missed or the roll cooldown hasn't elapsed. The rest of the payload
+  // is still fresh and worth applying (theme, box state).
+  //
+  // retryAfterMs is how long the server says to wait before asking again;
+  // 0 means "ask on the next page load". It comes from the server so the
+  // client never has to time the cooldown against its own clock.
+  //
+  // encounterAnimations rides along like theme does — the catch handler needs
+  // it and this response is already on the path to showing the popup.
+  | {
+      loggedIn: true;
+      boxIsFull: boolean;
+      theme: ThemeId;
+      encounter: EncounterPayload | null;
+      retryAfterMs: number;
+      encounterAnimations: boolean;
+    };
 
 export type PerformCatchError =
   | "UNAUTHENTICATED"

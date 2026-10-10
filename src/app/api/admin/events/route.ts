@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { devCreateEvent, getAllEvents } from "@/lib/queries";
+import { devCreateEvent, getAllEvents, DEV_EVENT_INPUT_ERRORS } from "@/lib/queries";
 import { requireAdmin, badRequest, internalError, readJsonObject } from "@/lib/api-helpers";
 import { errorMessage } from "@/lib/utils";
 import { validateEventInput } from "./validate";
@@ -38,6 +38,7 @@ export async function POST(request: Request) {
     if (msg === "Overlaps an existing event") {
       return NextResponse.json({ error: "Overlaps an existing event" }, { status: 409 });
     }
+    if (DEV_EVENT_INPUT_ERRORS.has(msg)) return badRequest(msg);
     return internalError("POST /api/admin/events", error);
   }
 }

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ACHIEVEMENTS } from "@/lib/achievements-data";
 import { POKEMON_TYPES } from "@/lib/types";
+import { POKEMON, getPokemonName } from "pokemon-data";
 import { postJson } from "@/lib/client-api";
 import { useAdminAction } from "@/components/admin/useAdminAction";
 import {
@@ -15,7 +16,8 @@ import {
   adminSelectClass,
 } from "@/components/admin/primitives";
 
-const TOKEN_TYPES = ["legendary", "mythical", "shiny", "type_pick"] as const;
+const TOKEN_TYPES = ["legendary", "mythical", "shiny", "type_pick", "species"] as const;
+const SPECIES = Object.values(POKEMON).sort((a, b) => a.id - b.id);
 
 /**
  * Grants tokens / XP / achievement unlocks to the signed-in admin's own
@@ -25,6 +27,7 @@ export default function PlayerToolsSection() {
   const { busy, status, run } = useAdminAction();
   const [tokenType, setTokenType] = useState<(typeof TOKEN_TYPES)[number]>("legendary");
   const [typeFilter, setTypeFilter] = useState("");
+  const [pokedexNumber, setPokedexNumber] = useState("251");
   const [xpAmount, setXpAmount] = useState("1000");
   const [achievementId, setAchievementId] = useState(ACHIEVEMENTS[0]?.id ?? "");
 
@@ -65,6 +68,21 @@ export default function PlayerToolsSection() {
               </select>
             </Field>
           )}
+          {tokenType === "species" && (
+            <Field label="Pokémon">
+              <select
+                value={pokedexNumber}
+                onChange={(e) => setPokedexNumber(e.target.value)}
+                className={adminSelectClass}
+              >
+                {SPECIES.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    #{p.id} {getPokemonName(p.id)}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          )}
           <Button
             variant="game"
             tone="primary"
@@ -75,6 +93,7 @@ export default function PlayerToolsSection() {
                 postJson("/api/admin/grant-token", {
                   tokenType,
                   typeFilter: tokenType === "type_pick" && typeFilter ? typeFilter : null,
+                  pokedexNumber: tokenType === "species" ? Number(pokedexNumber) : null,
                 })
               )
             }

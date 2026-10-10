@@ -18,6 +18,7 @@ export type {
   EventBonus,
   GameEvent,
   EventProgress,
+  EventRewardTokenType,
 } from "shared-types";
 
 // Static Pokémon data — re-exported from the shared package

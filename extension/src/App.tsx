@@ -3,6 +3,7 @@ import { useAuth } from "./hooks/useAuth";
 import { useAudioPrefs } from "./hooks/useAudioPrefs";
 import { useBuddyPrefs } from "./hooks/useBuddyPrefs";
 import { useRecentCatches } from "./hooks/useRecentCatches";
+import { useSoundEnabled } from "./hooks/useSoundEnabled";
 import { useTheme } from "./hooks/useTheme";
 import { CONFIG } from "./lib/config";
 import { getPokemonSprite } from "./lib/sprites";
@@ -14,7 +15,10 @@ export default function App() {
   const { catches, loading: catchesLoading } = useRecentCatches(user?.id, 3); // 1 row × 3 cols
   const theme = useTheme(user?.id);
   const { prefs: buddyPrefs, toggleVisible: toggleBuddy, moveCorner: moveBuddy } = useBuddyPrefs();
-  const { prefs: audioPrefs, setVolume, toggleMuted } = useAudioPrefs();
+  const { prefs: audioPrefs, setVolume } = useAudioPrefs();
+  // Account-level, shared with the website's settings page — the volume slider
+  // beside it stays device-local.
+  const { soundEnabled, toggleSound } = useSoundEnabled(user?.id);
 
   // Opening the popup is the "I saw the update" signal — drop the NEW badge.
   useEffect(() => {
@@ -191,16 +195,17 @@ export default function App() {
           max={100}
           value={Math.round(audioPrefs.volume * 100)}
           onChange={(e) => setVolume(Number(e.target.value) / 100)}
-          disabled={audioPrefs.muted}
+          disabled={!soundEnabled}
           aria-label="Extension sound volume"
           className="flex-1 min-w-0 accent-[var(--pb-accent-deep)] cursor-pointer disabled:opacity-40 disabled:cursor-default"
         />
         <button
-          onClick={toggleMuted}
-          className="w-[76px] py-1.5 bg-[var(--pb-accent-deep)] hover:bg-[var(--pb-accent)] text-white font-black text-[10px] tracking-wider uppercase rounded-[6px] border-2 border-black shadow-[2px_2px_0_black] transition-all duration-75 cursor-pointer hover:translate-y-px active:shadow-none"
+          onClick={() => void toggleSound()}
+          disabled={!user}
+          className="w-[76px] py-1.5 bg-[var(--pb-accent-deep)] hover:bg-[var(--pb-accent)] text-white font-black text-[10px] tracking-wider uppercase rounded-[6px] border-2 border-black shadow-[2px_2px_0_black] transition-all duration-75 cursor-pointer hover:translate-y-px active:shadow-none disabled:opacity-40 disabled:cursor-default"
           style={{ textShadow: "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000" }}
         >
-          {audioPrefs.muted ? "UNMUTE" : "MUTE"}
+          {soundEnabled ? "MUTE" : "UNMUTE"}
         </button>
       </div>
 

@@ -5,6 +5,7 @@ import { Token } from "@/types";
 import { getPokemonSprite } from "@/lib/pokemon";
 import { getPokemonName } from "pokemon-data";
 import { runCatchAnimation } from "@/lib/catch-animation";
+import { tokenLabel } from "@/lib/events-data";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ModalShell } from "@/components/ui/modal-shell";
@@ -22,13 +23,6 @@ type OpenResult = {
   pokedexNumber: number;
   isShiny: boolean;
   isNewSpecies: boolean;
-};
-
-const TOKEN_LABELS: Record<Token["token_type"], string> = {
-  legendary: "Legendary Token",
-  mythical: "Mythical Token",
-  shiny: "Shiny Token",
-  type_pick: "Type Token",
 };
 
 type Props = {
@@ -106,7 +100,7 @@ export default function TokenEncounterModal({ token, onClose }: Props) {
       >
         {/* Title */}
         <div className="text-emboss-sm text-[13px] text-center">
-          {phase === "summoning" && `Opening ${TOKEN_LABELS[token.token_type]}...`}
+          {phase === "summoning" && `Opening ${tokenLabel(token.token_type, token.pokedex_number)}...`}
           {phase === "appeared" && `A wild ${name} appeared!`}
           {phase === "caught" && `Gotcha! ${name} was caught!`}
           {phase === "error" && "Oh no!"}

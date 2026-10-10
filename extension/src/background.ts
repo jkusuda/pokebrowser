@@ -2,6 +2,11 @@ import { CONFIG } from "./lib/config";
 import { supabase } from "./lib/supabase";
 import { getPokemonName } from "pokemon-data";
 import { resolveTheme } from "./lib/theme";
+import {
+  resolveAccountPrefs,
+  DEFAULT_ACCOUNT_PREFS,
+  type AccountPrefs,
+} from "./lib/account-prefs";
 import { handleInstalled, restoreBadge } from "./lib/update-notice";
 import type { BuddyPayload, ExtensionMessage, ExternalMessage } from "./types/messages";
 
@@ -9,11 +14,22 @@ type StoredSession = { access_token: string; refresh_token: string };
 
 // Server response shape of the roll_encounter RPC. Encounters are rolled and
 // stored server-side (pending_encounters table) so a scripted client can't
-// choose what it catches — this worker only relays the roll to the popup.
-type RolledEncounter = {
-  nonce: string;
-  pokedex_number: number;
-  is_shiny: boolean;
+// choose what it catches — or how often one appears. This worker only relays
+// the roll to the popup.
+//
+// encounter is null when the server declined: the rate roll missed, or the
+// roll cooldown hasn't elapsed. That is a normal, expected outcome and is
+// distinct from the RPC failing.
+type RollEncounterResult = {
+  encounter: {
+    nonce: string;
+    pokedex_number: number;
+    is_shiny: boolean;
+  } | null;
+  // Milliseconds left on the server's roll cooldown. Relayed to the content
+  // script so its local throttle tracks the real window instead of running an
+  // independent timer that would beat against it.
+  retry_after_ms: number;
 };
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -162,9 +178,37 @@ chrome.runtime.onMessageExternal.addListener((message: ExternalMessage, sender, 
   }
 
   if (message?.type === "POKEBROWSE_AUTH_SIGNOUT") {
-    chrome.storage.local.remove([CONFIG.SESSION_KEY, CONFIG.BUDDY_KEY]);
+    chrome.storage.local.remove([CONFIG.SESSION_KEY, CONFIG.BUDDY_KEY, CONFIG.ACCOUNT_PREFS_KEY]);
     sendResponse({ ok: true });
     return false;
+  }
+
+  // A settings save on the website. Merges over the cached prefs rather than
+  // replacing them — the page sends only the field it changed, and anything
+  // absent or of the wrong type keeps its current value rather than snapping
+  // back to a default. This is only a freshness shortcut; GET_SESSION re-reads
+  // the columns regardless, so a malformed or dropped message costs a delay
+  // and nothing else.
+  if (message?.type === "POKEBROWSE_PREFS") {
+    (async () => {
+      const stored = await chrome.storage.local.get(CONFIG.ACCOUNT_PREFS_KEY);
+      const current = resolveAccountPrefs(stored[CONFIG.ACCOUNT_PREFS_KEY]);
+      const p = message.payload ?? {};
+      const next: AccountPrefs = {
+        soundEnabled:
+          typeof p.soundEnabled === "boolean" ? p.soundEnabled : current.soundEnabled,
+        encounterAnimations:
+          typeof p.encounterAnimations === "boolean"
+            ? p.encounterAnimations
+            : current.encounterAnimations,
+        blockedSites: Array.isArray(p.blockedSites)
+          ? p.blockedSites.filter((s): s is string => typeof s === "string")
+          : current.blockedSites,
+      };
+      await chrome.storage.local.set({ [CONFIG.ACCOUNT_PREFS_KEY]: next });
+      sendResponse({ ok: true });
+    })();
+    return true;
   }
 
   sendResponse({ ok: false, error: "UNKNOWN_TYPE" });
@@ -187,25 +231,35 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendRes
       }
       const { userId } = auth;
 
-      // The encounter is rolled server-side; the RPC is "sticky" (an
-      // unexpired pending encounter is returned again instead of rerolling).
+      // The encounter is rolled server-side — both whether one happens at all
+      // and what it is. The RPC is "sticky" in both directions: an unexpired
+      // pending encounter is returned again instead of rerolling, and a miss
+      // stays a miss until the server's roll cooldown elapses.
       const [{ data: user }, { count: pokemonCount }, { data: roll, error: rollError }] =
         await Promise.all([
           supabase
             .from("users")
-            .select("catch_limit, theme, favorite_pokemon_id")
+            .select(
+              "catch_limit, theme, favorite_pokemon_id, sound_enabled, encounter_animations_enabled, blocked_sites"
+            )
             .eq("id", userId)
             .single(),
           supabase.from("pokemon").select("*", { count: "exact", head: true }).eq("user_id", userId),
-          supabase.rpc("roll_encounter"),
+          // p_client_version: 2 selects the {encounter, retry_after_ms} shape.
+          // Omitting it returns the flat legacy shape, which is what builds
+          // already installed keep receiving until they update. Both are paced
+          // identically server-side.
+          supabase.rpc("roll_encounter", { p_client_version: 2 }),
         ]);
 
-      const encounter = roll as RolledEncounter | null;
-      if (rollError || !encounter) {
+      const rollResult = roll as RollEncounterResult | null;
+      if (rollError || !rollResult) {
         console.error("roll_encounter RPC failed", rollError);
         sendResponse({ loggedIn: false });
         return;
       }
+      const encounter = rollResult.encounter;
+      const retryAfterMs = Math.max(0, Number(rollResult.retry_after_ms) || 0);
 
       const catchLimit = user?.catch_limit ?? CONFIG.GAME.DEFAULT_CATCH_LIMIT;
       const boxIsFull = (pokemonCount ?? 0) >= catchLimit;
@@ -215,9 +269,39 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendRes
       const theme = resolveTheme(user?.theme);
       chrome.storage.local.set({ [CONFIG.THEME_KEY]: theme });
 
+      // Same piggyback for the account preferences. The content script reads
+      // this cache directly at page load (for the site blocklist), so it has
+      // to be written even on page loads that produce no encounter. Skip it
+      // when the users row failed to load — a query error must not be cached
+      // as "everything enabled, nothing blocked".
+      let accountPrefs: AccountPrefs = DEFAULT_ACCOUNT_PREFS;
+      if (user) {
+        accountPrefs = resolveAccountPrefs({
+          soundEnabled: user.sound_enabled,
+          encounterAnimations: user.encounter_animations_enabled,
+          blockedSites: user.blocked_sites,
+        });
+        chrome.storage.local.set({ [CONFIG.ACCOUNT_PREFS_KEY]: accountPrefs });
+      }
+
       // Same idea for the buddy cache (only when the users row actually
       // loaded — a query error must not be cached as "no buddy").
       if (user) void keepBuddyCacheFresh(user.favorite_pokemon_id ?? null);
+
+      // Reached after the theme and buddy caches are refreshed above — those
+      // piggyback on this fetch and shouldn't be skipped just because no
+      // Pokemon spawned.
+      if (!encounter) {
+        sendResponse({
+          loggedIn: true,
+          boxIsFull,
+          theme,
+          encounter: null,
+          retryAfterMs,
+          encounterAnimations: accountPrefs.encounterAnimations,
+        });
+        return;
+      }
 
       const pokedexNumber = encounter.pokedex_number;
 
@@ -225,6 +309,8 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendRes
         loggedIn: true,
         boxIsFull,
         theme,
+        retryAfterMs,
+        encounterAnimations: accountPrefs.encounterAnimations,
         encounter: {
           pokedexNumber,
           isShiny: encounter.is_shiny,

@@ -235,7 +235,7 @@ export const BUDDY_OVERRIDES: Record<number, BuddyOverride> = {
 253: { scale: 1.22, dx: 11, dy: 15 },  // grovyle
 254: { dy: 8 },  // sceptile
 255: { scale: 1.85, dx: 48, dy: 15 },  // torchic
-256: { dx: 10, dy: 15 },  // combusken
+256: { scale: 1.4, dx: 10, dy: 15 },  // combusken
 257: { dy: 8 },  // blaziken
 258: { scale: 1.93, dx: 36, dy: 15 },  // mudkip
 259: { scale: 1.3, dx: 23, dy: 15 },  // marshtomp
@@ -247,7 +247,7 @@ export const BUDDY_OVERRIDES: Record<number, BuddyOverride> = {
 265: { scale: 2.4, dx: 44, dy: 15 },  // wurmple
 266: { scale: 1.23, dx: 28, dy: 15 },  // silcoon
 267: { dy: 150 },  // beautifly
-268: { dx: 14, dy: 15 },  // cascoon
+268: { dx: 15, dy: 15 },  // cascoon
 269: { dy: 150 },  // dustox
 270: { scale: 1.28, dx: 35, dy: 15 },  // lotad
 271: { dy: 15 },  // lombre
@@ -256,19 +256,19 @@ export const BUDDY_OVERRIDES: Record<number, BuddyOverride> = {
 274: { dx: 29, dy: 15 },  // nuzleaf
 275: { dy: 15 },  // shiftry
 276: { scale: 1.88, dx: 37, dy: 15 },  // taillow
-277: { scale: 1.32, dx: 2, dy: 150 },  // swellow
+277: { scale: 1.47, dx: 14, dy: 20 },  // swellow
 278: { dx: 24, dy: 150 },  // wingull
 279: { dy: 150 },  // pelipper
 280: { scale: 1.53, dx: 55, dy: 15 },  // ralts
 281: { scale: 1.23, dx: 45, dy: 15 },  // kirlia
-282: { dy: 15 },  // gardevoir
+282: { dx: 8, dy: 15 },  // gardevoir
 283: { scale: 1.59, dx: 7, dy: 15 },  // surskit
 284: { scale: 1.27, dy: 150 },  // masquerain
 285: { scale: 1.89, dx: 35, dy: 15 },  // shroomish
-286: { dx: 14, dy: 15 },  // breloom
-287: { dy: 15 },  // slakoth
+286: { scale: 1.12, dx: 14, dy: 15 },  // breloom
+287: { scale: 0.81, dx: 7, dy: 15 },  // slakoth
 288: { dy: 15 },  // vigoroth
-289: { dy: 8 },  // slaking
+289: { dx: -7, dy: 8 },  // slaking
 290: { dx: 18, dy: 15 },  // nincada
 291: { dx: 19, dy: 150 },  // ninjask
 292: { dx: 33, dy: 90 },  // shedinja
@@ -282,12 +282,12 @@ export const BUDDY_OVERRIDES: Record<number, BuddyOverride> = {
 300: { dx: 34, dy: 15 },  // skitty
 301: { dy: 15 },  // delcatty
 302: { scale: 1.53, dx: 36, dy: 15 },  // sableye
-303: { scale: 1.33, dy: 15 },  // mawile
+303: { scale: 1.33, dx: -35, dy: 15 },  // mawile
 304: { scale: 1.22, dx: 50, dy: 15 },  // aron
 305: { dx: 1, dy: 15 },  // lairon
 306: { dy: 8 },  // aggron
-307: { scale: 1.41, dx: 35, dy: 15 },  // meditite
-308: { dx: 29, dy: 15 },  // medicham
+307: { scale: 1.41, dx: 35, dy: 34 },  // meditite
+308: { scale: 1.23, dx: 29, dy: 15 },  // medicham
 309: { dx: 24, dy: 15 },  // electrike
 310: { dy: 15 },  // manectric
 311: { scale: 1.93, dx: 42, dy: 15 },  // plusle
@@ -299,8 +299,8 @@ export const BUDDY_OVERRIDES: Record<number, BuddyOverride> = {
 317: { dy: 8 },  // swalot
 318: { dx: 22, dy: 30 },  // carvanha
 319: { dy: 30 },  // sharpedo
-320: { dy: 8 },  // wailmer
-321: { scale: 0.16, dy: 8 },  // wailord
+320: { scale: 0.7, dy: 8 },  // wailmer
+321: { scale: 0.14, dx: -38, dy: 96 },  // wailord
 322: { dx: 35, dy: 15 },  // numel
 323: { dy: 8 },  // camerupt
 324: { scale: 2.06, dx: 11, dy: 15 },  // torkoal
@@ -308,14 +308,14 @@ export const BUDDY_OVERRIDES: Record<number, BuddyOverride> = {
 326: { dx: 28, dy: 15 },  // grumpig
 327: { dx: 25, dy: 15 },  // spinda
 328: { dx: 38, dy: 15 },  // trapinch
-329: { dx: 2, dy: 150 },  // vibrava
-330: { dy: 150 },  // flygon
+329: { dx: 2, dy: 21 },  // vibrava
+330: { scale: 0.97, dy: 150 },  // flygon
 331: { scale: 1.61, dx: 19, dy: 15 },  // cacnea
 332: { dy: 15 },  // cacturne
 333: { scale: 1.93, dy: 150 },  // swablu
-334: { dx: 9, dy: 150 },  // altaria
+334: { dx: 9, dy: 70 },  // altaria
 335: { dy: 15 },  // zangoose
-336: { dy: 8 },  // seviper
+336: { scale: 0.52, dy: 8 },  // seviper
 337: { dx: 28, dy: 120 },  // lunatone
 338: { dy: 120 },  // solrock
 339: { scale: 1.38, dx: 30, dy: 30 },  // barboach
@@ -344,26 +344,26 @@ export const BUDDY_OVERRIDES: Record<number, BuddyOverride> = {
 362: { dy: 15 },  // glalie
 363: { dx: 18, dy: 15 },  // spheal
 364: { dy: 15 },  // sealeo
-365: { dy: 15 },  // walrein
+365: { scale: 1.38, dy: 15 },  // walrein
 366: { scale: 1.65, dx: 34, dy: 30 },  // clamperl
 367: { dy: 30 },  // huntail
-368: { dy: 30 },  // gorebyss
+368: { scale: 0.56, dy: 30 },  // gorebyss
 369: { dy: 30 },  // relicanth
 370: { dx: 51, dy: 30 },  // luvdisc
 371: { scale: 1.33, dx: 37, dy: 15 },  // bagon
 372: { dx: 9, dy: 15 },  // shelgon
-373: { dy: 15 },  // salamence
+373: { scale: 1.33, dy: 15 },  // salamence
 374: { dx: 39, dy: 90 },  // beldum
-375: { dy: 90 },  // metang
-376: { dy: 15 },  // metagross
-377: { dy: 8 },  // regirock
-378: { dy: 8 },  // regice
-379: { dy: 8 },  // registeel
+375: { scale: 1.18, dx: -15, dy: 145 },  // metang
+376: { scale: 1.12, dx: -38, dy: 10 },  // metagross
+377: { scale: 1.19, dx: -23, dy: 8 },  // regirock
+378: { dx: -41, dy: 8 },  // regice
+379: { dx: -31, dy: 8 },  // registeel
 380: { dy: 150 },  // latias
 381: { dy: 150 },  // latios
 382: { scale: 0.52, dy: 8 },  // kyogre
 383: { scale: 0.67, dy: 8 },  // groudon
-384: { scale: 0.34, dy: 150 },  // rayquaza
+384: { scale: 0.29, dy: 150 },  // rayquaza
 385: { scale: 2.45, dx: 22, dy: 150 },  // jirachi
 386: { dy: 30 },  // deoxys
 

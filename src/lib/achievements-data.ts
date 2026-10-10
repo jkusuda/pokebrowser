@@ -406,7 +406,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     trigger: "event_goal",
     threshold: 1,
     storageReward: 0,
-    tokenReward: "legendary",
+    tokenReward: null,
     xpReward: 5000,
   },
   {

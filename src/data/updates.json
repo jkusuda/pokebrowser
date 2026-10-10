@@ -2,24 +2,15 @@
   "updates": [
     {
       "version": "1.4.0",
-      "date": "Oct 11, 2026",
-      "notes": [
-        "New Pokemon emerge from the Hoenn region! Generation 3 Pokemon are now available.",
-        "Catch all 135 Hoenn species to earn the new Hoenn Champion badge.",
-        "New event achievements! Help reach a community goal to become a Team Player, or finish in the top 3 of any event to become an Event Champion. Both come with a badge and a Legendary token.",
-        "The Pokedex now has a Hoenn tab, with every new evolution line, including Wurmple's split."
-      ]
-    },
-    {
-      "version": "1.3.1",
       "date": "Oct 10, 2026",
       "notes": [
+        "New Pokemon emerge from the Hoenn region! Generation 3 Pokemon are now available.",
         "New settings! Turn encounter animations and sound effects on or off from your profile settings page.",
-        "Block Pokebrowser on sites you choose. Add them under Settings and no Pokemon will appear there, buddy included.",
-        "Your sound setting now follows your account, so it carries across every browser you use Pokebrowser in.",
-        "Encounter rates are now handled entirely on our servers, keeping catch rates fair for everyone."
+        "Block Pokebrowser on sites you choose.",
+        "New events! Help reach a community goal and participate in spotlight hour events"
       ]
     },
+    
     {
       "version": "1.3.0",
       "date": "Aug 3, 2026",

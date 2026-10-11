@@ -191,21 +191,32 @@ export async function getLeaderboard(
 // ─── Events ─────────────────────────────────────────────────────────────────
 
 /**
- * Fetches the current event (plus the caller's progress in it), the next 10
- * upcoming events, and the last 10 past events. Direct table reads — the
- * events SELECT policy is open to authenticated users and event_progress is
- * RLS-scoped to self.
+ * Display priority for overlapping live events: community-goal events lead
+ * (everyone's working on them together), then spotlight events, then the rest.
+ * Ties are broken by soonest end.
+ */
+function liveEventTier(event: GameEvent): number {
+  if (event.community_goal !== null) return 0;
+  if (event.spotlight_pokedex !== null) return 1;
+  return 2;
+}
+
+/**
+ * Fetches every live event (events can overlap) plus the caller's progress in
+ * each, the next 10 upcoming events, and the last 10 past events. Direct table
+ * reads — the events SELECT policy is open to authenticated users and
+ * event_progress is RLS-scoped to self.
  */
 export async function getEvents(supabase: SupabaseClient, userId: string): Promise<EventsResponse> {
   const now = new Date().toISOString();
 
-  const [currentResult, upcomingResult, pastResult] = await Promise.all([
+  const [liveResult, upcomingResult, pastResult] = await Promise.all([
     supabase
       .from("events")
       .select("*")
       .lte("starts_at", now)
       .gt("ends_at", now)
-      .maybeSingle(),
+      .order("ends_at", { ascending: true }),
     supabase
       .from("events")
       .select("*")
@@ -220,29 +231,33 @@ export async function getEvents(supabase: SupabaseClient, userId: string): Promi
       .limit(10),
   ]);
 
-  if (currentResult.error) throw currentResult.error;
+  if (liveResult.error) throw liveResult.error;
   if (upcomingResult.error) throw upcomingResult.error;
   if (pastResult.error) throw pastResult.error;
 
-  const current = (currentResult.data as GameEvent | null) ?? null;
+  // Arrives soonest-ending first; the stable sort keeps that order within each tier.
+  const live = ((liveResult.data as GameEvent[]) ?? []).sort(
+    (a, b) => liveEventTier(a) - liveEventTier(b)
+  );
 
-  let myProgress: number | null = null;
-  if (current) {
+  const myProgress: Record<string, number> = {};
+  if (live.length > 0) {
     // user_id is filtered explicitly rather than leaning on the self-only RLS
-    // policy — maybeSingle() would start throwing if that policy ever widened.
+    // policy, so a widened policy could never leak other players' rows here.
     const { data, error } = await supabase
       .from("event_progress")
-      .select("count")
-      .eq("event_id", current.id)
-      .eq("user_id", userId)
-      .maybeSingle();
+      .select("event_id, count")
+      .in("event_id", live.map((e) => e.id))
+      .eq("user_id", userId);
     if (error) throw error;
-    myProgress = data?.count ?? null;
+    for (const row of (data as { event_id: string; count: number }[]) ?? []) {
+      myProgress[row.event_id] = row.count;
+    }
   }
 
   return {
     serverNow: now,
-    current,
+    live,
     myProgress,
     upcoming: (upcomingResult.data as GameEvent[]) ?? [],
     past: (pastResult.data as GameEvent[]) ?? [],
@@ -594,7 +609,6 @@ export async function devUnlockAchievement(supabase: SupabaseClient, achievement
 function mapDevEventError(error: { message?: string }): Error | null {
   const msg = error.message ?? "";
   if (msg.includes("not_authorized")) return new Error("Not authorized");
-  if (msg.includes("overlapping_event")) return new Error("Overlaps an existing event");
   if (msg.includes("not_found")) return new Error("Event not found");
   if (msg.includes("invalid_window")) return new Error("Invalid event window");
   if (msg.includes("invalid_tracked_stat")) return new Error("Invalid tracked stat");

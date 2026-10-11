@@ -216,6 +216,161 @@ function EventListRow({ event, dimmed }: { event: GameEvent; dimmed?: boolean })
   );
 }
 
+// ─── Live event card ──────────────────────────────────────────────────────────
+
+/**
+ * One running event: its countdown, modifiers, community goal, the caller's
+ * progress, and a lazily-fetched leaderboard. Events can overlap, so the page
+ * renders one of these per live event, each with its own leaderboard state.
+ */
+function LiveEventCard({
+  event,
+  myProgress,
+  serverNow,
+}: {
+  event: GameEvent;
+  myProgress: number;
+  serverNow: string;
+}) {
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardResponse | null>(null);
+  const [lbFailed, setLbFailed] = useState(false);
+  const [lbFetchToken, setLbFetchToken] = useState(0);
+
+  const endsIn = useCountdown(event.ends_at, serverNow);
+  const unit = EVENT_TRACKED_STATS[event.tracked_stat].unit;
+
+  // Fetch the leaderboard the first time it's shown (and again on Retry).
+  useEffect(() => {
+    if (!showLeaderboard || leaderboard) return;
+
+    let cancelled = false;
+
+    fetch(`/api/events/leaderboard?eventId=${event.id}`)
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((res: LeaderboardResponse) => {
+        if (cancelled) return;
+        setLbFailed(false);
+        setLeaderboard(res);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setLbFailed(true);
+      });
+
+    return () => { cancelled = true; };
+  }, [showLeaderboard, leaderboard, event.id, lbFetchToken]);
+
+  // Derived, like the page's own `loading` — see the note there.
+  const lbLoading = !leaderboard && !lbFailed;
+  const meInTop = leaderboard?.top.some((e) => e.is_me) ?? false;
+  const showMeFooter = !!leaderboard?.me && !meInTop;
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="bg-white rounded-xl border-4 border-black shadow-[4px_4px_0_black] p-4 flex flex-col gap-2.5">
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <h3 className="text-emboss-sm text-lg">{event.name.toUpperCase()}</h3>
+          <span className="inline-flex items-center px-2.5 py-1 rounded-lg border-2 border-black bg-pb-poppy shadow-[2px_2px_0_black] font-black text-[10px] uppercase tracking-wider text-white">
+            Ends in {endsIn ?? "…"}
+          </span>
+        </div>
+        {event.description && (
+          <p className="text-sm text-pb-ink/80 font-medium">{event.description}</p>
+        )}
+        <TrackedStatLabel event={event} />
+        <SpawnModifiers event={event} />
+        {event.bonuses.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            {event.bonuses.map((b, i) => (
+              <BonusPill key={i} label={b.label} />
+            ))}
+          </div>
+        )}
+        <CommunityGoalPanel event={event} myProgress={myProgress} />
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t-2 border-black/10">
+          <span className="font-black tracking-widest uppercase text-[10px] text-pb-primary">
+            My progress: {myProgress} {unit}
+          </span>
+          <Button
+            variant="game"
+            tone="neutral"
+            size="sm"
+            className="h-8 px-3 text-[9px] border-2 shadow-[2px_2px_0_black] [-webkit-text-stroke:0px] [text-shadow:none]"
+            aria-pressed={showLeaderboard}
+            onClick={() => setShowLeaderboard((v) => !v)}
+          >
+            {showLeaderboard ? "Hide Leaderboard" : "Show Leaderboard"}
+          </Button>
+        </div>
+      </div>
+
+      {showLeaderboard && (
+        <div className="flex flex-col gap-2">
+          <h4 className="font-black tracking-widest uppercase text-[10px] text-pb-ink/60">
+            {event.name} Leaderboard — {EVENT_TRACKED_STATS[event.tracked_stat].label}
+          </h4>
+          {lbFailed ? (
+            <div className="flex flex-col items-center gap-3 py-4">
+              <span className="font-black tracking-widest uppercase text-[11px] text-pb-ink/60 text-center">
+                Couldn&apos;t load the leaderboard
+              </span>
+              <Button
+                variant="game"
+                tone="neutral"
+                size="sm"
+                onClick={() => {
+                  setLbFailed(false);
+                  setLbFetchToken((n) => n + 1);
+                }}
+              >
+                Retry
+              </Button>
+            </div>
+          ) : lbLoading ? (
+            <div className="flex flex-col gap-2">
+              {Array.from({ length: 5 }).map((_, i) => <ShimmerRow key={i} />)}
+            </div>
+          ) : leaderboard && leaderboard.top.length === 0 ? (
+            <span className="font-black tracking-widest uppercase text-[10px] text-pb-ink/40 text-center py-4 leading-relaxed">
+              NO RANKINGS YET<br />BE THE FIRST TO SCORE!
+            </span>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {/* Index key: masked strangers all have id === null, and
+                  rank ties are common, so neither is unique. */}
+              {leaderboard?.top.map((entry, i) => (
+                <LeaderboardRow key={i} entry={entry} unit={unit} />
+              ))}
+              {showMeFooter && leaderboard?.me && (
+                <div className="mt-1 pt-3 border-t-2 border-black/10">
+                  <LeaderboardRow
+                    entry={{
+                      rank: leaderboard.me.rank,
+                      value: leaderboard.me.value,
+                      is_private: false,
+                      is_me: true,
+                      id: null,
+                      trainer_name: leaderboard.me.trainer_name,
+                      avatar_id: leaderboard.me.avatar_id,
+                      friend_code: leaderboard.me.friend_code,
+                      displayed_badges: leaderboard.me.displayed_badges,
+                    }}
+                    unit={unit}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 /** Cached event data older than this is refetched when the page is reopened. */
@@ -231,14 +386,10 @@ export default function EventsPage({ active }: Props) {
   const [fetchToken, setFetchToken] = useState(0);
   const [boundaryTick, setBoundaryTick] = useState(0);
 
-  const [showLeaderboard, setShowLeaderboard] = useState(false);
-  // Cache per event id so re-toggling the panel doesn't refetch.
-  const [lbCache, setLbCache] = useState<Partial<Record<string, LeaderboardResponse>>>({});
-  const [lbFailed, setLbFailed] = useState(false);
-
   const handleRefetch = useCallback(() => {
+    // Clearing data unmounts the live cards, which drops their cached
+    // leaderboards along with it.
     setData(null);
-    setLbCache({});
     fetchedAtRef.current = 0;
     setFetchToken((n) => n + 1);
   }, []);
@@ -271,14 +422,15 @@ export default function EventsPage({ active }: Props) {
     return () => { cancelled = true; };
   }, [active, fetchToken]);
 
-  const current = data?.current ?? null;
+  const live = data?.live ?? [];
   const nextUp = data?.upcoming[0] ?? null;
-  const leaderboard = current ? lbCache[current.id] : undefined;
 
-  // The next moment the current/upcoming split changes: the live event ending,
-  // or the next one starting. Without this the page would keep rendering an
-  // event that finished hours ago.
-  const boundaryIso = current?.ends_at ?? nextUp?.starts_at ?? null;
+  // The next moment the live/upcoming split changes: the soonest live event
+  // ending, or the next one starting, whichever comes first. Without this the
+  // page would keep rendering an event that finished hours ago.
+  const boundaryIso =
+    [...live.map((e) => e.ends_at), ...(nextUp ? [nextUp.starts_at] : [])]
+      .sort((a, b) => Date.parse(a) - Date.parse(b))[0] ?? null;
 
   useEffect(() => {
     if (!active || !data || !boundaryIso) return;
@@ -298,33 +450,8 @@ export default function EventsPage({ active }: Props) {
     return () => clearTimeout(timer);
   }, [active, data, boundaryIso, boundaryTick, handleRefetch]);
 
-  // Fetch the event leaderboard the first time it's shown for this event.
-  useEffect(() => {
-    if (!showLeaderboard || !current || leaderboard) return;
-
-    let cancelled = false;
-
-    fetch(`/api/events/leaderboard?eventId=${current.id}`)
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      })
-      .then((res: LeaderboardResponse) => {
-        if (cancelled) return;
-        setLbFailed(false);
-        setLbCache((prev) => ({ ...prev, [current.id]: res }));
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setLbFailed(true);
-      });
-
-    return () => { cancelled = true; };
-  }, [showLeaderboard, current, leaderboard]);
-
-  const endsIn = useCountdown(current?.ends_at ?? null, data?.serverNow ?? null);
   const nextStartsIn = useCountdown(
-    !current && nextUp ? nextUp.starts_at : null,
+    live.length === 0 && nextUp ? nextUp.starts_at : null,
     data?.serverNow ?? null
   );
 
@@ -332,11 +459,6 @@ export default function EventsPage({ active }: Props) {
   // nothing went wrong yet", which keeps the fetch effects free of the
   // synchronous setState that triggers cascading renders.
   const loading = !data && !failed;
-  const lbLoading = !leaderboard && !lbFailed;
-
-  const unit = current ? EVENT_TRACKED_STATS[current.tracked_stat].unit : "";
-  const meInTop = leaderboard?.top.some((e) => e.is_me) ?? false;
-  const showMeFooter = !!leaderboard?.me && !meInTop;
 
   return (
     <Card variant="game" tone="glass" className="h-full w-full p-4 mt-2 overflow-hidden gap-0">
@@ -364,44 +486,23 @@ export default function EventsPage({ active }: Props) {
           </div>
         ) : (
           <>
-            {/* Current event hero */}
-            {current ? (
-              <div className="bg-white rounded-xl border-4 border-black shadow-[4px_4px_0_black] p-4 flex flex-col gap-2.5">
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <h3 className="text-emboss-sm text-lg">{current.name.toUpperCase()}</h3>
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-lg border-2 border-black bg-pb-poppy shadow-[2px_2px_0_black] font-black text-[10px] uppercase tracking-wider text-white">
-                    Ends in {endsIn ?? "…"}
-                  </span>
-                </div>
-                {current.description && (
-                  <p className="text-sm text-pb-ink/80 font-medium">{current.description}</p>
+            {/* Live events — one card each, in getEvents priority order */}
+            {live.length > 0 ? (
+              <>
+                {live.length > 1 && (
+                  <h4 className="font-black tracking-widest uppercase text-[10px] text-pb-ink/60">
+                    {live.length} events live now — they all count at once
+                  </h4>
                 )}
-                <TrackedStatLabel event={current} />
-                <SpawnModifiers event={current} />
-                {current.bonuses.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    {current.bonuses.map((b, i) => (
-                      <BonusPill key={i} label={b.label} />
-                    ))}
-                  </div>
-                )}
-                <CommunityGoalPanel event={current} myProgress={data.myProgress ?? 0} />
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t-2 border-black/10">
-                  <span className="font-black tracking-widest uppercase text-[10px] text-pb-primary">
-                    My progress: {data.myProgress ?? 0} {unit}
-                  </span>
-                  <Button
-                    variant="game"
-                    tone="neutral"
-                    size="sm"
-                    className="h-8 px-3 text-[9px] border-2 shadow-[2px_2px_0_black] [-webkit-text-stroke:0px] [text-shadow:none]"
-                    aria-pressed={showLeaderboard}
-                    onClick={() => setShowLeaderboard((v) => !v)}
-                  >
-                    {showLeaderboard ? "Hide Leaderboard" : "Show Leaderboard"}
-                  </Button>
-                </div>
-              </div>
+                {live.map((event) => (
+                  <LiveEventCard
+                    key={event.id}
+                    event={event}
+                    myProgress={data.myProgress[event.id] ?? 0}
+                    serverNow={data.serverNow}
+                  />
+                ))}
+              </>
             ) : (
               <div className="bg-white rounded-xl border-4 border-black shadow-[4px_4px_0_black] p-4 flex flex-col items-center gap-2 text-center">
                 {nextUp ? (
@@ -418,71 +519,6 @@ export default function EventsPage({ active }: Props) {
                   <span className="font-black tracking-widest uppercase text-[10px] text-pb-ink/40 leading-relaxed">
                     NO EVENTS SCHEDULED<br />CHECK BACK SOON!
                   </span>
-                )}
-              </div>
-            )}
-
-            {/* Event leaderboard */}
-            {current && showLeaderboard && (
-              <div className="flex flex-col gap-2">
-                <h4 className="font-black tracking-widest uppercase text-[10px] text-pb-ink/60">
-                  Event Leaderboard — {EVENT_TRACKED_STATS[current.tracked_stat].label}
-                </h4>
-                {lbFailed ? (
-                  <div className="flex flex-col items-center gap-3 py-4">
-                    <span className="font-black tracking-widest uppercase text-[11px] text-pb-ink/60 text-center">
-                      Couldn&apos;t load the leaderboard
-                    </span>
-                    <Button
-                      variant="game"
-                      tone="neutral"
-                      size="sm"
-                      onClick={() => {
-                        setLbCache((prev) => {
-                          const next = { ...prev };
-                          delete next[current.id];
-                          return next;
-                        });
-                        setLbFailed(false);
-                      }}
-                    >
-                      Retry
-                    </Button>
-                  </div>
-                ) : lbLoading && !leaderboard ? (
-                  <div className="flex flex-col gap-2">
-                    {Array.from({ length: 5 }).map((_, i) => <ShimmerRow key={i} />)}
-                  </div>
-                ) : leaderboard && leaderboard.top.length === 0 ? (
-                  <span className="font-black tracking-widest uppercase text-[10px] text-pb-ink/40 text-center py-4 leading-relaxed">
-                    NO RANKINGS YET<br />BE THE FIRST TO SCORE!
-                  </span>
-                ) : (
-                  <div className="flex flex-col gap-2">
-                    {/* Index key: masked strangers all have id === null, and
-                        rank ties are common, so neither is unique. */}
-                    {leaderboard?.top.map((entry, i) => (
-                      <LeaderboardRow key={i} entry={entry} unit={unit} />
-                    ))}
-                    {showMeFooter && leaderboard?.me && (
-                      <div className="mt-1 pt-3 border-t-2 border-black/10">
-                        <LeaderboardRow
-                          entry={{
-                            rank: leaderboard.me.rank,
-                            value: leaderboard.me.value,
-                            is_private: false,
-                            is_me: true,
-                            id: null,
-                            trainer_name: leaderboard.me.trainer_name,
-                            avatar_id: leaderboard.me.avatar_id,
-                            friend_code: leaderboard.me.friend_code,
-                            displayed_badges: leaderboard.me.displayed_badges,
-                          }}
-                          unit={unit}
-                        />
-                      </div>
-                    )}
-                  </div>
                 )}
               </div>
             )}

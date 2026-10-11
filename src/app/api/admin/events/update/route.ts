@@ -28,9 +28,6 @@ export async function POST(request: Request) {
     if (msg === "Not authorized") {
       return NextResponse.json({ error: "Not authorized" }, { status: 403 });
     }
-    if (msg === "Overlaps an existing event") {
-      return NextResponse.json({ error: "Overlaps an existing event" }, { status: 409 });
-    }
     if (DEV_EVENT_INPUT_ERRORS.has(msg)) return badRequest(msg);
     if (msg === "Event not found") {
       return NextResponse.json({ error: "Event not found" }, { status: 404 });

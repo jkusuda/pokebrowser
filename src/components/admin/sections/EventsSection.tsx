@@ -549,7 +549,9 @@ export default function EventsSection() {
 
         <StatusLine status={status} />
         <p className="text-xs text-pb-ink/60 font-medium">
-          Events can&apos;t overlap — one at a time, enforced by the database. Changing an
+          Events can overlap: each scores on its own, spotlights share the spotlight slot
+          (capped at 90%), type and generation boosts multiply, and the strongest XP / candy /
+          shiny bonus wins. Changing an
           event&apos;s tracked stat or type filter resets its leaderboard and goal progress.
           Once a community goal is reached, its scoring and reward are locked.
         </p>

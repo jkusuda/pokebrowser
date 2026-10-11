@@ -69,8 +69,8 @@ export interface LeaderboardResponse {
 // (GET /api/events/leaderboard) reuses LeaderboardResponse as-is.
 export interface EventsResponse {
   serverNow: string; // route-stamped ISO time for drift-free countdowns
-  current: GameEvent | null;
-  myProgress: number | null; // caller's count in the current event
+  live: GameEvent[]; // every event running now (they can overlap): community goals, then spotlights, then the rest; soonest-ending first within each
+  myProgress: Record<string, number>; // caller's count per live event id; absent = not scored yet
   upcoming: GameEvent[]; // next 10, soonest first
   past: GameEvent[]; // last 10, most recently ended first
 }

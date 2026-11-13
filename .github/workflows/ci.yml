@@ -1,0 +1,78 @@
+name: ci
+
+on:
+  push:
+    branches: [go-backend]
+  pull_request:
+    branches: [go-backend]
+
+jobs:
+  go:
+    name: Go API (unit + database tests)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: services/api/go.mod
+          cache-dependency-path: services/api/go.sum
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: gofmt
+        run: test -z "$(gofmt -l .)" || (gofmt -l . && exit 1)
+      - name: go vet
+        run: go vet ./...
+      - name: staticcheck
+        run: go run honnef.co/go/tools/cmd/staticcheck@v0.8.2 ./...
+
+      - name: Start local Supabase
+        working-directory: .
+        run: |
+          npm ci
+          npx supabase start --exclude studio,imgproxy,mailpit,edge-runtime,logflare,vector,storage-api,supavisor
+
+      - name: Migration carry-over checks
+        working-directory: .
+        run: supabase/tests/carryover.sh
+
+      - name: Client access checks
+        working-directory: .
+        run: supabase/tests/client_access.sh
+
+      - name: go test (with database)
+        env:
+          TEST_DATABASE_URL: postgresql://pokebrowser_api:pokebrowser-api-local@127.0.0.1:54322/postgres
+          TEST_ADMIN_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+        run: go test -race -p 1 ./...
+
+      - name: Docker image builds
+        run: docker build -t pokebrowser-api .
+
+  web:
+    name: Web + extension lint and build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Lint
+        run: npm run lint -w web && npm run lint -w extension
+      - name: Build web
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder
+          NEXT_PUBLIC_API_URL: http://127.0.0.1:8080
+        run: npm run build:web
+      - name: Build extension
+        env:
+          VITE_API_URL: http://127.0.0.1:8080
+        run: npm run build:extension

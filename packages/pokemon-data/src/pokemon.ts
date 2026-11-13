@@ -1,7 +1,7 @@
 // AUTO-GENERATED — do not edit manually.
 // Run `node packages/pokemon-data/scripts/generate.mjs` to regenerate.
 
-export interface PokemonBaseStats {
+interface PokemonBaseStats {
   hp: number;
   atk: number;
   def: number;

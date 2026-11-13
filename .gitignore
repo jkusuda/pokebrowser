@@ -1,58 +1,37 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
-
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
-.env
-.env.local
-.env.*.local
-
-# vercel
-.vercel
-
-# typescript
+# dependencies and build output
+node_modules/
+.next/
+dist/
+coverage/
 *.tsbuildinfo
 next-env.d.ts
 
-# others — ignore generated supabase config but keep handwritten migrations
-/supabase/*
-/supabase/migrations
-ARCHITECTURE.md
+# env files: only the .env.example templates are committed
+.env*
+!.env.example
+
+# local tool and OS state
+.DS_Store
+*.log
+*.pem
+.vercel/
+.vite/
+.idea/
+.vscode/
 /.claude/
 /.playwright-mcp/
-CLAUDE.md
+
+# supabase: config, migrations, seed and tests are tracked; CLI state and dumps are not
+/supabase/.temp/
+/supabase/.branches/
+/supabase/dumps/
 
 # extension store packages
-extension/*.zip
+apps/extension/*.zip
 
-# sprite source material (full multi-gen overworld rips; the shipped subset
-# lives in extension/public/overworld/)
+# overworld sprite source rips (the shipped subset is apps/extension/public/overworld/)
 /_sprite_src/
+
+CLAUDE.md
+ARCHITECTURE.md
+/docs/

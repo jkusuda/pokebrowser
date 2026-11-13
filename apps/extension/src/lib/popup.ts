@@ -1,0 +1,253 @@
+// Shadow-DOM encounter popup template.
+
+import { themeVarsCSS, type ThemeId } from "./theme";
+
+// @font-face doesn't register inside a shadow root; content.ts injects this into document.head.
+// Fonts are bundled (public/fonts/) and match the website.
+export function getFontFaceCSS() {
+  return `
+    @font-face {
+      font-family: "Baloo 2";
+      font-style: normal;
+      font-weight: 400 800;
+      font-display: swap;
+      src: url("${chrome.runtime.getURL("fonts/baloo2-latin.woff2")}") format("woff2");
+    }
+    @font-face {
+      font-family: "Lilita One";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("${chrome.runtime.getURL("fonts/lilita-one-latin.woff2")}") format("woff2");
+    }
+  `;
+}
+
+export function getPopupCSS(grassUrl: string, pokeballUrl: string, theme: ThemeId) {
+  return `
+    :host {
+      all: initial;
+      font-family: "Baloo 2", sans-serif;
+      ${themeVarsCSS(theme)}
+    }
+
+    .overlay {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 2147483647;
+      pointer-events: none;
+    }
+
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(120%); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes slideOutRight {
+      from { opacity: 1; transform: translateX(0); }
+      to   { opacity: 0; transform: translateX(120%); }
+    }
+
+    @keyframes sparkle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.5; transform: scale(1.3); }
+    }
+
+    /* ── Pokeball animation keyframes ── */
+
+    @keyframes pb-throw {
+      0%   { transform: translate(50px, 10px) scale(0.8); }
+      50%  { transform: translate(25px, -50px) scale(1.5); }
+      100% { transform: translate(0px, 0px) scale(2); }
+    }
+
+    @keyframes pb-shake {
+      0%   { transform: scale(2) rotate(0deg); }
+      20%  { transform: scale(2) rotate(-12deg); }
+      40%  { transform: scale(2) rotate(12deg); }
+      60%  { transform: scale(2) rotate(-8deg); }
+      80%  { transform: scale(2) rotate(8deg); }
+      100% { transform: scale(2) rotate(0deg); }
+    }
+
+    @keyframes pb-success {
+      0%   { transform: scale(2); }
+      40%  { transform: scale(2.6); }
+      70%  { transform: scale(1.9); }
+      100% { transform: scale(2); }
+    }
+
+    .card {
+      background: var(--pb-bg);
+      border: 4px solid black;
+      border-radius: 12px;
+      box-shadow: 6px 6px 0 black;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      width: 220px;
+      pointer-events: all;
+      animation: slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .card.dismissing {
+      animation: slideOutRight 0.3s ease-in forwards;
+    }
+
+    .title {
+      font-family: "Lilita One", "Baloo 2", sans-serif;
+      font-weight: 900;
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: white;
+      text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
+      text-align: center;
+    }
+
+    .sprite-area {
+      position: relative;
+      width: 220px;
+      height: 100px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .sprite-area img.pokemon {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      image-rendering: pixelated;
+      position: absolute;
+      bottom: 22px;
+      z-index: 2;
+      transition: opacity 0.15s ease;
+    }
+
+    .sprite-area .grass {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 220px;
+      height: 64px;
+      background: url("${grassUrl}") center / contain no-repeat;
+      image-rendering: pixelated;
+      z-index: 1;
+    }
+
+    /* Pokeball canvas — sits in the sprite-area during catch animation */
+    .pokeball-canvas {
+      position: absolute;
+      bottom: 20px;
+      left: calc(50% - 32px);
+      width: 64px;
+      height: 64px;
+      image-rendering: pixelated;
+      background: url("${pokeballUrl}") no-repeat;
+      background-size: 1792px 2048px;
+      background-position: 0 0;
+      opacity: 0;
+      z-index: 3;
+      transform: scale(2);
+    }
+
+    .shiny-badge {
+      position: absolute;
+      top: 0;
+      right: 0;
+      font-size: 16px;
+      color: #f59e0b;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+      animation: sparkle 1.2s ease-in-out infinite;
+      z-index: 4;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 10px 0;
+      font-family: "Baloo 2", sans-serif;
+      font-weight: 900;
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: white;
+      text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
+      border: 3px solid black;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 75ms;
+      box-shadow: 3px 3px 0 black;
+    }
+
+    .btn:active {
+      box-shadow: none;
+      transform: translate(3px, 3px);
+    }
+
+    .btn-catch {
+      background: var(--pb-accent-deep);
+    }
+    .btn-catch:hover {
+      background: var(--pb-accent);
+    }
+
+    .btn-run {
+      background: var(--pb-poppy);
+    }
+    .btn-run:hover {
+      background: var(--pb-poppy-hover);
+    }
+
+    .catch-result {
+      font-weight: 900;
+      font-size: 14px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: white;
+      text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
+      text-align: center;
+      width: 100%;
+    }
+  `;
+}
+
+export function getPopupHTML(
+  encounter: { name: string; isShiny: boolean },
+  spriteUrl: string,
+  boxIsFull: boolean
+) {
+  return `
+    <div class="card">
+      <div class="title">A wild ${encounter.name} appeared!</div>
+      <div class="sprite-area">
+        ${encounter.isShiny ? '<span class="shiny-badge">✦</span>' : ""}
+        <img class="pokemon" src="${spriteUrl}" alt="${encounter.name}" />
+        <div class="pokeball-canvas"></div>
+        <div class="grass"></div>
+      </div>
+      ${boxIsFull ? `
+        <div class="title" style="margin-top: 8px; color: #ff8a8a;">Your box is full!</div>
+        <div class="buttons">
+          <button class="btn btn-run" id="run-btn" aria-label="Run away from ${encounter.name}">Run</button>
+        </div>
+      ` : `
+        <div class="buttons">
+          <button class="btn btn-catch" id="catch-btn" aria-label="Catch ${encounter.name}">Catch</button>
+          <button class="btn btn-run" id="run-btn" aria-label="Run away from ${encounter.name}">Run</button>
+        </div>
+      `}
+    </div>
+  `;
+}

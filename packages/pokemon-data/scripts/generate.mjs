@@ -2,9 +2,8 @@
 // TypeScript data files:
 //   ../src/pokemon.ts   POKEMON record + lookup helpers
 //   ../src/families.ts  POKEMON_FAMILIES base-form map (shared candy pools)
-//   ../src/xp.ts        POKEMON_BASE_XP tiers, derived from evolution stage
 //
-// Usage: node packages/pokemon-data/scripts/generate.mjs
+// Usage: npm run generate -w pokemon-data
 
 import { writeFileSync } from "fs";
 import { dirname, join } from "path";
@@ -13,7 +12,6 @@ import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT = join(__dirname, "..", "src", "pokemon.ts");
 const FAMILIES_OUTPUT = join(__dirname, "..", "src", "families.ts");
-const XP_OUTPUT = join(__dirname, "..", "src", "xp.ts");
 const POKEAPI = "https://pokeapi.co/api/v2";
 const TOTAL = 386;
 
@@ -178,7 +176,7 @@ function buildPokemonFile(allData) {
   return `// AUTO-GENERATED — do not edit manually.
 // Run \`node packages/pokemon-data/scripts/generate.mjs\` to regenerate.
 
-export interface PokemonBaseStats {
+interface PokemonBaseStats {
   hp: number;
   atk: number;
   def: number;
@@ -275,60 +273,6 @@ export function getFamilyId(pokedexNumber: number): number {
 `;
 }
 
-/**
- * XP tier is a pure function of rarity and position in the evolution line, so
- * it's derived rather than hand-maintained. Note the tier reflects a species'
- * position in the range we *ship*: Onix counts as a basic once Steelix exists.
- */
-function baseXpFor(p, evolutionTargets) {
-  if (p.isLegendary || p.isMythical) return 1000;
-  if (p.evolvesTo.length === 0) return 300; // final form or true single-stage
-  if (evolutionTargets.has(p.id)) return 200; // middle
-  return 100; // basic that evolves
-}
-
-function buildXpFile(allData) {
-  const targets = new Set(allData.flatMap((p) => p.evolvesTo));
-  const byId = new Map(allData.map((p) => [p.id, p]));
-
-  // One line per family, mirroring families.ts so the two read side by side.
-  const groups = new Map();
-  for (const p of allData) {
-    if (!groups.has(p.familyBaseId)) groups.set(p.familyBaseId, []);
-    groups.get(p.familyBaseId).push(p);
-  }
-
-  const lines = [...groups.entries()]
-    .sort((a, b) => Math.min(...a[1].map((p) => p.id)) - Math.min(...b[1].map((p) => p.id)))
-    .map(([base, members]) => {
-      const sorted = members.sort((a, b) => a.id - b.id);
-      const pairs = sorted.map((p) => `${p.id}: ${baseXpFor(p, targets)},`).join(" ");
-      const baseName = byId.get(base)?.name ?? `#${base}`;
-      const label = sorted.length > 1 ? `${baseName} line` : baseName;
-      return `  ${pairs.padEnd(34)} // ${label}`;
-    });
-
-  return `// AUTO-GENERATED — do not edit manually.
-// Run \`node packages/pokemon-data/scripts/generate.mjs\` to regenerate.
-//
-// Basic: 100, Middle: 200, Final/single-stage: 300, Legendary/Mythical: 1000
-// Shiny bonus: +2000 (stacks with base)
-//
-// DISPLAY ONLY. The awarded value is computed by the _catch_pokemon RPC, which
-// derives the same tiers from the pokemon_species and pokemon_evolutions
-// reference tables — so this file cannot drift out of sync with gameplay.
-
-export const POKEMON_BASE_XP: Record<number, number> = {
-${lines.join("\n")}
-};
-
-export function getPokemonBaseXp(pokedexNumber: number, isShiny: boolean): number {
-  const base = POKEMON_BASE_XP[pokedexNumber] ?? 100;
-  return isShiny ? base + 2000 : base;
-}
-`;
-}
-
 async function main() {
   console.log(`Fetching data for ${TOTAL} Pokémon from PokeAPI...`);
 
@@ -353,10 +297,8 @@ async function main() {
 
   writeFileSync(OUTPUT, buildPokemonFile(allData), "utf-8");
   writeFileSync(FAMILIES_OUTPUT, buildFamiliesFile(allData), "utf-8");
-  writeFileSync(XP_OUTPUT, buildXpFile(allData), "utf-8");
   console.log(`\n✅ Generated ${OUTPUT} with ${allData.length} Pokémon.`);
   console.log(`✅ Generated ${FAMILIES_OUTPUT}.`);
-  console.log(`✅ Generated ${XP_OUTPUT}.`);
 }
 
 main().catch((err) => {

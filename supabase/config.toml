@@ -1,0 +1,30 @@
+# Local Supabase stack (`npx supabase start`). Anything not listed uses the CLI default.
+project_id = "pokebrowser-go"
+
+[api]
+# Game tables are reached only through the Go API, so REST serves nothing from public.
+schemas = ["graphql_public"]
+auto_expose_new_tables = false
+
+[db]
+major_version = 17
+
+[db.seed]
+sql_paths = ["./seed/species.sql", "./seed/trainers.sql"]
+
+[auth]
+site_url = "http://127.0.0.1:3000"
+additional_redirect_urls = ["http://127.0.0.1:3000/**", "http://localhost:3000/**"]
+
+[auth.email]
+enable_confirmations = false
+
+# Unused services, left off to keep the stack light.
+[storage]
+enabled = false
+
+[edge_runtime]
+enabled = false
+
+[analytics]
+enabled = false

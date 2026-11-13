@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="src/app/icon.png" alt="Pokebrowser logo" width="140" />
+<img src="apps/web/src/app/icon.png" alt="Pokebrowser logo" width="140" />
 
 # Pokebrowser
 
@@ -36,37 +36,30 @@ Pokebrowser is a Chrome extension paired with a web app. While you surf the inte
 |---|---|
 | Web app | [Next.js](https://nextjs.org) · React · TypeScript · [Tailwind CSS v4](https://tailwindcss.com) |
 | Extension | Chrome Extension (Manifest V3) · [Vite](https://vite.dev) · React |
-| Backend | [Supabase](https://supabase.com) (Postgres, Auth, Realtime, RLS) |
+| API | [Go](https://go.dev) · pgx (all game rules, served to both clients) |
+| Platform | [Supabase](https://supabase.com) (Postgres, Auth, Realtime) |
 | Data | [PokéAPI](https://pokeapi.co) (compiled to static data at build time) |
 
 ## Setup
 
-This is an npm workspace monorepo: the Next.js web app at the root, the Chrome extension in `extension/`, and shared packages in `packages/`.
-
-### 1. Web app
+An npm workspace monorepo: `apps/web` (Next.js), `apps/extension` (Chrome extension), `services/api` (Go API), `packages/*` (shared TypeScript) and `supabase/` (schema, seed, tests). Needs Node 24, Go and Docker. See [ARCHITECTURE.md](ARCHITECTURE.md) for how it fits together.
 
 ```bash
 git clone https://github.com/jkusuda/pokebrowser.git
 cd pokebrowser
 npm install
-cp .env.example .env   # fill in your Supabase URL/key
-npm run dev            # http://localhost:3000
+npx supabase start && npx supabase db reset   # local Postgres, Auth and seed data
 ```
 
-### 2. Chrome extension
+Copy each `.env.example` next to it (`services/api/.env`, `apps/web/.env.local`, `apps/extension/.env.localstack`) and fill in the keys from `npx supabase status -o env`. Then run each part:
 
 ```bash
-cd extension
-cp .env.example .env   # set VITE_WEBSITE_URL=http://localhost:3000 for local dev
-npm run build
+cd services/api && make run            # API on :8080
+cd apps/web && npx next dev -p 3000    # web app on http://localhost:3000
+npm run build:local -w extension       # extension build in apps/extension/dist
 ```
 
-Then load it in Chrome:
-
-1. Open `chrome://extensions` and enable **Developer Mode**
-2. Click **Load unpacked** and select the `extension/dist/` folder
-3. Copy the extension ID shown there into the root `.env` as `NEXT_PUBLIC_POKEBROWSE_EXTENSION_ID`
-4. Log in at `http://localhost:3000` — the extension picks up your session automatically and encounters start spawning
+Load the extension: open `chrome://extensions`, enable **Developer Mode**, click **Load unpacked** and pick `apps/extension/dist`. Put its ID in `apps/web/.env.local` as `NEXT_PUBLIC_POKEBROWSE_EXTENSION_ID`, then log in at http://localhost:3000 as a seeded trainer (`supabase/seed/trainers.sql`). The extension picks up the session and encounters start.
 
 ## Contact
 

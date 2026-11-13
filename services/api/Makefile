@@ -1,4 +1,4 @@
-.PHONY: run test test-db vet docker
+.PHONY: run test test-db vet docker deploy
 
 run:
 	set -a && . ./.env && set +a && go run ./cmd/api
@@ -16,3 +16,6 @@ vet:
 
 docker:
 	docker build -t pokebrowser-api .
+
+deploy:
+	fly deploy

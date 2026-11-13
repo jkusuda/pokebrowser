@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="apps/web/src/app/icon.png" alt="Pokebrowser logo" width="140" />
+<img src="apps/web/src/assets/pokebrowserlogo.svg" alt="Pokebrowser logo" width="140" />
 
 # Pokebrowser
 

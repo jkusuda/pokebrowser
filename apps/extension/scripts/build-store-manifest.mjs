@@ -2,8 +2,6 @@ import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
-const PROD_WEBSITE_URL = "https://www.pokebrowser.net";
-
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const distDir = resolve(scriptDir, "../dist");
 const manifestPath = resolve(distDir, "manifest.json");
@@ -32,21 +30,17 @@ writeFileSync(manifestPath, JSON.stringify(manifest, null, 4) + "\n");
 
 console.log("Stripped localhost from dist/manifest.json for the Web Store build.");
 
-// Vite bakes VITE_WEBSITE_URL into the bundles; a local .env pointing at localhost would ship,
-// so rewrite it to prod.
+// Every URL is baked into the bundles at build time, so refuse to ship a build that points at a local stack.
 const assetsDir = resolve(distDir, "assets");
-let patchedFiles = 0;
-for (const file of readdirSync(assetsDir)) {
-  if (!file.endsWith(".js")) continue;
-  const filePath = resolve(assetsDir, file);
-  const contents = readFileSync(filePath, "utf8");
-  if (!contents.includes("http://localhost:3000")) continue;
-  writeFileSync(filePath, contents.replaceAll("http://localhost:3000", PROD_WEBSITE_URL));
-  patchedFiles += 1;
+const bundles = readdirSync(assetsDir)
+  .filter((file) => file.endsWith(".js"))
+  .map((file) => [file, readFileSync(resolve(assetsDir, file), "utf8")]);
+
+const local = bundles.filter(([, contents]) => /localhost:(3000|3002|8080)|127\.0\.0\.1/.test(contents));
+if (local.length > 0) {
+  console.error(`Local URLs found in ${local.map(([file]) => file).join(", ")}. Remove any apps/extension/.env overrides and rebuild.`);
+  process.exit(1);
 }
 
-console.log(
-  patchedFiles > 0
-    ? `Rewrote localhost -> ${PROD_WEBSITE_URL} in ${patchedFiles} compiled bundle(s).`
-    : "No localhost references found in compiled bundles."
-);
+const apiUrl = bundles.map(([, contents]) => contents.match(/https:\/\/api\.[a-z.]+/)?.[0]).find(Boolean);
+console.log(`Store build ready: dist/ (version ${manifest.version}, API ${apiUrl ?? "not found"}).`);

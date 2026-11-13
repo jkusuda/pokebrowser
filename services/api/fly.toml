@@ -1,0 +1,32 @@
+# fly.toml app configuration file generated for pokebrowser-api on 2026-11-13T12:02:23-05:00
+#
+# See https://docs.fly.io/reference/configuration for information about how to use this file.
+#
+
+app = 'pokebrowser-api'
+primary_region = 'iad'
+
+[build]
+[env]
+  ALLOWED_ORIGINS = 'https://www.pokebrowser.net,https://pokebrowser.net,chrome-extension://eakagongkfagdbnmmjjohljnabbfkkbb'
+  LOG_LEVEL = 'info'
+  PORT = '8080'
+  SUPABASE_URL = 'https://nxshczmwkznapzgprkcc.supabase.co'
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'off'
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    interval = '30s'
+    timeout = '5s'
+    grace_period = '10s'
+    method = 'GET'
+    path = '/healthz'
+
+[[vm]]
+  size = 'shared-cpu-1x'
+  memory = '256mb'

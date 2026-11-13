@@ -179,8 +179,10 @@ async function tryEncounter() {
     const session = (await chrome.runtime.sendMessage(sessionMessage)) as
       | GetSessionResponse
       | undefined;
-    // Logged out: the in-flight hold stays.
-    if (!session?.loggedIn) return;
+    if (!session?.loggedIn) {
+      if (session?.retryAfterMs) holdUntil(session.retryAfterMs);
+      return;
+    }
 
     const { encounter, boxIsFull, theme, retryAfterMs, encounterAnimations } = session;
     holdUntil(retryAfterMs);

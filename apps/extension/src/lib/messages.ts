@@ -37,7 +37,8 @@ export type ExternalMessage =
 export type GetBuddyResponse = { buddy: BuddyPayload | null };
 
 export type GetSessionResponse =
-  | { loggedIn: false }
+  // retryAfterMs is set when the API failed, to back off instead of retrying every page load.
+  | { loggedIn: false; retryAfterMs?: number }
   // encounter is null when the server declined to spawn one; the rest is still fresh.
   // retryAfterMs is the server's cooldown before the next roll (0: next page load).
   | {

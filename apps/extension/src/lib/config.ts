@@ -1,28 +1,31 @@
 import { z } from "zod";
 
-// VITE_* values are validated at build time; all but VITE_API_URL fall back to these defaults.
+// VITE_* values are validated at build time and fall back to these production defaults.
 
 const DEFAULTS = {
   SUPABASE_URL: "https://nxshczmwkznapzgprkcc.supabase.co",
   SUPABASE_ANON_KEY:
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54c2hjem13a3puYXB6Z3Bya2NjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwNTIzMjUsImV4cCI6MjA4NzYyODMyNX0.c9o3R2Jp11rnd_jnVcpSW20SxOUeQNo6A36jpqkh-tE",
   WEBSITE_URL: "https://www.pokebrowser.net",
+  API_URL: "https://api.pokebrowser.net",
 } as const;
 
 const envSchema = z.object({
   VITE_SUPABASE_URL: z.string().url().default(DEFAULTS.SUPABASE_URL),
   VITE_SUPABASE_ANON_KEY: z.string().min(1).default(DEFAULTS.SUPABASE_ANON_KEY),
   VITE_WEBSITE_URL: z.string().url().default(DEFAULTS.WEBSITE_URL),
-  VITE_API_URL: z.string().url(),
+  VITE_API_URL: z.string().url().default(DEFAULTS.API_URL),
 });
 
 // build:local must never fall back to the production defaults.
 if (
   import.meta.env.MODE === "localstack" &&
-  (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY)
+  (!import.meta.env.VITE_SUPABASE_URL ||
+    !import.meta.env.VITE_SUPABASE_ANON_KEY ||
+    !import.meta.env.VITE_API_URL)
 ) {
   throw new Error(
-    "build:local needs apps/extension/.env.localstack with VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY"
+    "build:local needs apps/extension/.env.localstack with VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY and VITE_API_URL"
   );
 }
 

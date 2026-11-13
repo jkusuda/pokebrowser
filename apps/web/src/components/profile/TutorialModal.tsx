@@ -39,7 +39,7 @@ const TUTORIAL_SLIDES: Slide[] = [
     media: (
       <div className="aspect-video w-3/5 mx-auto bg-white border-4 border-black rounded-xl shadow-[3px_3px_0_black] relative overflow-hidden">
         <iframe
-          src="https://www.youtube-nocookie.com/embed/DfkSVHb_8HI?autoplay=1&mute=1&loop=1&playlist=DfkSVHb_8HI&controls=0&modestbranding=1&rel=0&playsinline=1&disablekb=1&iv_load_policy=3"
+          src="https://www.youtube-nocookie.com/embed/LeMoADrzyXs?autoplay=1&mute=1&loop=1&playlist=LeMoADrzyXs&controls=0&modestbranding=1&rel=0&playsinline=1&disablekb=1&iv_load_policy=3"
           title="Pokebrowser Showcase"
           allow="autoplay; encrypted-media; picture-in-picture"
           className="absolute inset-0 w-full h-full pointer-events-none border-0"

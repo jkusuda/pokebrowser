@@ -1,6 +1,14 @@
 {
   "updates": [
     {
+      "version": "2.0.0",
+      "date": "Nov 13, 2026",
+      "notes": [
+        "Pokebrowser now runs on a brand new server for faster, more reliable catching.",
+        "Achievements now show your exact progress toward each goal."
+      ]
+    },
+    {
       "version": "1.4.0",
       "date": "Oct 11, 2026",
       "notes": [

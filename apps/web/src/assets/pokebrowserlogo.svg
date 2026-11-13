@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>Pokebrowser — window ball</title>
+  <rect x="26" y="30" width="208" height="204" rx="40" fill="#111111" stroke="#111111" stroke-width="9"/>
+  <rect x="18" y="22" width="208" height="204" rx="40" fill="#e0f4d9"/>
+  <path d="M18 128V62A40 40 0 0 1 58 22H186A40 40 0 0 1 226 62V128Z" fill="#c0392b"/>
+  <circle cx="56" cy="56" r="8" fill="#ffffff"/>
+  <circle cx="82" cy="56" r="8" fill="#ffffff"/>
+  <circle cx="108" cy="56" r="8" fill="#ffffff"/>
+  <rect x="18" y="119" width="208" height="18" fill="#111111"/>
+  <rect x="18" y="22" width="208" height="204" rx="40" fill="none" stroke="#111111" stroke-width="9"/>
+  <circle cx="122" cy="128" r="36" fill="#ffffff" stroke="#111111" stroke-width="10"/>
+  <circle cx="122" cy="128" r="15.12" fill="#ffffff" stroke="#111111" stroke-width="6.3"/>
+  <path d="M128 134L128 184.6L140.1 172.5L148.9 193.4L158.8 189L150 169.2L166.5 169.2Z" fill="#111111" stroke="#ffffff" stroke-width="7" stroke-linejoin="round" paint-order="stroke"/>
+</svg>

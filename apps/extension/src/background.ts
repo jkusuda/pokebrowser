@@ -16,6 +16,8 @@ import type {
 
 type StoredSession = { access_token: string; refresh_token: string };
 
+const API_FAILURE_BACKOFF_MS = 60 * 1000;
+
 const CATCH_ERRORS: Record<string, PerformCatchError> = {
   catch_limit_reached: "CATCH_LIMIT_REACHED",
   rate_limited: "RATE_LIMITED",
@@ -172,7 +174,7 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, sender, sendRes
         roll = await api.roll();
       } catch (err) {
         console.error("roll failed", err);
-        sendResponse({ loggedIn: false });
+        sendResponse({ loggedIn: false, retryAfterMs: API_FAILURE_BACKOFF_MS });
         return;
       }
       const { encounter, settings, buddy } = roll;

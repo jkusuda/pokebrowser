@@ -126,8 +126,8 @@ async function HomeContent({
 
         {/* What is Pokebrowser Section */}
         <section className="w-full py-28 px-8 bg-pb-accent-deep border-t-8 border-black flex flex-col items-center">
-          <div className="w-full flex flex-col 2xl:flex-row gap-12 items-stretch 2xl:justify-center">
-            <div className="w-full 2xl:w-auto 2xl:max-w-lg 2xl:shrink-0 min-w-0">
+          <div className="w-full flex flex-col xl:flex-row gap-12 items-stretch xl:justify-center">
+            <div className="w-full xl:w-auto xl:max-w-lg xl:shrink-0 min-w-0">
               <h2 className="text-emboss-lg tracking-widest text-4xl md:text-5xl mb-8">
                 WHAT IS POKEBROWSER?
               </h2>
@@ -139,10 +139,10 @@ async function HomeContent({
                 </p>
               </div>
             </div>
-            <div className="w-full 2xl:w-auto flex justify-center 2xl:items-center">
-              <div className="w-full max-w-[560px] aspect-video 2xl:max-w-none 2xl:aspect-auto 2xl:w-[910px] 2xl:h-[512px] bg-white border-8 border-black shadow-[8px_8px_0_black] relative overflow-hidden">
+            <div className="w-full xl:w-auto xl:flex-1 xl:max-w-[910px] min-w-0 flex justify-center xl:items-center">
+              <div className="w-full max-w-[560px] aspect-video xl:max-w-none bg-white border-8 border-black shadow-[8px_8px_0_black] relative overflow-hidden">
                 <iframe
-                  src="https://www.youtube-nocookie.com/embed/DfkSVHb_8HI?autoplay=1&mute=1&loop=1&playlist=DfkSVHb_8HI&controls=0&modestbranding=1&rel=0&playsinline=1&disablekb=1&iv_load_policy=3"
+                  src="https://www.youtube-nocookie.com/embed/LeMoADrzyXs?autoplay=1&mute=1&loop=1&playlist=LeMoADrzyXs&controls=0&modestbranding=1&rel=0&playsinline=1&disablekb=1&iv_load_policy=3"
                   title="Pokebrowser Showcase"
                   allow="autoplay; encrypted-media; picture-in-picture"
                   className="absolute inset-0 w-full h-full pointer-events-none border-0"

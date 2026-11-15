@@ -25,7 +25,7 @@ export function LegalPage({
         {/* Hero band */}
         <div className="bg-pb-ink border-4 border-black rounded-[10px] shadow-[6px_6px_0_black] px-6 py-7 flex flex-col gap-3 items-center text-center">
           <Link href="/" className="self-start">
-            <Button variant="game" tone="neutral" size="sm" className="text-[11px]">
+            <Button variant="game" tone="neutral" size="sm" className="text-[0.6875rem]">
               ← Back to home
             </Button>
           </Link>
@@ -43,12 +43,12 @@ export function LegalPage({
         {/* Cross-link + contact footer */}
         <div className="flex flex-wrap gap-3 justify-center pb-4">
           <Link href="/terms">
-            <Button variant="game" tone="mint" size="sm" className="text-[11px]">
+            <Button variant="game" tone="mint" size="sm" className="text-[0.6875rem]">
               Terms of Service
             </Button>
           </Link>
           <Link href="/privacy">
-            <Button variant="game" tone="mint" size="sm" className="text-[11px]">
+            <Button variant="game" tone="mint" size="sm" className="text-[0.6875rem]">
               Privacy Policy
             </Button>
           </Link>

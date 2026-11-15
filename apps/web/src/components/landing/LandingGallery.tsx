@@ -54,7 +54,7 @@ export default function LandingGallery() {
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {INFINITE_IMAGES.map((img, i) => (
-          <div key={i} className="min-w-[85vw] sm:min-w-[700px] h-[300px] sm:h-[450px] bg-white border-8 border-black rounded-2xl shadow-[12px_12px_0_rgba(0,0,0,0.4)] snap-center shrink-0 flex flex-col items-center justify-center relative overflow-hidden opacity-90 hover:opacity-100 transition-opacity duration-300 group-hover/container:opacity-100">
+          <div key={i} className="min-w-[85vw] sm:min-w-[43.75rem] h-[18.75rem] sm:h-[28.125rem] bg-white border-8 border-black rounded-2xl shadow-[12px_12px_0_rgba(0,0,0,0.4)] snap-center shrink-0 flex flex-col items-center justify-center relative overflow-hidden opacity-90 hover:opacity-100 transition-opacity duration-300 group-hover/container:opacity-100">
             <Image src={img} alt={`Gallery Image ${(i % IMAGES.length) + 1}`} fill className="object-cover" />
           </div>
         ))}

@@ -31,6 +31,44 @@ function useServerValue<T>(serverValue: T) {
   return [value, setValue] as const;
 }
 
+const ACTION_BTN =
+  "flex-1 h-auto py-3 px-6 text-lg border-[3px] shadow-[3px_3px_0_black] rounded-[6px] [-webkit-text-stroke:0px] [text-shadow:none]";
+
+function SettingsSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="flex flex-col gap-4 bg-pb-surface rounded-[8px] border-4 border-black shadow-inner p-5">
+      <h3 className="text-emboss-sm text-sm">{title}</h3>
+      <div className="flex flex-col divide-y-[3px] divide-black/15 [&>*]:py-4 [&>*:first-child]:pt-0 [&>*:last-child]:pb-0">
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function SettingRow({
+  label,
+  description,
+  children,
+}: {
+  label: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="w-full flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-1">
+        <span className="font-black tracking-widest uppercase text-[0.6875rem] text-pb-ink">
+          {label}
+        </span>
+        <span className="font-bold text-[0.625rem] text-pb-ink/60 leading-tight">
+          {description}
+        </span>
+      </div>
+      {children}
+    </div>
+  );
+}
+
 function ToggleRow({
   label,
   description,
@@ -45,15 +83,7 @@ function ToggleRow({
   onToggle: () => void;
 }) {
   return (
-    <div className="w-full flex items-center justify-between gap-4">
-      <div className="flex flex-col gap-1">
-        <span className="font-black tracking-widest uppercase text-[11px] text-pb-ink">
-          {label}
-        </span>
-        <span className="font-bold text-[10px] text-pb-ink/60 leading-tight">
-          {description}
-        </span>
-      </div>
+    <SettingRow label={label} description={description}>
       <button
         type="button"
         role="switch"
@@ -71,11 +101,11 @@ function ToggleRow({
         <span
           className={`
             absolute top-0.5 w-3 h-3 rounded-full bg-white border-2 border-black transition-all duration-200
-            ${checked ? "left-[calc(100%-14px)]" : "left-0.5"}
+            ${checked ? "left-[calc(100%-0.875rem)]" : "left-0.5"}
           `}
         />
       </button>
-    </div>
+    </SettingRow>
   );
 }
 
@@ -160,144 +190,104 @@ export default function SettingsPage({ profile, settings, onReplayTutorial }: Pr
       <Card
         variant="game"
         tone="glass"
-        className="w-full max-w-md max-h-full overflow-hidden p-0 gap-0"
+        className="w-full max-w-3xl max-h-full overflow-hidden p-0 gap-0"
       >
-        {/* Header — pinned, doesn't scroll with the list */}
-        <div className="shrink-0 flex flex-col items-center gap-3 px-8 pt-8 pb-5 border-b-[3px] border-black/20">
+        <div className="shrink-0 flex items-center justify-center gap-4 px-8 py-5 border-b-[3px] border-black/20">
           <img
             src={settingsIcon.src}
-            alt="Settings"
-            className="w-20 h-20 object-contain drop-shadow-md"
+            alt=""
+            className="w-14 h-14 object-contain drop-shadow-md"
           />
-          <span className="text-emboss text-2xl text-center">SETTINGS</span>
+          <h2 className="text-emboss text-2xl">SETTINGS</h2>
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar flex flex-col items-center gap-6 px-8 py-6">
-
-        <ToggleRow
-          label="Private Profile"
-          description="Prevent others from sending you friend requests"
-          checked={isPrivate}
-          loading={privacyLoading}
-          onToggle={handlePrivacyToggle}
-        />
-
-        <div className="w-full border-t-[3px] border-black/20" />
-
-        <ToggleRow
-          label="Encounter Animations"
-          description="Play the pokeball throw when you catch a Pokemon"
-          checked={animationsEnabled}
-          loading={animationsLoading}
-          onToggle={handleAnimationsToggle}
-        />
-
-        <div className="w-full border-t-[3px] border-black/20" />
-
-        <ToggleRow
-          label="Sound Effects"
-          description="Pokemon cries and the catch jingle while you browse"
-          checked={soundEnabled}
-          loading={soundLoading}
-          onToggle={handleSoundToggle}
-        />
-
-        <div className="w-full border-t-[3px] border-black/20" />
-
-        <div className="w-full flex items-center justify-between gap-4">
-          <div className="flex flex-col gap-1">
-            <span className="font-black tracking-widest uppercase text-[11px] text-pb-ink">
-              Blocked Sites
-            </span>
-            <span className="font-bold text-[10px] text-pb-ink/60 leading-tight">
-              {blockedSites.length === 0
-                ? "Turn Pokebrowser off on sites you choose"
-                : `Pokebrowser is off on ${blockedSites.length} site${
-                    blockedSites.length === 1 ? "" : "s"
-                  }`}
-            </span>
-          </div>
-          <Button
-            onClick={() => setShowBlockedSites(true)}
-            variant="game"
-            tone="neutral"
-            className="shrink-0 h-auto py-2 px-4 text-sm border-[3px] shadow-[3px_3px_0_black] rounded-[6px] [-webkit-text-stroke:0px] [text-shadow:none]"
-          >
-            MANAGE
-          </Button>
-        </div>
-
-        <div className="w-full border-t-[3px] border-black/20" />
-
-        <div className="w-full flex items-center justify-between gap-4">
-          <div className="flex flex-col gap-1">
-            <span className="font-black tracking-widest uppercase text-[11px] text-pb-ink">
-              Theme
-            </span>
-            <span className="font-bold text-[10px] text-pb-ink/60 leading-tight">
-              Color style for your profile
-            </span>
-          </div>
-          <div className="flex gap-2" role="radiogroup" aria-label="Profile theme">
-            {THEMES.map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                role="radio"
-                aria-checked={theme === t.id}
-                aria-label={`${t.label} theme`}
-                title={t.label}
-                onClick={() => handleThemeSelect(t.id)}
-                disabled={themeLoading}
-                // Not a pb-* class: the swatch keeps its own color under any active theme.
-                style={{ backgroundColor: t.palette.primary }}
-                className={cn(
-                  "shrink-0 w-9 h-9 rounded-[6px] border-[3px] border-black transition-all duration-200",
-                  theme === t.id
-                    ? "shadow-[2px_2px_0_black] -translate-y-px"
-                    : "opacity-60 hover:opacity-100",
-                  themeLoading ? "cursor-not-allowed" : "cursor-pointer"
-                )}
+        <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar flex flex-col gap-6 px-8 py-6">
+          <div className="grid grid-cols-2 gap-6">
+            <SettingsSection title="Encounters">
+              <ToggleRow
+                label="Encounter Animations"
+                description="Play the pokeball throw when you catch a Pokemon"
+                checked={animationsEnabled}
+                loading={animationsLoading}
+                onToggle={handleAnimationsToggle}
               />
-            ))}
+              <ToggleRow
+                label="Sound Effects"
+                description="Pokemon cries and the catch jingle while you browse"
+                checked={soundEnabled}
+                loading={soundLoading}
+                onToggle={handleSoundToggle}
+              />
+              <SettingRow
+                label="Blocked Sites"
+                description={
+                  blockedSites.length === 0
+                    ? "Turn Pokebrowser off on sites you choose"
+                    : `Pokebrowser is off on ${blockedSites.length} site${
+                        blockedSites.length === 1 ? "" : "s"
+                      }`
+                }
+              >
+                <Button
+                  onClick={() => setShowBlockedSites(true)}
+                  variant="game"
+                  tone="neutral"
+                  className="shrink-0 h-auto py-2 px-4 text-sm border-[3px] shadow-[3px_3px_0_black] rounded-[6px] [-webkit-text-stroke:0px] [text-shadow:none]"
+                >
+                  MANAGE
+                </Button>
+              </SettingRow>
+            </SettingsSection>
+
+            <SettingsSection title="Profile">
+              <ToggleRow
+                label="Private Profile"
+                description="Prevent others from sending you friend requests"
+                checked={isPrivate}
+                loading={privacyLoading}
+                onToggle={handlePrivacyToggle}
+              />
+              <SettingRow label="Theme" description="Color style for your profile">
+                <div className="flex gap-2" role="radiogroup" aria-label="Profile theme">
+                  {THEMES.map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={theme === t.id}
+                      aria-label={`${t.label} theme`}
+                      title={t.label}
+                      onClick={() => handleThemeSelect(t.id)}
+                      disabled={themeLoading}
+                      // Not a pb-* class: the swatch keeps its own color under any active theme.
+                      style={{ backgroundColor: t.palette.primary }}
+                      className={cn(
+                        "shrink-0 w-9 h-9 rounded-[6px] border-[3px] border-black transition-all duration-200",
+                        theme === t.id
+                          ? "shadow-[2px_2px_0_black] -translate-y-px"
+                          : "opacity-60 hover:opacity-100",
+                        themeLoading ? "cursor-not-allowed" : "cursor-pointer"
+                      )}
+                    />
+                  ))}
+                </div>
+              </SettingRow>
+            </SettingsSection>
           </div>
-        </div>
 
-        <div className="w-full border-t-[3px] border-black/20" />
-
-        <Button
-          onClick={onReplayTutorial}
-          variant="game"
-          tone="neutral"
-          className="w-full h-auto py-3 px-6 text-lg border-[3px] shadow-[3px_3px_0_black] rounded-[6px] [-webkit-text-stroke:0px] [text-shadow:none]"
-        >
-          REPLAY TUTORIAL
-        </Button>
-
-        {profile.isAdmin && (
-          <>
-            <div className="w-full border-t-[3px] border-black/20" />
-            <Button
-              asChild
-              variant="game"
-              tone="forest"
-              className="w-full h-auto py-3 px-6 text-lg border-[3px] shadow-[3px_3px_0_black] rounded-[6px] [-webkit-text-stroke:0px] [text-shadow:none]"
-            >
-              <Link href="/admin">ADMIN TOOLS</Link>
+          <div className="flex gap-4">
+            <Button onClick={onReplayTutorial} variant="game" tone="neutral" className={ACTION_BTN}>
+              REPLAY TUTORIAL
             </Button>
-          </>
-        )}
-
-        <div className="w-full border-t-[3px] border-black/20" />
-
-        <Button
-          onClick={handleLogout}
-          variant="game"
-          tone="danger"
-          className="w-full h-auto py-3 px-6 text-lg border-[3px] shadow-[3px_3px_0_black] rounded-[6px] [-webkit-text-stroke:0px] [text-shadow:none]"
-        >
-          LOG OUT
-        </Button>
+            {profile.isAdmin && (
+              <Button asChild variant="game" tone="forest" className={ACTION_BTN}>
+                <Link href="/admin">ADMIN TOOLS</Link>
+              </Button>
+            )}
+            <Button onClick={handleLogout} variant="game" tone="danger" className={ACTION_BTN}>
+              LOG OUT
+            </Button>
+          </div>
         </div>
       </Card>
 

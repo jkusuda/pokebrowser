@@ -3,6 +3,8 @@
 import { TRAINER_BASE, getPokemonSprite, getBuddySpriteLayout } from "@/lib/pokemon";
 import type { BuddyOverride } from "@/lib/buddy-overrides";
 
+const rem = (px: number) => `${px / 16}rem`;
+
 type Props = {
   avatarId: string;
   avatarAlt: string;
@@ -38,10 +40,10 @@ export default function BuddySpriteArea({
           className="absolute z-10"
           style={{
             imageRendering: "pixelated",
-            height: layout.height,
+            height: rem(layout.height),
             width: "auto",
-            left: layout.left,
-            bottom: layout.bottom,
+            left: rem(layout.left),
+            bottom: rem(layout.bottom),
           }}
         />
       )}
@@ -53,8 +55,8 @@ export default function BuddySpriteArea({
           imageRendering: "pixelated",
           width: "18rem",
           height: "18rem",
-          bottom: 64,
-          ...(buddy ? { right: 8 } : { left: "50%", transform: "translateX(-50%)" }),
+          bottom: rem(64),
+          ...(buddy ? { right: rem(8) } : { left: "50%", transform: "translateX(-50%)" }),
         }}
       />
     </div>

@@ -20,7 +20,7 @@ export default function ExtensionDownModal({ onClose }: Props) {
         asChild
         variant="game"
         tone="mint"
-        className="w-full h-auto py-3 text-[15px] tracking-wide mt-1"
+        className="w-full h-auto py-3 text-[0.9375rem] tracking-wide mt-1"
       >
         <a href={WEB_STORE_URL} target="_blank" rel="noopener noreferrer" onClick={onClose}>
           DOWNLOAD FROM WEB STORE

@@ -96,7 +96,7 @@ export default function CollectionTab({ pokemon, candies, search }: { pokemon: P
   if (pokemon.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <p className="font-black tracking-widest uppercase text-[9px] text-pb-ink/40 text-center leading-relaxed">
+        <p className="font-black tracking-widest uppercase text-[0.5625rem] text-pb-ink/40 text-center leading-relaxed">
           NO POKÉMON YET<br />GO CATCH SOME!
         </p>
       </div>
@@ -108,7 +108,7 @@ export default function CollectionTab({ pokemon, candies, search }: { pokemon: P
       <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
         {filteredPokemon.length === 0 ? (
           <div className="flex items-center justify-center h-32">
-            <p className="font-black tracking-widest uppercase text-[9px] text-pb-ink/40 text-center leading-relaxed">
+            <p className="font-black tracking-widest uppercase text-[0.5625rem] text-pb-ink/40 text-center leading-relaxed">
               NO MATCHES<br />TRY A DIFFERENT SEARCH
             </p>
           </div>
@@ -135,7 +135,7 @@ export default function CollectionTab({ pokemon, candies, search }: { pokemon: P
                   )}
                 </div>
                 {p.nickname && (
-                  <p className="font-bold text-[14px] text-white truncate w-[120%] text-center z-10 [text-shadow:-1px_-1px_0_#000,1px_-1px_0_#000,-1px_1px_0_#000,1px_1px_0_#000]">
+                  <p className="font-bold text-[0.875rem] text-white truncate w-[120%] text-center z-10 [text-shadow:-1px_-1px_0_#000,1px_-1px_0_#000,-1px_1px_0_#000,1px_1px_0_#000]">
                     {p.nickname}
                   </p>
                 )}
@@ -167,7 +167,7 @@ export default function CollectionTab({ pokemon, candies, search }: { pokemon: P
           <Button
             variant="ghost"
             size="sm"
-            className="justify-start h-auto px-3 py-2 text-[10px] text-black uppercase rounded-sm"
+            className="justify-start h-auto px-3 py-2 text-[0.625rem] text-black uppercase rounded-sm"
             onClick={() => {
               setContextMenu(null);
               handleSetBuddy(contextMenu.pokemon);
@@ -178,7 +178,7 @@ export default function CollectionTab({ pokemon, candies, search }: { pokemon: P
           <Button
             variant="ghost"
             size="sm"
-            className="justify-start h-auto px-3 py-2 text-[10px] text-black uppercase rounded-sm"
+            className="justify-start h-auto px-3 py-2 text-[0.625rem] text-black uppercase rounded-sm"
             onClick={() => {
               setNicknameTarget(contextMenu.pokemon);
               setContextMenu(null);
@@ -189,7 +189,7 @@ export default function CollectionTab({ pokemon, candies, search }: { pokemon: P
           <Button
             variant="ghost"
             size="sm"
-            className="justify-start h-auto px-3 py-2 text-[10px] text-red-600 hover:text-red-700 uppercase rounded-sm"
+            className="justify-start h-auto px-3 py-2 text-[0.625rem] text-red-600 hover:text-red-700 uppercase rounded-sm"
             onClick={() => {
               setReleaseTarget(contextMenu.pokemon);
               setContextMenu(null);

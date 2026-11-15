@@ -86,7 +86,7 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
 
         {failed ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-3 p-4">
-            <span className="font-black tracking-widest uppercase text-[11px] text-pb-ink text-center">
+            <span className="font-black tracking-widest uppercase text-[0.6875rem] text-pb-ink text-center">
               Couldn&apos;t load this trainer&apos;s profile
             </span>
             <Button
@@ -139,7 +139,7 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
               <Shimmer className="bg-pb-primary/40 w-8 h-8 rounded" />
             ) : (
               <>
-                <span className="font-bold text-[9px] text-black leading-none mt-1">LEVEL</span>
+                <span className="font-bold text-[0.5625rem] text-black leading-none mt-1">LEVEL</span>
                 <span className="font-black text-xl text-black leading-none mt-0.5">{fullProfile?.level ?? "–"}</span>
               </>
             )}
@@ -152,8 +152,8 @@ export default function FriendProfileCard({ profile, onBack }: Props) {
             ) : (
               <>
                 <div className="flex justify-between items-end mb-1">
-                  <span className="font-black tracking-widest text-[10px] text-black leading-none uppercase">EXP</span>
-                  <span className="font-black tracking-widest text-[10px] text-black leading-none">
+                  <span className="font-black tracking-widest text-[0.625rem] text-black leading-none uppercase">EXP</span>
+                  <span className="font-black tracking-widest text-[0.625rem] text-black leading-none">
                     {xp.current} / {xp.required}
                   </span>
                 </div>

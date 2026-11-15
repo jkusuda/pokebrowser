@@ -36,7 +36,7 @@ export default async function WhatsNewPage({
         {/* Hero band */}
         <div className="shrink-0 bg-pb-ink border-4 border-black rounded-[10px] shadow-[6px_6px_0_black] px-6 py-7 flex flex-col gap-3 items-center text-center">
           <Link href="/" className="self-start">
-            <Button variant="game" tone="neutral" size="sm" className="text-[11px]">
+            <Button variant="game" tone="neutral" size="sm" className="text-[0.6875rem]">
               ← Back to home
             </Button>
           </Link>
@@ -62,7 +62,7 @@ export default async function WhatsNewPage({
               variant="game"
               tone="primary"
               size="sm"
-              className="text-[11px] !text-black [-webkit-text-stroke:0px] [text-shadow:none]"
+              className="text-[0.6875rem] !text-black [-webkit-text-stroke:0px] [text-shadow:none]"
             >
               Go to my profile
             </Button>

@@ -37,7 +37,7 @@ export default function AdminDashboard({ trainerName }: Props) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-emboss text-2xl">ADMIN</h1>
-          <p className="font-black tracking-widest uppercase text-[10px] text-pb-ink/60 mt-1">
+          <p className="font-black tracking-widest uppercase text-[0.625rem] text-pb-ink/60 mt-1">
             Signed in as {trainerName}
           </p>
         </div>

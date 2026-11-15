@@ -93,7 +93,7 @@ export default function EditProfileModal({
         <div className="p-6 flex flex-col gap-5 overflow-y-auto custom-scrollbar">
           {/* Trainer name */}
           <div>
-            <label className="font-black text-[13px] text-black block mb-2 tracking-wide uppercase">TRAINER NAME</label>
+            <label className="font-black text-[0.8125rem] text-black block mb-2 tracking-wide uppercase">TRAINER NAME</label>
             <Input
               type="text"
               value={trainerName}
@@ -105,7 +105,7 @@ export default function EditProfileModal({
 
           {/* Avatar picker */}
           <div>
-            <label className="font-black text-[13px] text-black block mb-2 tracking-wide uppercase">AVATAR</label>
+            <label className="font-black text-[0.8125rem] text-black block mb-2 tracking-wide uppercase">AVATAR</label>
             <div className="grid grid-cols-6 gap-2 p-4 bg-pb-accent/30 rounded-[8px] border-4 border-black max-h-64 overflow-y-auto shadow-inner">
               {AVATAR_OPTIONS.map((id) => (
                 <Button
@@ -135,7 +135,7 @@ export default function EditProfileModal({
 
           {/* Badge picker */}
           <div>
-            <label className="font-black text-[13px] text-black block mb-2 tracking-wide uppercase">BADGES</label>
+            <label className="font-black text-[0.8125rem] text-black block mb-2 tracking-wide uppercase">BADGES</label>
             <div className="grid grid-cols-6 gap-2 p-4 bg-pb-accent/30 rounded-[8px] border-4 border-black shadow-inner">
               {BADGE_ACHIEVEMENT_IDS.map((id) => {
                 const isUnlocked = unlocked.has(id);
@@ -186,7 +186,7 @@ export default function EditProfileModal({
 
           {/* Actions */}
           <div className="flex gap-4 mt-2">
-            <Button onClick={onClose} variant="game" tone="mint" className="flex-1 h-auto py-3 text-[15px] tracking-wide">
+            <Button onClick={onClose} variant="game" tone="mint" className="flex-1 h-auto py-3 text-[0.9375rem] tracking-wide">
               CANCEL
             </Button>
             <Button
@@ -194,7 +194,7 @@ export default function EditProfileModal({
               disabled={loading || !trainerName.trim()}
               variant="game"
               tone="neutral"
-              className="flex-1 h-auto py-3 text-[15px] tracking-wide bg-white hover:bg-white"
+              className="flex-1 h-auto py-3 text-[0.9375rem] tracking-wide bg-white hover:bg-white"
             >
               {loading ? "..." : "SAVE"}
             </Button>

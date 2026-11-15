@@ -21,7 +21,7 @@ export function Field({
 }) {
   return (
     <label className={cn("flex flex-col gap-1", className)}>
-      <span className="font-black tracking-widest uppercase text-[9px] text-pb-ink/60">
+      <span className="font-black tracking-widest uppercase text-[0.5625rem] text-pb-ink/60">
         {label}
         {hint && <span className="ml-1.5 normal-case tracking-normal font-bold opacity-70">{hint}</span>}
       </span>
@@ -33,7 +33,7 @@ export function Field({
 /** Section subheading with a hairline rule. */
 export function GroupHeading({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="font-black tracking-widest uppercase text-[10px] text-pb-ink/60 border-b-2 border-black/10 pb-1">
+    <h3 className="font-black tracking-widest uppercase text-[0.625rem] text-pb-ink/60 border-b-2 border-black/10 pb-1">
       {children}
     </h3>
   );

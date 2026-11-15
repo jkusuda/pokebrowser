@@ -51,7 +51,7 @@ export function BadgeTooltip({ label, className }: { label: string; className?: 
   return (
     <span
       className={cn(
-        "pointer-events-none absolute z-40 hidden group-hover:block whitespace-nowrap rounded-[6px] border-2 border-black bg-white px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wide text-black shadow-[2px_2px_0_black]",
+        "pointer-events-none absolute z-40 hidden group-hover:block whitespace-nowrap rounded-[6px] border-2 border-black bg-white px-1.5 py-0.5 text-[0.625rem] font-black uppercase tracking-wide text-black shadow-[2px_2px_0_black]",
         className
       )}
     >

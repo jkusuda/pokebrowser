@@ -101,7 +101,7 @@ export default function CandySelectionModal({ pokedex, pendingLevels }: Props) {
                     alt={data?.name ?? `#${unlock.pokedexNumber}`}
                     className="w-10 h-10 object-contain"
                   />
-                  <span className="text-[9px] font-bold capitalize leading-none mt-0.5 text-center text-black/70">
+                  <span className="text-[0.5625rem] font-bold capitalize leading-none mt-0.5 text-center text-black/70">
                     {data?.name ?? `#${unlock.pokedexNumber}`}
                   </span>
                 </button>

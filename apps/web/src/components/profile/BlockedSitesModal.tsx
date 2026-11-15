@@ -83,7 +83,7 @@ export default function BlockedSitesModal({ sites, onSaved, onClose }: Props) {
 
           {/* Add a site */}
           <div>
-            <label className="font-black text-[13px] text-black block mb-2 tracking-wide uppercase">
+            <label className="font-black text-[0.8125rem] text-black block mb-2 tracking-wide uppercase">
               ADD A SITE
             </label>
             <div className="flex gap-3">
@@ -115,7 +115,7 @@ export default function BlockedSitesModal({ sites, onSaved, onClose }: Props) {
 
           {/* Current list */}
           <div>
-            <label className="font-black text-[13px] text-black block mb-2 tracking-wide uppercase">
+            <label className="font-black text-[0.8125rem] text-black block mb-2 tracking-wide uppercase">
               BLOCKED ({list.length})
             </label>
             {list.length === 0 ? (
@@ -155,7 +155,7 @@ export default function BlockedSitesModal({ sites, onSaved, onClose }: Props) {
               onClick={onClose}
               variant="game"
               tone="mint"
-              className="flex-1 h-auto py-3 text-[15px] tracking-wide"
+              className="flex-1 h-auto py-3 text-[0.9375rem] tracking-wide"
             >
               CANCEL
             </Button>
@@ -164,7 +164,7 @@ export default function BlockedSitesModal({ sites, onSaved, onClose }: Props) {
               disabled={loading}
               variant="game"
               tone="neutral"
-              className="flex-1 h-auto py-3 text-[15px] tracking-wide bg-white hover:bg-white"
+              className="flex-1 h-auto py-3 text-[0.9375rem] tracking-wide bg-white hover:bg-white"
             >
               {loading ? "..." : "SAVE"}
             </Button>

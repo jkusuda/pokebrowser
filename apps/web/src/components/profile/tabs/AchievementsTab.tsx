@@ -147,7 +147,7 @@ export default function AchievementsTab({ achievements, tokens }: Props) {
                        token.tokenType === "shiny" ? "✨" : "💎"}
                     </span>
                   )}
-                  <span className="text-[10px] font-black uppercase">
+                  <span className="text-[0.625rem] font-black uppercase">
                     {needsType
                       ? "Choose Type ▼"
                       : `Open ${

@@ -66,7 +66,7 @@ export default function NicknameModal({ pokemon, onClose, onSaved }: Props) {
         </div>
 
         <div className="p-6 flex flex-col gap-3">
-          <label className="font-black text-[13px] text-black block tracking-wide uppercase">
+          <label className="font-black text-[0.8125rem] text-black block tracking-wide uppercase">
             NAME
           </label>
           <Input
@@ -89,7 +89,7 @@ export default function NicknameModal({ pokemon, onClose, onSaved }: Props) {
 
           {/* Actions */}
           <div className="flex gap-4 mt-2">
-            <Button onClick={onClose} variant="game" tone="mint" className="flex-1 h-auto py-3 text-[15px] tracking-wide">
+            <Button onClick={onClose} variant="game" tone="mint" className="flex-1 h-auto py-3 text-[0.9375rem] tracking-wide">
               CANCEL
             </Button>
             <Button
@@ -97,7 +97,7 @@ export default function NicknameModal({ pokemon, onClose, onSaved }: Props) {
               disabled={loading}
               variant="game"
               tone="neutral"
-              className="flex-1 h-auto py-3 text-[15px] tracking-wide bg-white hover:bg-white"
+              className="flex-1 h-auto py-3 text-[0.9375rem] tracking-wide bg-white hover:bg-white"
             >
               {loading ? "..." : "SAVE"}
             </Button>

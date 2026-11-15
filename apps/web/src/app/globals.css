@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant short (@media (max-height: 700px));
+
 /* Pokebrowser theme tokens. */
 @theme {
 
@@ -123,6 +125,15 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
+}
+
+/* Sizing is rem-based throughout, so this one line scales the whole UI:
+   ~90% on a typical laptop, shrinking on short or narrow screens, 100% on
+   large monitors. */
+@layer base {
+  html {
+    font-size: clamp(12px, min(1vw, 1.8vh), 16px);
+  }
 }
 
 @layer components {

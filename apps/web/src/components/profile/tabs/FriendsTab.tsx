@@ -23,14 +23,14 @@ type SubTab = "friends" | "sent" | "pending";
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="font-black tracking-widest uppercase text-[9px] text-pb-ink mb-2">
+    <h3 className="font-black tracking-widest uppercase text-[0.5625rem] text-pb-ink mb-2">
       {children}
     </h3>
   );
 }
 
 const EMPTY_STATE_CLS =
-  "font-black tracking-widest uppercase text-[9px] text-pb-ink/40 text-center leading-relaxed py-6";
+  "font-black tracking-widest uppercase text-[0.5625rem] text-pb-ink/40 text-center leading-relaxed py-6";
 
 // ─── Friend code display ────────────────────────────────────────────────────
 
@@ -46,7 +46,7 @@ function FriendCodeDisplay({ code }: { code: string }) {
   return (
     <div className="bg-white rounded-xl border-2 border-black/20 p-3 flex items-center justify-between gap-3">
       <div className="flex flex-col gap-0.5">
-        <span className="font-black tracking-widest uppercase text-[8px] text-pb-ink/70">
+        <span className="font-black tracking-widest uppercase text-[0.5rem] text-pb-ink/70">
           YOUR CODE
         </span>
         <span className="font-black text-base tracking-widest text-pb-ink font-mono">{code}</span>
@@ -119,8 +119,8 @@ function AddFriendForm() {
           {loading ? "..." : "ADD"}
         </Button>
       </div>
-      {error && <p className="font-bold text-[9px] text-red-600 tracking-wide">{error}</p>}
-      {success && <p className="font-bold text-[9px] text-pb-ink tracking-wide">Friend request sent!</p>}
+      {error && <p className="font-bold text-[0.5625rem] text-red-600 tracking-wide">{error}</p>}
+      {success && <p className="font-bold text-[0.5625rem] text-pb-ink tracking-wide">Friend request sent!</p>}
     </form>
   );
 }
@@ -147,7 +147,7 @@ function IncomingRequestRow({ req }: { req: Friend }) {
       />
       <div className="flex-1 min-w-0">
         <p className="font-bold text-sm text-pb-ink truncate">{req.trainer.trainerName}</p>
-        <p className="font-black tracking-widest uppercase text-[7px] text-pb-primary">
+        <p className="font-black tracking-widest uppercase text-[0.4375rem] text-pb-primary">
           LVL {req.trainer.level}
         </p>
       </div>
@@ -158,7 +158,7 @@ function IncomingRequestRow({ req }: { req: Friend }) {
           variant="game"
           tone="forest"
           size="sm"
-          className="px-2.5 py-1 h-auto text-[8px] border-2 border-black/30 shadow-none"
+          className="px-2.5 py-1 h-auto text-[0.5rem] border-2 border-black/30 shadow-none"
         >
           {loading === "accept" ? "..." : "✓"}
         </Button>
@@ -168,7 +168,7 @@ function IncomingRequestRow({ req }: { req: Friend }) {
           variant="game"
           tone="danger"
           size="sm"
-          className="px-2.5 py-1 h-auto text-[8px] border-2 border-black/30 shadow-none"
+          className="px-2.5 py-1 h-auto text-[0.5rem] border-2 border-black/30 shadow-none"
         >
           {loading === "decline" ? "..." : "✕"}
         </Button>
@@ -191,14 +191,14 @@ function PendingSentRow({ friend }: { friend: Friend }) {
     <div className="flex items-center gap-3 p-3 bg-white rounded-xl border-2 border-black/10">
       <div className="flex-1 min-w-0">
         <p className="font-bold text-sm text-pb-ink truncate">{friend.trainer.trainerName}</p>
-        <p className="font-black tracking-widest uppercase text-[7px] text-pb-primary/70">PENDING</p>
+        <p className="font-black tracking-widest uppercase text-[0.4375rem] text-pb-primary/70">PENDING</p>
       </div>
       <Button
         onClick={handleCancel}
         disabled={loading}
         variant="ghost"
         size="sm"
-        className="shrink-0 px-2.5 py-1 h-auto rounded-lg border-2 border-black/20 bg-white/60 hover:bg-white/80 text-[8px] font-black tracking-widest uppercase text-pb-ink"
+        className="shrink-0 px-2.5 py-1 h-auto rounded-lg border-2 border-black/20 bg-white/60 hover:bg-white/80 text-[0.5rem] font-black tracking-widest uppercase text-pb-ink"
       >
         {loading ? "..." : "CANCEL"}
       </Button>
@@ -225,7 +225,7 @@ function FriendRow({
       />
       <div className="flex-1 min-w-0">
         <p className="font-bold text-sm text-pb-ink truncate">{friend.trainer.trainerName}</p>
-        <p className="font-black tracking-widest uppercase text-[7px] text-pb-primary mt-0.5">
+        <p className="font-black tracking-widest uppercase text-[0.4375rem] text-pb-primary mt-0.5">
           LVL {friend.trainer.level}
         </p>
       </div>
@@ -243,7 +243,7 @@ function FriendRow({
           onClick={onRequestRemove}
           variant="ghost"
           size="icon"
-          className="w-7 h-7 rounded-lg border-2 border-black/20 bg-white/50 hover:bg-red-100 hover:border-red-300 text-[10px] font-black text-pb-ink hover:text-red-600"
+          className="w-7 h-7 rounded-lg border-2 border-black/20 bg-white/50 hover:bg-red-100 hover:border-red-300 text-[0.625rem] font-black text-pb-ink hover:text-red-600"
           title="Remove friend"
         >
           ✕
@@ -296,7 +296,7 @@ export default function FriendsTab({ profile, friends, onFriendSelect }: Props) 
               {t.label}
               <span
                 className={cn(
-                  "text-[8px] font-black px-1 py-0.5 rounded-full min-w-[16px] text-center leading-none transition-colors",
+                  "text-[0.5rem] font-black px-1 py-0.5 rounded-full min-w-[1rem] text-center leading-none transition-colors",
                   t.badge
                     ? "bg-red-500 text-white"
                     : isActive

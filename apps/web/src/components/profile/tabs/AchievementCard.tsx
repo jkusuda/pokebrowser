@@ -140,7 +140,7 @@ export default function AchievementCard({ def, achievement, onClaim }: Props) {
             {def.label}
           </span>
           {isClaimed && (
-            <span className="text-[10px] font-bold uppercase tracking-widest text-pb-primary bg-pb-accent/30 px-1.5 py-0.5 rounded">
+            <span className="text-[0.625rem] font-bold uppercase tracking-widest text-pb-primary bg-pb-accent/30 px-1.5 py-0.5 rounded">
               ✓ Claimed
             </span>
           )}
@@ -152,7 +152,7 @@ export default function AchievementCard({ def, achievement, onClaim }: Props) {
         {rewardLabel && (
           <p
             className={cn(
-              "text-[10px] font-bold mt-1",
+              "text-[0.625rem] font-bold mt-1",
               isEarned ? "text-pb-primary" : "text-black/30"
             )}
           >
@@ -168,14 +168,14 @@ export default function AchievementCard({ def, achievement, onClaim }: Props) {
                 style={{ width: `${(achievement.progress / achievement.goal) * 100}%` }}
               />
             </div>
-            <span className="text-[10px] text-black/40 mt-0.5 block">
+            <span className="text-[0.625rem] text-black/40 mt-0.5 block">
               {achievement.progress.toLocaleString()} / {achievement.goal.toLocaleString()}
             </span>
           </div>
         )}
 
         {isClaimed && achievement?.unlockedAt && (
-          <p className="text-[10px] text-black/40 mt-1">
+          <p className="text-[0.625rem] text-black/40 mt-1">
             Unlocked {new Date(achievement.unlockedAt).toLocaleDateString()}
           </p>
         )}

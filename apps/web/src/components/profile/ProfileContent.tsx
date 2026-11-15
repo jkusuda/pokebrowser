@@ -100,7 +100,7 @@ export default function ProfileContent({ me, achievements }: Props) {
   const acceptedFriendCount = friends.accepted.length;
 
   return (
-    <div className="w-full h-full flex flex-col p-6 max-w-7xl mx-auto relative z-10">
+    <div className="w-full h-full min-h-[40rem] flex flex-col p-6 max-w-7xl mx-auto relative z-10">
       <ProfileTopBar activePage={activePage} onPageChange={handlePageChange} />
 
       {/* Page content — fades between top-level pages. All pages stay mounted to avoid remount delays. */}
@@ -117,7 +117,7 @@ export default function ProfileContent({ me, achievements }: Props) {
           style={{ display: activePage === "home" ? "flex" : "none" }}
         >
           {/* Left column — Trainer Card or Friend Profile */}
-          <div className="w-1/3 min-w-[320px] max-w-[400px] flex flex-col">
+          <div className="w-1/3 min-w-[20rem] max-w-[25rem] flex flex-col">
             {selectedFriend ? (
               <FriendProfileCard profile={selectedFriend} onBack={handleBackFromFriend} />
             ) : (
@@ -132,7 +132,7 @@ export default function ProfileContent({ me, achievements }: Props) {
           {/* Right column — Tab content */}
           <div className="flex-1 flex flex-col overflow-hidden min-h-0">
             {activeTab === "stats" && (
-              <div className="flex flex-col h-full gap-4 pt-2 overflow-y-auto custom-scrollbar pr-1">
+              <div className="flex flex-col h-full gap-4 pt-2 pb-1 overflow-y-auto overflow-x-hidden custom-scrollbar pr-2">
                 <TotalActivityPanel stats={activityStats} />
                 <TrainerStatsPanel
                   stats={stats}

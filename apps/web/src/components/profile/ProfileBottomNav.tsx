@@ -15,7 +15,7 @@ const NAV_ITEMS = [
 ];
 
 const btnClass = (isActive: boolean) =>
-  `flex-1 flex flex-col items-center justify-center py-5 px-4 rounded-[8px] border-[4px] border-black shadow-[4px_4px_0_black] transition-transform hover:-translate-y-1 hover:bg-pb-accent-deep active:translate-y-1 active:shadow-[1px_1px_0_black] ${isActive ? "bg-pb-accent-deep" : "bg-pb-accent"
+  `flex-1 flex flex-col items-center justify-center py-5 px-4 short:py-3 rounded-[8px] border-[4px] border-black shadow-[4px_4px_0_black] transition-transform hover:-translate-y-1 hover:bg-pb-accent-deep active:translate-y-1 active:shadow-[1px_1px_0_black] ${isActive ? "bg-pb-accent-deep" : "bg-pb-accent"
   }`;
 
 type Props = {
@@ -26,7 +26,7 @@ type Props = {
 
 export default function ProfileBottomNav({ activeTab, onTabChange, pendingFriendRequests = 0 }: Props) {
   return (
-    <Card variant="game" tone="grass" className="mt-4 w-full p-4 flex-row gap-5" role="tablist" aria-label="Profile sections">
+    <Card variant="game" tone="grass" className="mt-4 short:mt-3 w-full p-4 short:p-3 flex-row gap-5" role="tablist" aria-label="Profile sections">
       {NAV_ITEMS.map((item) => {
         const hasBadge = item.tab === "friends" && pendingFriendRequests > 0;
         return (
@@ -40,9 +40,9 @@ export default function ProfileBottomNav({ activeTab, onTabChange, pendingFriend
             className={`${btnClass(activeTab === item.tab)} relative`}
           >
             <div className="relative">
-              <img src={item.icon} alt={item.label} className="w-16 h-16 mb-3 object-contain drop-shadow-md" />
+              <img src={item.icon} alt={item.label} className="w-16 h-16 mb-3 short:w-12 short:h-12 short:mb-2 object-contain drop-shadow-md" />
               {hasBadge && (
-                <span className="absolute -top-1 -right-1 min-w-[20px] h-5 flex items-center justify-center bg-red-500 text-white font-black text-[10px] rounded-full border-2 border-black px-1">
+                <span className="absolute -top-1 -right-1 min-w-[1.25rem] h-5 flex items-center justify-center bg-red-500 text-white font-black text-[0.625rem] rounded-full border-2 border-black px-1">
                   {pendingFriendRequests}
                 </span>
               )}

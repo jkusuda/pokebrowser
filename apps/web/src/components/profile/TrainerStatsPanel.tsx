@@ -29,7 +29,7 @@ function PokeballDot() {
     <div className="w-3.5 h-3.5 rounded-full bg-white border-2 border-black overflow-hidden relative">
       <div className="h-1/2 w-full bg-red-500 absolute top-0" />
       <div className="w-full h-px bg-black absolute top-1/2 -mt-px z-10" />
-      <div className="w-1.5 h-1.5 rounded-full bg-white border border-black absolute top-1/2 left-1/2 -mt-[3px] -ml-[3px] z-20" />
+      <div className="w-1.5 h-1.5 rounded-full bg-white border border-black absolute top-1/2 left-1/2 -mt-[0.1875rem] -ml-[0.1875rem] z-20" />
     </div>
   );
 }
@@ -37,9 +37,9 @@ function PokeballDot() {
 // ── streak chips ─────────────────────────────────────────────────────────────
 function StreakChip({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
-    <div className="w-full bg-pb-bg rounded-lg border-2 border-black px-3 py-2.5 shadow-[1px_1px_0_black]">
-      <p className="text-black/60 text-[10px] font-bold leading-tight uppercase tracking-wide">{label}</p>
-      <p className={`font-black text-2xl leading-tight ${accent ? "text-orange-500" : "text-black"}`}>{value}</p>
+    <div className="w-full bg-pb-bg rounded-lg border-2 border-black px-3 py-2 shadow-[1px_1px_0_black]">
+      <p className="text-black/60 text-[0.625rem] font-bold leading-tight uppercase tracking-wide">{label}</p>
+      <p className={`font-black text-xl leading-tight ${accent ? "text-orange-500" : "text-black"}`}>{value}</p>
     </div>
   );
 }
@@ -56,7 +56,7 @@ function StreakCard({
   friendCount: number;
 }) {
   return (
-    <Card variant="game" tone="grass" className="p-4 mt-4 gap-3 justify-between">
+    <Card variant="game" tone="grass" className="p-4 gap-2 justify-between">
       <StreakChip label="Current Streak" value={`${current}d`} accent />
       <StreakChip label="Best Streak" value={`${best}d`} />
       <StreakChip label="Pokédex" value={`${pokedexCount} / ${POKEDEX_SIZE}`} />
@@ -94,7 +94,7 @@ function MonthCalendar({ activeDays }: { activeDays: Set<string> }) {
     "disabled:opacity-30 disabled:pointer-events-none";
 
   return (
-    <div className="w-[260px] shrink-0">
+    <div className="flex-1 min-w-[13rem] max-w-[16.25rem]">
       {/* Month header + nav */}
       <div className="flex items-center justify-between mb-2">
         <button type="button" onClick={goPrev} className={navBtn} aria-label="Previous month">‹</button>
@@ -107,7 +107,7 @@ function MonthCalendar({ activeDays }: { activeDays: Set<string> }) {
       {/* Weekday header */}
       <div className="grid grid-cols-7 gap-1 mb-1">
         {WEEKDAYS.map((w) => (
-          <div key={w} className="text-center text-black/50 text-[10px] font-bold">{w}</div>
+          <div key={w} className="text-center text-black/50 text-[0.625rem] font-bold">{w}</div>
         ))}
       </div>
 
@@ -122,7 +122,7 @@ function MonthCalendar({ activeDays }: { activeDays: Set<string> }) {
             <div
               key={key}
               title={key}
-              className={`relative aspect-square rounded-md flex items-center justify-center text-[10px] font-bold
+              className={`relative aspect-square rounded-md flex items-center justify-center text-[0.625rem] font-bold
                 ${active ? "" : "text-black/40"}
                 ${isToday ? "ring-2 ring-pb-primary ring-offset-1 ring-offset-pb-surface" : ""}`}
             >
@@ -138,8 +138,8 @@ function MonthCalendar({ activeDays }: { activeDays: Set<string> }) {
 // ── type grid (all 18 types) ─────────────────────────────────────────────────
 function TypeGrid({ caught }: { caught: Set<string> }) {
   return (
-    <div className="w-full sm:w-auto">
-      <p className="text-black/60 text-[10px] font-bold uppercase tracking-wide mb-2">
+    <div className="shrink-0">
+      <p className="text-black/60 text-[0.625rem] font-bold uppercase tracking-wide mb-2">
         Types Caught <span className="text-pb-primary">{caught.size} / {POKEMON_TYPES.length}</span>
       </p>
       <div className="grid grid-cols-6 gap-1 justify-items-center">
@@ -181,7 +181,7 @@ export default function TrainerStatsPanel({ stats, pokedexCount, friendCount }: 
   );
 
   return (
-    <div className="grid grid-cols-3 items-stretch gap-4 w-full">
+    <div className="grid grid-cols-[minmax(11rem,1fr)_minmax(0,2fr)] items-stretch gap-4 w-full">
       <StreakCard
         current={stats.currentStreak}
         best={stats.longestStreak}
@@ -189,11 +189,11 @@ export default function TrainerStatsPanel({ stats, pokedexCount, friendCount }: 
         friendCount={friendCount}
       />
 
-      <Card variant="game" tone="grass" className="p-4 mt-4 gap-0 col-span-2">
+      <Card variant="game" tone="grass" className="p-4 gap-0 min-w-0">
         <h2 className="font-bold text-black text-sm mb-3 tracking-wide">STATS</h2>
 
         {/* Calendar + type grid — side by side */}
-        <div className="flex flex-row items-start gap-4">
+        <div className="flex flex-wrap items-start gap-4">
           <MonthCalendar activeDays={activeDays} />
           <TypeGrid caught={caughtTypes} />
         </div>

@@ -81,7 +81,7 @@ export default function AuthForm() {
             variant="ghost"
             onClick={() => { setTab(t); setError(null); setSuccess(null); }}
             className={cn(
-              "flex-1 h-auto py-4 font-black text-[13px] tracking-widest uppercase rounded-none",
+              "flex-1 h-auto py-4 font-black text-[0.8125rem] tracking-widest uppercase rounded-none",
               tab === t
                 ? "bg-pb-accent text-black hover:bg-pb-accent"
                 : "bg-gray-50 text-gray-400 hover:text-black hover:bg-pb-accent/50"
@@ -99,7 +99,7 @@ export default function AuthForm() {
           tone="neutral"
           onClick={handleGoogle}
           disabled={loading}
-          className="w-full gap-3 bg-white hover:bg-white text-sm [&_svg]:size-[18px]"
+          className="w-full gap-3 bg-white hover:bg-white text-sm [&_svg]:size-[1.125rem]"
         >
           <GoogleIcon />
           Continue with Google
@@ -107,9 +107,9 @@ export default function AuthForm() {
 
         {/* Divider */}
         <div className="flex items-center gap-3">
-          <div className="flex-1 h-[4px] bg-black" />
+          <div className="flex-1 h-[0.25rem] bg-black" />
           <span className="font-black text-xs text-black uppercase tracking-widest">or</span>
-          <div className="flex-1 h-[4px] bg-black" />
+          <div className="flex-1 h-[0.25rem] bg-black" />
         </div>
 
         {/* Form */}
@@ -150,12 +150,12 @@ export default function AuthForm() {
             disabled={loading}
             variant="game"
             tone="mint"
-            className="w-full mt-2 text-[13px]"
+            className="w-full mt-2 text-[0.8125rem]"
           >
             {loading ? "..." : tab === "login" ? "LOGIN" : "CREATE ACCOUNT"}
           </Button>
 
-          <p className="text-[11px] text-gray-500 text-center font-bold leading-snug">
+          <p className="text-[0.6875rem] text-gray-500 text-center font-bold leading-snug">
             By continuing you agree to our{" "}
             <Link href="/terms" className="text-pb-primary underline">Terms</Link>{" "}
             and{" "}

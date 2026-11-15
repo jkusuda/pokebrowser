@@ -98,12 +98,12 @@ export default function PokemonDetailsPanel({
               </div>
 
               {/* Weight | Types | Height row */}
-              <div className="flex items-center justify-between text-center text-[11px] gap-1">
+              <div className="flex items-center justify-between text-center text-[0.6875rem] gap-1">
                 <div className="flex-1">
                   <p className="font-bold text-sm">
                     {pokemonInfo ? `${pokemonInfo.weight}kg` : "—"}
                   </p>
-                  <p className="text-gray-400 font-semibold text-[9px] uppercase tracking-wide">Weight</p>
+                  <p className="text-gray-400 font-semibold text-[0.5625rem] uppercase tracking-wide">Weight</p>
                 </div>
 
                 <div className="w-px h-8 bg-gray-200" />
@@ -127,7 +127,7 @@ export default function PokemonDetailsPanel({
                       <span className="text-gray-300">—</span>
                     )}
                   </div>
-                  <p className="text-gray-400 font-semibold text-[9px] uppercase tracking-wide">
+                  <p className="text-gray-400 font-semibold text-[0.5625rem] uppercase tracking-wide">
                     {types.length > 0 ? types.map(t => t.toUpperCase()).join(" / ") : "—"}
                   </p>
                 </div>
@@ -138,7 +138,7 @@ export default function PokemonDetailsPanel({
                   <p className="font-bold text-sm">
                     {pokemonInfo ? `${pokemonInfo.height}m` : "—"}
                   </p>
-                  <p className="text-gray-400 font-semibold text-[9px] uppercase tracking-wide">Height</p>
+                  <p className="text-gray-400 font-semibold text-[0.5625rem] uppercase tracking-wide">Height</p>
                 </div>
               </div>
             </Card>
@@ -187,7 +187,7 @@ export default function PokemonDetailsPanel({
               shadow="none"
               className="mx-3 mt-1.5 mb-2 rounded-[12px] bg-white/70 text-center shrink-0 py-1.5 px-3 gap-0"
             >
-              <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-widest">
+              <p className="text-[0.625rem] text-gray-400 font-semibold uppercase tracking-widest">
                 Caught On
               </p>
               <p className="text-xs font-bold text-gray-700 truncate">

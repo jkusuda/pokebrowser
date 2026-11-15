@@ -89,7 +89,7 @@ export default function GlobalStatsPage({ active }: Props) {
             variant="game"
             tone={friendsOnly ? "primary" : "neutral"}
             size="sm"
-            className="h-8 px-3 text-[9px] border-2 shadow-[2px_2px_0_black] [-webkit-text-stroke:0px] [text-shadow:none]"
+            className="h-8 px-3 text-[0.5625rem] border-2 shadow-[2px_2px_0_black] [-webkit-text-stroke:0px] [text-shadow:none]"
             aria-pressed={friendsOnly}
             onClick={() => setFriendsOnly((v) => !v)}
             title={friendsOnly ? "Showing friends only" : "Showing all trainers"}
@@ -118,7 +118,7 @@ export default function GlobalStatsPage({ active }: Props) {
       <div className="flex-1 overflow-y-auto custom-scrollbar pr-1 min-h-0">
         {failed ? (
           <div className="h-full flex flex-col items-center justify-center gap-3">
-            <span className="font-black tracking-widest uppercase text-[11px] text-pb-ink/60 text-center">
+            <span className="font-black tracking-widest uppercase text-[0.6875rem] text-pb-ink/60 text-center">
               Couldn&apos;t load the leaderboard
             </span>
             <Button variant="game" tone="neutral" size="sm" onClick={handleRefetch}>
@@ -131,7 +131,7 @@ export default function GlobalStatsPage({ active }: Props) {
           </div>
         ) : data && data.top.length === 0 ? (
           <div className="h-full flex items-center justify-center">
-            <span className="font-black tracking-widest uppercase text-[10px] text-pb-ink/40 text-center leading-relaxed">
+            <span className="font-black tracking-widest uppercase text-[0.625rem] text-pb-ink/40 text-center leading-relaxed">
               NO RANKINGS YET<br />BE THE FIRST TO CATCH SOMETHING!
             </span>
           </div>
@@ -155,7 +155,7 @@ export default function GlobalStatsPage({ active }: Props) {
 
       {/* No stats yet for the caller */}
       {data && !data.me && !loading && (
-        <p className="mt-3 pt-3 border-t-2 border-black/10 font-black tracking-widest uppercase text-[8px] text-pb-ink/40 text-center">
+        <p className="mt-3 pt-3 border-t-2 border-black/10 font-black tracking-widest uppercase text-[0.5rem] text-pb-ink/40 text-center">
           Catch a Pokémon to join the rankings
         </p>
       )}

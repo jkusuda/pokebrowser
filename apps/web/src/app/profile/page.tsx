@@ -19,10 +19,10 @@ export default async function ProfilePage() {
   return (
     <div
       data-theme={me.settings.theme}
-      className="h-screen w-screen overflow-hidden bg-cover bg-center bg-no-repeat relative"
+      className="h-dvh w-full overflow-y-auto overflow-x-hidden custom-scrollbar bg-cover bg-center bg-no-repeat relative"
       style={{ backgroundImage: `url(${background.src})` }}
     >
-      <div className="absolute inset-0 bg-white/20 pointer-events-none z-0 mix-blend-overlay" />
+      <div className="fixed inset-0 bg-white/20 pointer-events-none z-0 mix-blend-overlay" />
       <ProfileContent me={me} achievements={achievements} />
     </div>
   );

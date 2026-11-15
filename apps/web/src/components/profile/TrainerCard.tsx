@@ -69,14 +69,14 @@ export default function TrainerCard({ profile, buddy, unlockedAchievementIds }: 
           {/* Bottom bar — level badge + edit button */}
           <div className="absolute bottom-4 left-4 right-4 flex items-end gap-3 z-30 pointer-events-none">
             <div className={`flex flex-col items-center justify-center w-14 h-14 bg-white rounded-[8px] border-4 border-black shadow-[2px_2px_0_black] shrink-0 pointer-events-auto`}>
-              <span className="font-bold text-[9px] text-black leading-none mt-1">LEVEL</span>
+              <span className="font-bold text-[0.5625rem] text-black leading-none mt-1">LEVEL</span>
               <span className="font-black text-xl text-black leading-none mt-0.5">{profile.level}</span>
             </div>
 
             <div className="flex flex-col justify-center px-1 h-14 flex-1 pointer-events-auto mt-1">
               <div className="flex justify-between items-end mb-1">
-                <span className="font-black tracking-widest text-[10px] text-black leading-none uppercase">EXP</span>
-                <span className="font-black tracking-widest text-[10px] text-black leading-none">{xp.current} / {xp.required}</span>
+                <span className="font-black tracking-widest text-[0.625rem] text-black leading-none uppercase">EXP</span>
+                <span className="font-black tracking-widest text-[0.625rem] text-black leading-none">{xp.current} / {xp.required}</span>
               </div>
               <div className="w-full h-4 bg-white border-[3px] border-black rounded-full overflow-hidden shadow-[2px_2px_0_rgba(0,0,0,0.5)]">
                 <div

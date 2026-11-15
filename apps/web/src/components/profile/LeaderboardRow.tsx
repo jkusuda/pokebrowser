@@ -82,7 +82,7 @@ export function LeaderboardRow({ entry, unit }: { entry: LeaderboardEntry; unit:
         <div className="flex items-center gap-2 min-w-0">
           <p className="font-bold text-sm text-pb-ink truncate min-w-0">
             {masked ? "Anonymous Trainer" : entry.trainerName}
-            {entry.isMe && <span className="ml-1.5 text-pb-primary font-black text-[9px] tracking-widest uppercase">YOU</span>}
+            {entry.isMe && <span className="ml-1.5 text-pb-primary font-black text-[0.5625rem] tracking-widest uppercase">YOU</span>}
           </p>
           {!masked && (
             <BadgeIcons
@@ -94,9 +94,9 @@ export function LeaderboardRow({ entry, unit }: { entry: LeaderboardEntry; unit:
           )}
         </div>
         {masked ? (
-          <p className="font-black tracking-widest uppercase text-[7px] text-pb-ink/40 mt-0.5">PRIVATE</p>
+          <p className="font-black tracking-widest uppercase text-[0.4375rem] text-pb-ink/40 mt-0.5">PRIVATE</p>
         ) : (
-          <p className="font-mono tracking-widest text-[9px] text-pb-primary/80 mt-0.5">
+          <p className="font-mono tracking-widest text-[0.5625rem] text-pb-primary/80 mt-0.5">
             {copied ? "COPIED!" : entry.friendCode}
           </p>
         )}
@@ -105,7 +105,7 @@ export function LeaderboardRow({ entry, unit }: { entry: LeaderboardEntry; unit:
       {/* Stat value */}
       <div className="flex flex-col items-end shrink-0">
         <span className="font-black text-base text-pb-ink leading-none">{entry.value}</span>
-        <span className="font-black tracking-widest uppercase text-[7px] text-pb-ink/50 mt-0.5">{unit}</span>
+        <span className="font-black tracking-widest uppercase text-[0.4375rem] text-pb-ink/50 mt-0.5">{unit}</span>
       </div>
     </div>
   );

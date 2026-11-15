@@ -88,7 +88,7 @@ export default function TokenEncounterModal({ token, onClose }: Props) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Title */}
-        <div className="text-emboss-sm text-[13px] text-center">
+        <div className="text-emboss-sm text-[0.8125rem] text-center">
           {phase === "summoning" && `Opening ${tokenLabel(token.tokenType, token.pokedexNumber)}...`}
           {phase === "appeared" && `A wild ${name} appeared!`}
           {phase === "caught" && `Gotcha! ${name} was caught!`}
@@ -97,7 +97,7 @@ export default function TokenEncounterModal({ token, onClose }: Props) {
 
         {/* Sprite stage — layout mirrors the extension's encounter popup
             (apps/extension/src/lib/popup.ts .sprite-area) */}
-        <div className="relative w-[220px] h-[100px] flex items-end justify-center">
+        <div className="relative w-[13.75rem] h-[6.25rem] flex items-end justify-center">
           {result?.isShiny && phase === "appeared" && (
             <span className="absolute top-0 right-0 z-4 text-base text-amber-500 animate-sparkle drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
               ✦
@@ -109,7 +109,7 @@ export default function TokenEncounterModal({ token, onClose }: Props) {
               ref={spriteRef}
               src={getPokemonSprite(result.pokedexNumber, result.isShiny)}
               alt={name}
-              className="absolute bottom-[22px] z-2 w-20 h-20 object-contain transition-opacity duration-150"
+              className="absolute bottom-[1.375rem] z-2 w-20 h-20 object-contain transition-opacity duration-150"
               style={{ imageRendering: "pixelated" }}
             />
           )}
@@ -144,12 +144,12 @@ export default function TokenEncounterModal({ token, onClose }: Props) {
         {phase === "caught" && result && (result.isShiny || result.isNewSpecies) && (
           <div className="flex gap-2 mt-1">
             {result.isShiny && (
-              <span className="px-2 py-0.5 bg-amber-300 border-2 border-black rounded-md text-[10px] font-black uppercase shadow-[2px_2px_0_black]">
+              <span className="px-2 py-0.5 bg-amber-300 border-2 border-black rounded-md text-[0.625rem] font-black uppercase shadow-[2px_2px_0_black]">
                 ✨ Shiny
               </span>
             )}
             {result.isNewSpecies && (
-              <span className="px-2 py-0.5 bg-pb-accent border-2 border-black rounded-md text-[10px] font-black uppercase shadow-[2px_2px_0_black]">
+              <span className="px-2 py-0.5 bg-pb-accent border-2 border-black rounded-md text-[0.625rem] font-black uppercase shadow-[2px_2px_0_black]">
                 New species
               </span>
             )}
@@ -177,7 +177,7 @@ export default function TokenEncounterModal({ token, onClose }: Props) {
             {phase === "caught" ? "NICE!" : "CLOSE"}
           </Button>
         ) : (
-          <div className="h-[46px]" aria-hidden="true" />
+          <div className="h-[2.875rem]" aria-hidden="true" />
         )}
       </Card>
     </ModalShell>

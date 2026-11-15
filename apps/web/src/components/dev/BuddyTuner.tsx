@@ -144,9 +144,9 @@ export default function BuddyTuner() {
   const background = theme === "blue" ? themeBackground2 : route101;
 
   const cardColClass =
-    widthMode === "narrow" ? "w-[320px]"
-    : widthMode === "wide" ? "w-[400px]"
-    : "w-1/3 min-w-[320px] max-w-[400px]";
+    widthMode === "narrow" ? "w-[20rem]"
+    : widthMode === "wide" ? "w-[25rem]"
+    : "w-1/3 min-w-[20rem] max-w-[25rem]";
 
   return (
     <div
@@ -193,7 +193,7 @@ export default function BuddyTuner() {
               {/* Stand-in for the level/XP bar — context only, not interactive. */}
               <div className="absolute bottom-4 left-4 right-4 h-14 flex items-center gap-3 z-30 pointer-events-none opacity-60">
                 <div className="flex flex-col items-center justify-center w-14 h-14 bg-white rounded-[8px] border-4 border-black shadow-[2px_2px_0_black] shrink-0">
-                  <span className="font-bold text-[9px] text-black leading-none mt-1">LEVEL</span>
+                  <span className="font-bold text-[0.5625rem] text-black leading-none mt-1">LEVEL</span>
                   <span className="font-black text-xl text-black leading-none mt-0.5">50</span>
                 </div>
                 <div className="flex-1 h-4 bg-white border-[3px] border-black rounded-full overflow-hidden">
@@ -233,7 +233,7 @@ export default function BuddyTuner() {
               onChange={(v) => setField("dx", v)} />
             <SliderRow label="dy" value={draft.dy} min={-150} max={150} step={1}
               onChange={(v) => setField("dy", v)} />
-            <p className="text-[11px] font-bold text-pb-ink/60">
+            <p className="text-[0.6875rem] font-bold text-pb-ink/60">
               Arrow keys nudge dx/dy by 1, shift+arrow by 10. Computed: height {layout.height}px,
               left {layout.left}px, bottom {layout.bottom}px.
             </p>
@@ -268,12 +268,12 @@ export default function BuddyTuner() {
                 onClick={() => setDrafts((p) => ({ ...p, [dex]: { ...NEUTRAL } }))}>
                 Clear override
               </Button>
-              {copied && <span className="text-[11px] font-black text-pb-primary uppercase">{copied}</span>}
+              {copied && <span className="text-[0.6875rem] font-black text-pb-primary uppercase">{copied}</span>}
             </div>
             <pre className="text-xs font-mono bg-pb-bg border-2 border-black rounded p-2 overflow-x-auto">
               {line || `// #${dex} matches the default — no entry needed`}
             </pre>
-            <p className="text-[11px] font-bold text-pb-ink/60">
+            <p className="text-[0.6875rem] font-bold text-pb-ink/60">
               Nothing is saved. Paste into the matching group in{" "}
               <code>src/lib/buddy-overrides.ts</code> and extend the comment with the reason.
             </p>
@@ -338,7 +338,7 @@ export default function BuddyTuner() {
                 </button>
               ))}
             </div>
-            <p className="text-[11px] font-bold text-pb-ink/60">
+            <p className="text-[0.6875rem] font-bold text-pb-ink/60">
               Green border = has a committed override · dashed red = modified this session.
             </p>
           </div>

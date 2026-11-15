@@ -14,8 +14,8 @@ type Props = { stats: ActivityStats };
 const PokeballIcon = () => (
   <div className="w-6 h-6 rounded-full bg-white border-[3px] border-black overflow-hidden relative">
     <div className="h-1/2 w-full bg-red-500 absolute top-0" />
-    <div className="w-full h-[3px] bg-black absolute top-1/2 -mt-px z-10" />
-    <div className="w-2 h-2 rounded-full bg-white border-2 border-black absolute top-1/2 left-1/2 -mt-[4px] -ml-[4px] z-20" />
+    <div className="w-full h-[0.1875rem] bg-black absolute top-1/2 -mt-px z-10" />
+    <div className="w-2 h-2 rounded-full bg-white border-2 border-black absolute top-1/2 left-1/2 -mt-[0.25rem] -ml-[0.25rem] z-20" />
   </div>
 );
 

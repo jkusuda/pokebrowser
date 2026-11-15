@@ -33,7 +33,7 @@ function formatDateRange(event: GameEvent): string {
 /** Chunky pill showing one active event bonus (e.g. "2x XP"). */
 function BonusPill({ label }: { label: string }) {
   return (
-    <span className="inline-flex items-center px-2.5 py-1 rounded-lg border-2 border-black bg-pb-accent shadow-[2px_2px_0_black] font-black text-[10px] uppercase tracking-wider text-black">
+    <span className="inline-flex items-center px-2.5 py-1 rounded-lg border-2 border-black bg-pb-accent shadow-[2px_2px_0_black] font-black text-[0.625rem] uppercase tracking-wider text-black">
       {label}
     </span>
   );
@@ -45,7 +45,7 @@ function TypeChip({ type }: { type: string }) {
   const icon = getTypeIconPath(type);
   return (
     <span
-      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border font-bold normal-case tracking-normal text-[9px] text-white"
+      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border font-bold normal-case tracking-normal text-[0.5625rem] text-white"
       style={{ backgroundColor: color.background, borderColor: color.border }}
     >
       {icon && <img src={icon} alt="" className="w-3 h-3" />}
@@ -58,7 +58,7 @@ function TypeChip({ type }: { type: string }) {
 function TrackedStatLabel({ event }: { event: GameEvent }) {
   const meta = EVENT_TRACKED_STATS[event.trackedStat];
   return (
-    <span className="inline-flex items-center gap-1.5 font-black tracking-widest uppercase text-[9px] text-pb-ink/60">
+    <span className="inline-flex items-center gap-1.5 font-black tracking-widest uppercase text-[0.5625rem] text-pb-ink/60">
       Tracking: {meta.label}
       {event.typeFilter && <TypeChip type={event.typeFilter} />}
     </span>
@@ -68,7 +68,7 @@ function TrackedStatLabel({ event }: { event: GameEvent }) {
 /** Small sprite + name pill, used for the spotlight Pokémon. */
 function PokemonPill({ pokedex, prefix }: { pokedex: number; prefix?: string }) {
   return (
-    <span className="inline-flex items-center gap-1 pl-0.5 pr-2 py-0.5 rounded-lg border-2 border-black bg-white shadow-[2px_2px_0_black] font-black text-[10px] uppercase tracking-wider text-black">
+    <span className="inline-flex items-center gap-1 pl-0.5 pr-2 py-0.5 rounded-lg border-2 border-black bg-white shadow-[2px_2px_0_black] font-black text-[0.625rem] uppercase tracking-wider text-black">
       <img
         src={getPokedexSprite(pokedex)}
         alt=""
@@ -83,7 +83,7 @@ function PokemonPill({ pokedex, prefix }: { pokedex: number; prefix?: string }) 
 /** Neutral pill naming a boosted generation, e.g. "Gen 2 · Johto". */
 function GenerationChip({ gen }: { gen: number }) {
   return (
-    <span className="inline-flex items-center px-1.5 py-0.5 rounded border border-black/40 bg-white font-bold normal-case tracking-normal text-[9px] text-pb-ink">
+    <span className="inline-flex items-center px-1.5 py-0.5 rounded border border-black/40 bg-white font-bold normal-case tracking-normal text-[0.5625rem] text-pb-ink">
       Gen {gen} · {GENERATIONS[gen as Generation]?.name}
     </span>
   );
@@ -104,7 +104,7 @@ function SpawnModifiers({ event }: { event: GameEvent }) {
         <PokemonPill pokedex={event.spotlightPokedex} prefix="★ Spotlight: " />
       )}
       {event.boostedTypes.length > 0 && (
-        <span className="inline-flex flex-wrap items-center gap-1 font-black tracking-widest uppercase text-[9px] text-pb-ink/60">
+        <span className="inline-flex flex-wrap items-center gap-1 font-black tracking-widest uppercase text-[0.5625rem] text-pb-ink/60">
           More common:
           {event.boostedTypes.map((t) => (
             <TypeChip key={t} type={t} />
@@ -112,7 +112,7 @@ function SpawnModifiers({ event }: { event: GameEvent }) {
         </span>
       )}
       {event.boostedGenerations.length > 0 && (
-        <span className="inline-flex flex-wrap items-center gap-1 font-black tracking-widest uppercase text-[9px] text-pb-ink/60">
+        <span className="inline-flex flex-wrap items-center gap-1 font-black tracking-widest uppercase text-[0.5625rem] text-pb-ink/60">
           {event.boostedTypes.length > 0 ? "And from:" : "More common:"}
           {event.boostedGenerations.map((g) => (
             <GenerationChip key={g} gen={g} />
@@ -138,10 +138,10 @@ function CommunityGoalPanel({ event }: { event: GameEvent }) {
   return (
     <div className="flex flex-col gap-1.5 pt-2 border-t-2 border-black/10">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="font-black tracking-widest uppercase text-[10px] text-pb-ink/70">
+        <span className="font-black tracking-widest uppercase text-[0.625rem] text-pb-ink/70">
           Community Goal
         </span>
-        <span className="inline-flex items-center gap-1 font-black text-[10px] uppercase tracking-wider text-pb-ink/70">
+        <span className="inline-flex items-center gap-1 font-black text-[0.625rem] uppercase tracking-wider text-pb-ink/70">
           Reward:
           {event.rewardTokenType === "species" && event.rewardPokedex !== null && (
             <img
@@ -166,17 +166,17 @@ function CommunityGoalPanel({ event }: { event: GameEvent }) {
           style={{ width: `${pct}%` }}
         />
       </div>
-      <span className="font-mono tracking-wide text-[10px] text-pb-ink/70">
+      <span className="font-mono tracking-wide text-[0.625rem] text-pb-ink/70">
         {communityProgress.toLocaleString()} / {goal.toLocaleString()} {unit} by all trainers
       </span>
       {reached ? (
-        <span className="font-black tracking-widest uppercase text-[10px] text-pb-poppy">
+        <span className="font-black tracking-widest uppercase text-[0.625rem] text-pb-poppy">
           {myProgress > 0
             ? `Goal reached! Your ${reward} is in Achievements → Unopened Tokens`
             : `Goal reached! Score once before the event ends to get your ${reward}`}
         </span>
       ) : (
-        <span className="font-bold text-[10px] text-pb-ink/60">
+        <span className="font-bold text-[0.625rem] text-pb-ink/60">
           Every trainer who scores during the event gets the reward when the goal is reached.
         </span>
       )}
@@ -212,7 +212,7 @@ function EventListRow({ event, dimmed }: { event: GameEvent; dimmed?: boolean })
           <BonusPill label={`Goal → ${tokenLabel(event.rewardTokenType, event.rewardPokedex)}`} />
         )}
       </div>
-      <span className="font-mono tracking-wide text-[10px] text-pb-ink/60 shrink-0">
+      <span className="font-mono tracking-wide text-[0.625rem] text-pb-ink/60 shrink-0">
         {formatDateRange(event)}
       </span>
     </div>
@@ -267,7 +267,7 @@ function LiveEventCard({ event, serverNow }: { event: GameEvent; serverNow: stri
       <div className="bg-white rounded-xl border-4 border-black shadow-[4px_4px_0_black] p-4 flex flex-col gap-2.5">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <h3 className="text-emboss-sm text-lg">{event.name.toUpperCase()}</h3>
-          <span className="inline-flex items-center px-2.5 py-1 rounded-lg border-2 border-black bg-pb-poppy shadow-[2px_2px_0_black] font-black text-[10px] uppercase tracking-wider text-white">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-lg border-2 border-black bg-pb-poppy shadow-[2px_2px_0_black] font-black text-[0.625rem] uppercase tracking-wider text-white">
             Ends in {endsIn ?? "…"}
           </span>
         </div>
@@ -285,14 +285,14 @@ function LiveEventCard({ event, serverNow }: { event: GameEvent; serverNow: stri
         )}
         <CommunityGoalPanel event={event} />
         <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t-2 border-black/10">
-          <span className="font-black tracking-widest uppercase text-[10px] text-pb-primary">
+          <span className="font-black tracking-widest uppercase text-[0.625rem] text-pb-primary">
             My progress: {myProgress} {unit}
           </span>
           <Button
             variant="game"
             tone="neutral"
             size="sm"
-            className="h-8 px-3 text-[9px] border-2 shadow-[2px_2px_0_black] [-webkit-text-stroke:0px] [text-shadow:none]"
+            className="h-8 px-3 text-[0.5625rem] border-2 shadow-[2px_2px_0_black] [-webkit-text-stroke:0px] [text-shadow:none]"
             aria-pressed={showLeaderboard}
             onClick={() => setShowLeaderboard((v) => !v)}
           >
@@ -303,12 +303,12 @@ function LiveEventCard({ event, serverNow }: { event: GameEvent; serverNow: stri
 
       {showLeaderboard && (
         <div className="flex flex-col gap-2">
-          <h4 className="font-black tracking-widest uppercase text-[10px] text-pb-ink/60">
+          <h4 className="font-black tracking-widest uppercase text-[0.625rem] text-pb-ink/60">
             {event.name} Leaderboard — {EVENT_TRACKED_STATS[event.trackedStat].label}
           </h4>
           {lbFailed ? (
             <div className="flex flex-col items-center gap-3 py-4">
-              <span className="font-black tracking-widest uppercase text-[11px] text-pb-ink/60 text-center">
+              <span className="font-black tracking-widest uppercase text-[0.6875rem] text-pb-ink/60 text-center">
                 Couldn&apos;t load the leaderboard
               </span>
               <Button
@@ -328,7 +328,7 @@ function LiveEventCard({ event, serverNow }: { event: GameEvent; serverNow: stri
               {Array.from({ length: 5 }).map((_, i) => <ShimmerRow key={i} />)}
             </div>
           ) : leaderboard && leaderboard.top.length === 0 ? (
-            <span className="font-black tracking-widest uppercase text-[10px] text-pb-ink/40 text-center py-4 leading-relaxed">
+            <span className="font-black tracking-widest uppercase text-[0.625rem] text-pb-ink/40 text-center py-4 leading-relaxed">
               NO RANKINGS YET<br />BE THE FIRST TO SCORE!
             </span>
           ) : (
@@ -446,7 +446,7 @@ export default function EventsPage({ active }: Props) {
       <div className="flex-1 overflow-y-auto custom-scrollbar pr-1 min-h-0 flex flex-col gap-4">
         {failed ? (
           <div className="h-full flex flex-col items-center justify-center gap-3">
-            <span className="font-black tracking-widest uppercase text-[11px] text-pb-ink/60 text-center">
+            <span className="font-black tracking-widest uppercase text-[0.6875rem] text-pb-ink/60 text-center">
               Couldn&apos;t load events
             </span>
             <Button variant="game" tone="neutral" size="sm" onClick={handleRefetch}>
@@ -464,7 +464,7 @@ export default function EventsPage({ active }: Props) {
             {live.length > 0 ? (
               <>
                 {live.length > 1 && (
-                  <h4 className="font-black tracking-widest uppercase text-[10px] text-pb-ink/60">
+                  <h4 className="font-black tracking-widest uppercase text-[0.625rem] text-pb-ink/60">
                     {live.length} events live now — they all count at once
                   </h4>
                 )}
@@ -480,16 +480,16 @@ export default function EventsPage({ active }: Props) {
               <div className="bg-white rounded-xl border-4 border-black shadow-[4px_4px_0_black] p-4 flex flex-col items-center gap-2 text-center">
                 {nextUp ? (
                   <>
-                    <span className="font-black tracking-widest uppercase text-[10px] text-pb-ink/50">
+                    <span className="font-black tracking-widest uppercase text-[0.625rem] text-pb-ink/50">
                       No active event
                     </span>
                     <h3 className="text-emboss-sm text-lg">NEXT: {nextUp.name.toUpperCase()}</h3>
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg border-2 border-black bg-pb-accent shadow-[2px_2px_0_black] font-black text-[10px] uppercase tracking-wider text-black">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg border-2 border-black bg-pb-accent shadow-[2px_2px_0_black] font-black text-[0.625rem] uppercase tracking-wider text-black">
                       Starts in {nextStartsIn ?? "…"}
                     </span>
                   </>
                 ) : (
-                  <span className="font-black tracking-widest uppercase text-[10px] text-pb-ink/40 leading-relaxed">
+                  <span className="font-black tracking-widest uppercase text-[0.625rem] text-pb-ink/40 leading-relaxed">
                     NO EVENTS SCHEDULED<br />CHECK BACK SOON!
                   </span>
                 )}
@@ -497,11 +497,11 @@ export default function EventsPage({ active }: Props) {
             )}
 
             <div className="flex flex-col gap-2">
-              <h4 className="font-black tracking-widest uppercase text-[10px] text-pb-ink/60 border-b-2 border-black/10 pb-1">
+              <h4 className="font-black tracking-widest uppercase text-[0.625rem] text-pb-ink/60 border-b-2 border-black/10 pb-1">
                 Upcoming Events
               </h4>
               {data.upcoming.length === 0 ? (
-                <span className="font-black tracking-widest uppercase text-[9px] text-pb-ink/40 text-center py-2">
+                <span className="font-black tracking-widest uppercase text-[0.5625rem] text-pb-ink/40 text-center py-2">
                   Nothing scheduled yet
                 </span>
               ) : (
@@ -510,11 +510,11 @@ export default function EventsPage({ active }: Props) {
             </div>
 
             <div className="flex flex-col gap-2">
-              <h4 className="font-black tracking-widest uppercase text-[10px] text-pb-ink/60 border-b-2 border-black/10 pb-1">
+              <h4 className="font-black tracking-widest uppercase text-[0.625rem] text-pb-ink/60 border-b-2 border-black/10 pb-1">
                 Past Events
               </h4>
               {data.past.length === 0 ? (
-                <span className="font-black tracking-widest uppercase text-[9px] text-pb-ink/40 text-center py-2">
+                <span className="font-black tracking-widest uppercase text-[0.5625rem] text-pb-ink/40 text-center py-2">
                   No past events
                 </span>
               ) : (

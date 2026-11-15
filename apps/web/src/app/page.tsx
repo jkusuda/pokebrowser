@@ -33,7 +33,7 @@ async function HomeContent({
   const isLoggedIn = !!user;
 
   const navBtnClasses =
-    "h-auto py-2 md:py-3 text-[11px] md:text-[13px] no-underline [&_svg]:size-[18px]";
+    "h-auto py-2 md:py-3 text-[0.6875rem] md:text-[0.8125rem] no-underline [&_svg]:size-[1.125rem]";
 
   const sectionTitleClass = "font-black tracking-widest text-4xl md:text-6xl text-white uppercase text-center mb-12";
 
@@ -87,7 +87,7 @@ async function HomeContent({
         {/* Hero Content */}
         <div className="relative z-10 flex flex-col items-center gap-4 animate-[fadeInUp_0.5s_ease-out_forwards] mx-4">
           <h1
-            className="text-emboss-xl tracking-[0.1em] text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[100px] text-center relative z-10 leading-none"
+            className="text-emboss-xl tracking-[0.1em] text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[6.25rem] text-center relative z-10 leading-none"
           >
             POKEBROWSER
           </h1>
@@ -139,8 +139,8 @@ async function HomeContent({
                 </p>
               </div>
             </div>
-            <div className="w-full xl:w-auto xl:flex-1 xl:max-w-[910px] min-w-0 flex justify-center xl:items-center">
-              <div className="w-full max-w-[560px] aspect-video xl:max-w-none bg-white border-8 border-black shadow-[8px_8px_0_black] relative overflow-hidden">
+            <div className="w-full xl:w-auto xl:flex-1 xl:max-w-[56.875rem] min-w-0 flex justify-center xl:items-center">
+              <div className="w-full max-w-[35rem] aspect-video xl:max-w-none bg-white border-8 border-black shadow-[8px_8px_0_black] relative overflow-hidden">
                 <iframe
                   src="https://www.youtube-nocookie.com/embed/LeMoADrzyXs?autoplay=1&mute=1&loop=1&playlist=LeMoADrzyXs&controls=0&modestbranding=1&rel=0&playsinline=1&disablekb=1&iv_load_policy=3"
                   title="Pokebrowser Showcase"

@@ -214,7 +214,7 @@ export default function EventsSection() {
         <GroupHeading>{editingId ? "Edit Event" : "New Event"}</GroupHeading>
 
         <div className="flex flex-wrap gap-3">
-          <Field label="Name" className="flex-1 min-w-[220px]">
+          <Field label="Name" className="flex-1 min-w-[13.75rem]">
             <Input
               placeholder="Shiny Weekend"
               value={form.name}
@@ -284,7 +284,7 @@ export default function EventsSection() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <span className="font-black tracking-widest uppercase text-[9px] text-pb-ink/60">
+          <span className="font-black tracking-widest uppercase text-[0.5625rem] text-pb-ink/60">
             Bonuses
             <span className="ml-1.5 normal-case tracking-normal font-bold opacity-70">
               live multipliers while the event runs — 1 means no bonus
@@ -307,7 +307,7 @@ export default function EventsSection() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <span className="font-black tracking-widest uppercase text-[9px] text-pb-ink/60">
+          <span className="font-black tracking-widest uppercase text-[0.5625rem] text-pb-ink/60">
             Spawns
             <span className="ml-1.5 normal-case tracking-normal font-bold opacity-70">
               change what appears in the wild while the event runs
@@ -352,7 +352,7 @@ export default function EventsSection() {
                     aria-pressed={on}
                     onClick={() => toggleBoostedType(t)}
                     className={cn(
-                      "px-2 py-0.5 rounded border-2 font-bold text-[10px] uppercase tracking-wide",
+                      "px-2 py-0.5 rounded border-2 font-bold text-[0.625rem] uppercase tracking-wide",
                       on ? "bg-pb-primary text-white border-black" : "bg-white text-pb-ink/70 border-black/15"
                     )}
                   >
@@ -386,7 +386,7 @@ export default function EventsSection() {
                     aria-pressed={on}
                     onClick={() => toggleBoostedGeneration(g)}
                     className={cn(
-                      "px-2 py-0.5 rounded border-2 font-bold text-[10px] uppercase tracking-wide",
+                      "px-2 py-0.5 rounded border-2 font-bold text-[0.625rem] uppercase tracking-wide",
                       on ? "bg-pb-primary text-white border-black" : "bg-white text-pb-ink/70 border-black/15"
                     )}
                   >
@@ -412,7 +412,7 @@ export default function EventsSection() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <span className="font-black tracking-widest uppercase text-[9px] text-pb-ink/60">
+          <span className="font-black tracking-widest uppercase text-[0.5625rem] text-pb-ink/60">
             Community Goal
             <span className="ml-1.5 normal-case tracking-normal font-bold opacity-70">
               everyone&apos;s tracked-stat scores added up — every participant gets the reward token
@@ -510,7 +510,7 @@ export default function EventsSection() {
             ))}
           </div>
         ) : events.length === 0 ? (
-          <span className="font-black tracking-widest uppercase text-[9px] text-pb-ink/40 py-2">
+          <span className="font-black tracking-widest uppercase text-[0.5625rem] text-pb-ink/40 py-2">
             No events scheduled
           </span>
         ) : (
@@ -526,7 +526,7 @@ export default function EventsSection() {
               >
                 <span
                   className={cn(
-                    "px-2 py-0.5 rounded border-2 border-black font-black text-[9px] uppercase tracking-wider shrink-0",
+                    "px-2 py-0.5 rounded border-2 border-black font-black text-[0.5625rem] uppercase tracking-wider shrink-0",
                     PHASE_STYLES[phase]
                   )}
                 >
@@ -534,7 +534,7 @@ export default function EventsSection() {
                 </span>
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-sm text-pb-ink truncate">{event.name}</p>
-                  <p className="font-mono text-[10px] text-pb-ink/60 truncate">
+                  <p className="font-mono text-[0.625rem] text-pb-ink/60 truncate">
                     {EVENT_TRACKED_STATS[event.trackedStat].label}
                     {event.typeFilter && ` · ${event.typeFilter}`}
                     {" · "}
@@ -542,7 +542,7 @@ export default function EventsSection() {
                     {new Date(event.endsAt).toLocaleString()}
                   </p>
                   {modifierSummary(event) && (
-                    <p className="font-mono text-[10px] text-pb-primary truncate">
+                    <p className="font-mono text-[0.625rem] text-pb-primary truncate">
                       {modifierSummary(event)}
                     </p>
                   )}

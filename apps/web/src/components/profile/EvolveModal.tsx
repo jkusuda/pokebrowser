@@ -86,7 +86,7 @@ export default function EvolveModal({ pokemon, pokemonInfo, targets, familyName,
           {/* Target chooser — branching lines only (Eevee, Tyrogue, Gloom, …) */}
           {isBranching && phase === "confirm" && (
             <div className="w-full">
-              <p className="text-[10px] font-black uppercase tracking-widest text-black/50 text-center mb-2">
+              <p className="text-[0.625rem] font-black uppercase tracking-widest text-black/50 text-center mb-2">
                 Choose an evolution
               </p>
               <div className="flex flex-wrap justify-center gap-2">
@@ -160,7 +160,7 @@ export default function EvolveModal({ pokemon, pokemonInfo, targets, familyName,
               </Button>
             </div>
           ) : (
-            <div className="h-[42px]" aria-hidden="true" />
+            <div className="h-[2.625rem]" aria-hidden="true" />
           )}
         </div>
       </Card>

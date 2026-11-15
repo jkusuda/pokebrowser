@@ -137,7 +137,7 @@ export default function PlayerToolsSection() {
             <select
               value={achievementId}
               onChange={(e) => setAchievementId(e.target.value)}
-              className={`${adminSelectClass} max-w-[260px]`}
+              className={`${adminSelectClass} max-w-[16.25rem]`}
             >
               {ACHIEVEMENTS.map((a) => (
                 <option key={a.id} value={a.id}>{a.label}</option>

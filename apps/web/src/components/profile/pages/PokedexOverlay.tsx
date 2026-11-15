@@ -88,8 +88,8 @@ function CaughtDot({ className }: { className?: string }) {
 function CaughtInfo({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-pkd-screen/20 rounded border border-pkd-panel/50 px-2.5 py-2">
-      <div className="text-[9px] font-black uppercase tracking-widest text-white/80 mb-1">{label}</div>
-      <div className="font-mono text-[11px] text-white font-bold drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)]">{value}</div>
+      <div className="text-[0.5625rem] font-black uppercase tracking-widest text-white/80 mb-1">{label}</div>
+      <div className="font-mono text-[0.6875rem] text-white font-bold drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)]">{value}</div>
     </div>
   );
 }
@@ -97,7 +97,7 @@ function CaughtInfo({ label, value }: { label: string; value: string }) {
 function UnknownDataMessage() {
   return (
     <div className="flex flex-col items-center justify-center h-full gap-2 opacity-40">
-      <div className="text-[11px] font-black uppercase tracking-widest text-white">Data Unknown</div>
+      <div className="text-[0.6875rem] font-black uppercase tracking-widest text-white">Data Unknown</div>
       <div className="text-xs text-white text-center">Catch this Pokémon to reveal its data</div>
     </div>
   );
@@ -177,7 +177,7 @@ function EvolutionLine({ shape, caughtSet }: { shape: EvolutionShape; caughtSet:
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="text-[10px] font-black uppercase tracking-widest text-white/70 mb-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
+    <div className="text-[0.625rem] font-black uppercase tracking-widest text-white/70 mb-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
       {children}
     </div>
   );
@@ -189,7 +189,7 @@ function StatBar({ label, value, statKey }: { label: string; value: number; stat
   const color = STAT_COLORS[statKey] ?? "#aaa";
   return (
     <div className="flex items-center gap-3">
-      <span className="w-14 shrink-0 text-[10px] font-black uppercase tracking-wider leading-none text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
+      <span className="w-14 shrink-0 text-[0.625rem] font-black uppercase tracking-wider leading-none text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
         {label}
       </span>
       <div className="flex-1 relative h-4 bg-pkd-screen-dark rounded border-2 border-pkd-shell overflow-hidden shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)]">
@@ -197,7 +197,7 @@ function StatBar({ label, value, statKey }: { label: string; value: number; stat
           className="h-full transition-all duration-500"
           style={{ width: `${pct}%`, backgroundColor: color, boxShadow: `0 0 6px ${color}aa` }}
         />
-        <span className="absolute inset-0 flex items-center justify-end pr-1.5 font-mono text-[11px] font-bold text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)] leading-none">
+        <span className="absolute inset-0 flex items-center justify-end pr-1.5 font-mono text-[0.6875rem] font-bold text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)] leading-none">
           {value}
         </span>
       </div>
@@ -227,7 +227,7 @@ function GridCell({
           : "border-pkd-accent/40 bg-pkd-screen-light/70 hover:border-pkd-accent hover:bg-pkd-screen/70"
       )}
     >
-      <span className="absolute top-0.5 left-1 text-[10px] font-mono font-black tracking-wider leading-none z-10 text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
+      <span className="absolute top-0.5 left-1 text-[0.625rem] font-mono font-black tracking-wider leading-none z-10 text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
         {id}
       </span>
 
@@ -255,7 +255,7 @@ function DetailPanel({ entry, caughtSet }: { entry: PokedexEntry; caughtSet: Set
 
   const tabClass = (active: boolean) =>
     cn(
-      "flex-1 h-auto py-2.5 rounded text-[11px] border-2 uppercase font-black tracking-widest",
+      "flex-1 h-auto py-2.5 rounded text-[0.6875rem] border-2 uppercase font-black tracking-widest",
       active
         ? "bg-pkd-screen border-white text-white shadow-[0_0_10px_rgba(116,234,240,0.7)] hover:bg-pkd-screen"
         : "bg-pkd-panel/80 border-pkd-shell text-white/70 hover:bg-pkd-screen-light hover:text-white"
@@ -264,7 +264,7 @@ function DetailPanel({ entry, caughtSet }: { entry: PokedexEntry; caughtSet: Set
   return (
     <div className="flex flex-col h-full bg-pkd-panel">
       <div className="flex items-center gap-3 px-4 py-3 bg-pkd-screen border-b-4 border-pkd-panel shrink-0">
-        <span className="bg-pkd-panel/40 px-2 py-1 rounded text-[11px] font-mono font-black tracking-widest text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
+        <span className="bg-pkd-panel/40 px-2 py-1 rounded text-[0.6875rem] font-mono font-black tracking-widest text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
           {id}
         </span>
         <span className="text-emboss flex-1 text-xl truncate">{name}</span>
@@ -412,7 +412,7 @@ function LeftPanel({
             className="pl-9 pr-3 py-2 h-auto border-2 rounded bg-pkd-screen-dark/40 border-pkd-shell text-white placeholder:text-white/50 focus:border-pkd-accent text-sm font-mono"
           />
         </div>
-        <div className="flex items-center gap-1 text-[10px] font-mono font-black tracking-wider text-white bg-pkd-screen-dark/40 border border-pkd-shell rounded px-2.5 py-2 shrink-0 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
+        <div className="flex items-center gap-1 text-[0.625rem] font-mono font-black tracking-wider text-white bg-pkd-screen-dark/40 border border-pkd-shell rounded px-2.5 py-2 shrink-0 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
           <CaughtDot className="w-3 h-3 mr-1" />
           <span>{caught.toString().padStart(3, "0")}</span>
           <span className="text-white/40 mx-0.5">/</span>
@@ -429,7 +429,7 @@ function LeftPanel({
               key={gen}
               variant="ghost"
               onClick={() => jumpToDex(start)}
-              className="h-auto px-2.5 py-1 rounded border-2 border-pkd-accent/40 bg-pkd-screen-dark/40 text-[10px] font-black uppercase tracking-widest text-white hover:border-pkd-accent hover:bg-pkd-screen/70"
+              className="h-auto px-2.5 py-1 rounded border-2 border-pkd-accent/40 bg-pkd-screen-dark/40 text-[0.625rem] font-black uppercase tracking-widest text-white hover:border-pkd-accent hover:bg-pkd-screen/70"
             >
               {name}
             </Button>
@@ -452,7 +452,7 @@ function LeftPanel({
           ))}
         </div>
         {filtered.length === 0 && (
-          <div className="flex items-center justify-center h-32 text-[11px] font-black uppercase tracking-widest text-white/60">
+          <div className="flex items-center justify-center h-32 text-[0.6875rem] font-black uppercase tracking-widest text-white/60">
             No Results
           </div>
         )}
@@ -522,7 +522,7 @@ export function PokedexOverlay({ pokemon, pokedex }: PokedexOverlayProps) {
 
   return (
     <div className="w-full px-1 pt-4 pb-2">
-      <div className="flex flex-col h-[560px] rounded-[8px] border-4 border-pkd-shell shadow-[4px_4px_0_var(--color-pkd-shell)] overflow-hidden">
+      <div className="flex flex-col h-[35rem] rounded-[8px] border-4 border-pkd-shell shadow-[4px_4px_0_var(--color-pkd-shell)] overflow-hidden">
         <div className="flex flex-1 min-h-0">
           <LeftPanel
             filtered={filtered}

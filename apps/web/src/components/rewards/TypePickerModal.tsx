@@ -70,7 +70,7 @@ export default function TypePickerModal({ tokenId, onClose, onSelected }: Props)
                   alt={type}
                   className="w-6 h-6 object-contain"
                 />
-                <span className="text-[9px] font-black uppercase text-white [text-shadow:0_1px_0_rgba(0,0,0,0.8)] leading-none">
+                <span className="text-[0.5625rem] font-black uppercase text-white [text-shadow:0_1px_0_rgba(0,0,0,0.8)] leading-none">
                   {type}
                 </span>
               </button>

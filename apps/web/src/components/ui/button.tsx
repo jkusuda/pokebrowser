@@ -29,9 +29,9 @@ const buttonVariants = cva(
         mint: "bg-pb-accent !text-black [-webkit-text-stroke:0px] [text-shadow:none] hover:bg-pb-accent-hover",
       },
       size: {
-        sm: "h-9 px-4 text-[10px]",
-        md: "h-11 px-6 text-[12px]",
-        lg: "h-14 px-8 text-[14px]",
+        sm: "h-9 px-4 text-[0.625rem]",
+        md: "h-11 px-6 text-[0.75rem]",
+        lg: "h-14 px-8 text-[0.875rem]",
         icon: "h-10 w-10",
       },
     },

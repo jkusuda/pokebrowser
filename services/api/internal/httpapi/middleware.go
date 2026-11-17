@@ -11,6 +11,7 @@ import (
 
 	"github.com/jkusuda/pokebrowser/services/api/internal/auth"
 	"github.com/jkusuda/pokebrowser/services/api/internal/errs"
+	"github.com/jkusuda/pokebrowser/services/api/internal/store"
 )
 
 // requestInfo lets requireAuth report the caller back out to logRequests.
@@ -60,16 +61,19 @@ func requestID(next http.Handler) http.Handler {
 func (s *server) logRequests(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
+		ctx, roundTrips := store.CountRoundTrips(r.Context())
+		r = r.WithContext(ctx)
 		rec := &statusRecorder{ResponseWriter: w, status: http.StatusOK}
 		next.ServeHTTP(rec, r)
 		elapsed := time.Since(start)
-		s.metrics.ObserveRequest(r.Pattern, rec.status, elapsed)
+		s.metrics.ObserveRequest(r.Pattern, rec.status, elapsed, roundTrips.Load())
 
 		attrs := []any{
 			"method", r.Method,
 			"path", r.URL.Path,
 			"status", rec.status,
 			"duration_ms", elapsed.Milliseconds(),
+			"db_round_trips", roundTrips.Load(),
 			"request_id", w.Header().Get("X-Request-Id"),
 		}
 		if info := infoFrom(r); info != nil && info.userID != "" {

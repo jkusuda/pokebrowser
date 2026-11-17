@@ -107,6 +107,7 @@ func TestRequestMetricsUseRoutePattern(t *testing.T) {
 		`http_requests_total{route="/",status="404"} 1`,
 		`http_requests_total{route="unmatched",status="204"} 1`,
 		`http_request_duration_seconds_count{route="DELETE /v1/pokemon/{id}"} 1`,
+		`http_request_db_round_trips_bucket{route="DELETE /v1/pokemon/{id}",le="0"} 1`,
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("missing %s", want)

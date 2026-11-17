@@ -17,6 +17,7 @@ type Metrics struct {
 
 	requests        *prometheus.CounterVec
 	duration        *prometheus.HistogramVec
+	roundTrips      *prometheus.HistogramVec
 	finalizerRuns   *prometheus.CounterVec
 	eventsFinalized prometheus.Counter
 	lastFinalized   prometheus.Gauge
@@ -32,7 +33,12 @@ func New() *Metrics {
 		duration: prometheus.NewHistogramVec(prometheus.HistogramOpts{
 			Name:    "http_request_duration_seconds",
 			Help:    "HTTP request latency by route.",
-			Buckets: prometheus.DefBuckets,
+			Buckets: []float64{.005, .01, .025, .05, .075, .1, .15, .2, .3, .5, 1, 2.5, 5},
+		}, []string{"route"}),
+		roundTrips: prometheus.NewHistogramVec(prometheus.HistogramOpts{
+			Name:    "http_request_db_round_trips",
+			Help:    "Database round trips made per HTTP request, by route.",
+			Buckets: []float64{0, 1, 2, 4, 6, 8, 10, 12, 15, 20, 25, 30, 40},
 		}, []string{"route"}),
 		finalizerRuns: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Name: "finalizer_runs_total",
@@ -48,7 +54,7 @@ func New() *Metrics {
 		}),
 	}
 	m.registry.MustRegister(
-		m.requests, m.duration, m.finalizerRuns, m.eventsFinalized, m.lastFinalized,
+		m.requests, m.duration, m.roundTrips, m.finalizerRuns, m.eventsFinalized, m.lastFinalized,
 		collectors.NewGoCollector(),
 		collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
 	)
@@ -61,12 +67,13 @@ func (m *Metrics) Handler() http.Handler {
 
 // ObserveRequest records one request. route is the matched mux pattern, so
 // path ids never become label values.
-func (m *Metrics) ObserveRequest(route string, status int, elapsed time.Duration) {
+func (m *Metrics) ObserveRequest(route string, status int, elapsed time.Duration, roundTrips int64) {
 	if route == "" {
 		route = "unmatched"
 	}
 	m.requests.WithLabelValues(route, strconv.Itoa(status)).Inc()
 	m.duration.WithLabelValues(route).Observe(elapsed.Seconds())
+	m.roundTrips.WithLabelValues(route).Observe(float64(roundTrips))
 }
 
 func (m *Metrics) ObserveFinalizer(finalized int, err error) {

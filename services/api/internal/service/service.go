@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jkusuda/pokebrowser/services/api/internal/errs"
 	"github.com/jkusuda/pokebrowser/services/api/internal/game"
+	"github.com/jkusuda/pokebrowser/services/api/internal/metrics"
 	"github.com/jkusuda/pokebrowser/services/api/internal/store"
 )
 
@@ -23,15 +24,17 @@ type Service struct {
 	rand    *rand.Rand
 	now     func() time.Time
 	log     *slog.Logger
+	metrics *metrics.Metrics
 }
 
-func New(st *store.Store, catalog *game.Catalog, log *slog.Logger) *Service {
+func New(st *store.Store, catalog *game.Catalog, log *slog.Logger, m *metrics.Metrics) *Service {
 	return &Service{
 		store:   st,
 		catalog: catalog,
 		rand:    rand.New(&lockedSource{src: rand.NewPCG(rand.Uint64(), rand.Uint64())}),
 		now:     time.Now,
 		log:     log,
+		metrics: m,
 	}
 }
 

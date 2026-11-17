@@ -14,6 +14,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jkusuda/pokebrowser/services/api/internal/auth"
+	"github.com/jkusuda/pokebrowser/services/api/internal/metrics"
 	"github.com/jkusuda/pokebrowser/services/api/internal/service"
 	"github.com/jkusuda/pokebrowser/services/api/internal/store"
 )
@@ -38,7 +39,11 @@ func (fakeVerifier) Verify(_ context.Context, token string) (auth.Identity, erro
 }
 
 func router(svc *service.Service) http.Handler {
-	return NewRouter(Deps{Log: quietLog, Verifier: fakeVerifier{}, Service: svc, AllowedOrigins: []string{"http://localhost:3000", "chrome-extension://*"}})
+	return routerWith(svc, metrics.New())
+}
+
+func routerWith(svc *service.Service, m *metrics.Metrics) http.Handler {
+	return NewRouter(Deps{Log: quietLog, Verifier: fakeVerifier{}, Service: svc, Metrics: m, AllowedOrigins: []string{"http://localhost:3000", "chrome-extension://*"}})
 }
 
 func do(h http.Handler, method, path, token, body string, header ...string) *httptest.ResponseRecorder {
@@ -86,6 +91,26 @@ func TestUnknownRouteIsJSON(t *testing.T) {
 	}
 	if rec.Header().Get("X-Request-Id") == "" {
 		t.Error("missing X-Request-Id")
+	}
+}
+
+func TestRequestMetricsUseRoutePattern(t *testing.T) {
+	m := metrics.New()
+	h := routerWith(nil, m)
+	do(h, "DELETE", "/v1/pokemon/3f6c1c1e-0000-4000-8000-000000000000", "", "")
+	do(h, "GET", "/v1/nope", "", "")
+	do(h, "OPTIONS", "/v1/me", "", "", "Origin", "http://localhost:3000", "Access-Control-Request-Method", "GET")
+
+	body := do(m.Handler(), "GET", "/metrics", "", "").Body.String()
+	for _, want := range []string{
+		`http_requests_total{route="DELETE /v1/pokemon/{id}",status="401"} 1`,
+		`http_requests_total{route="/",status="404"} 1`,
+		`http_requests_total{route="unmatched",status="204"} 1`,
+		`http_request_duration_seconds_count{route="DELETE /v1/pokemon/{id}"} 1`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("missing %s", want)
+		}
 	}
 }
 
@@ -142,7 +167,7 @@ func TestRoutes(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	h := router(service.New(st, catalog, quietLog))
+	h := router(service.New(st, catalog, quietLog, metrics.New()))
 
 	rec := do(h, "GET", "/v1/me", "ash", "")
 	var me service.Me

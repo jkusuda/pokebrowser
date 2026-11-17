@@ -62,12 +62,14 @@ func (s *server) logRequests(next http.Handler) http.Handler {
 		start := time.Now()
 		rec := &statusRecorder{ResponseWriter: w, status: http.StatusOK}
 		next.ServeHTTP(rec, r)
+		elapsed := time.Since(start)
+		s.metrics.ObserveRequest(r.Pattern, rec.status, elapsed)
 
 		attrs := []any{
 			"method", r.Method,
 			"path", r.URL.Path,
 			"status", rec.status,
-			"duration_ms", time.Since(start).Milliseconds(),
+			"duration_ms", elapsed.Milliseconds(),
 			"request_id", w.Header().Get("X-Request-Id"),
 		}
 		if info := infoFrom(r); info != nil && info.userID != "" {

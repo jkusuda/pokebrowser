@@ -44,6 +44,8 @@ func (s *Store) Close() { s.pool.Close() }
 
 func (s *Store) Ping(ctx context.Context) error { return s.pool.Ping(ctx) }
 
+func (s *Store) Stat() *pgxpool.Stat { return s.pool.Stat() }
+
 func (s *Store) Q() *Q { return &Q{s.pool} }
 
 // Tx commits if fn returns nil and rolls back otherwise.

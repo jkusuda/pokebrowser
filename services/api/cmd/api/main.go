@@ -13,6 +13,7 @@ import (
 	"github.com/jkusuda/pokebrowser/services/api/internal/auth"
 	"github.com/jkusuda/pokebrowser/services/api/internal/config"
 	"github.com/jkusuda/pokebrowser/services/api/internal/httpapi"
+	"github.com/jkusuda/pokebrowser/services/api/internal/metrics"
 	"github.com/jkusuda/pokebrowser/services/api/internal/service"
 	"github.com/jkusuda/pokebrowser/services/api/internal/store"
 )
@@ -46,7 +47,9 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	svc := service.New(db, catalog, log)
+	m := metrics.New()
+	m.WatchPool(db.Stat)
+	svc := service.New(db, catalog, log, m)
 	go svc.RunFinalizer(ctx, 5*time.Minute)
 
 	srv := &http.Server{
@@ -55,6 +58,7 @@ func run() error {
 			Log:            log,
 			Verifier:       auth.NewVerifier(cfg.IssuerURL(), auth.NewJWKS(cfg.JWKSURL(), nil), cfg.JWTSecret),
 			Service:        svc,
+			Metrics:        m,
 			AllowedOrigins: cfg.AllowedOrigins,
 		}),
 		ReadHeaderTimeout: 5 * time.Second,
@@ -63,10 +67,20 @@ func run() error {
 		IdleTimeout:       60 * time.Second,
 	}
 
-	serveErr := make(chan error, 1)
+	// Metrics get their own port so they're reachable by Fly's scraper but not the public.
+	metricsSrv := &http.Server{
+		Addr:              ":" + cfg.MetricsPort,
+		Handler:           m.Handler(),
+		ReadHeaderTimeout: 5 * time.Second,
+	}
+
+	serveErr := make(chan error, 2)
 	go func() {
 		log.Info("listening", "addr", srv.Addr, "supabase", cfg.SupabaseURL)
 		serveErr <- srv.ListenAndServe()
+	}()
+	go func() {
+		serveErr <- metricsSrv.ListenAndServe()
 	}()
 
 	select {
@@ -78,6 +92,7 @@ func run() error {
 	log.Info("shutting down")
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+	metricsSrv.Shutdown(shutdownCtx)
 	if err := srv.Shutdown(shutdownCtx); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}

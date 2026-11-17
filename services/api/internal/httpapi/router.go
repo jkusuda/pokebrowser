@@ -7,6 +7,7 @@ import (
 
 	"github.com/jkusuda/pokebrowser/services/api/internal/auth"
 	"github.com/jkusuda/pokebrowser/services/api/internal/errs"
+	"github.com/jkusuda/pokebrowser/services/api/internal/metrics"
 	"github.com/jkusuda/pokebrowser/services/api/internal/service"
 )
 
@@ -18,6 +19,7 @@ type Deps struct {
 	Log            *slog.Logger
 	Verifier       TokenVerifier
 	Service        *service.Service
+	Metrics        *metrics.Metrics
 	AllowedOrigins []string
 }
 
@@ -25,11 +27,12 @@ type server struct {
 	log            *slog.Logger
 	verifier       TokenVerifier
 	svc            *service.Service
+	metrics        *metrics.Metrics
 	allowedOrigins []string
 }
 
 func NewRouter(d Deps) http.Handler {
-	s := &server{log: d.Log, verifier: d.Verifier, svc: d.Service, allowedOrigins: d.AllowedOrigins}
+	s := &server{log: d.Log, verifier: d.Verifier, svc: d.Service, metrics: d.Metrics, allowedOrigins: d.AllowedOrigins}
 
 	mux := http.NewServeMux()
 	user := func(pattern string, h handlerFunc) { mux.Handle(pattern, s.requireAuth(s.handle(h))) }

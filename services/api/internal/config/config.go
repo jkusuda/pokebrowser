@@ -9,6 +9,7 @@ import (
 
 type Config struct {
 	Port           string
+	MetricsPort    string
 	DatabaseURL    string
 	SupabaseURL    string
 	JWTSecret      string // legacy HS256 secret; empty disables HS256
@@ -22,6 +23,7 @@ func (c Config) JWKSURL() string   { return c.SupabaseURL + "/auth/v1/.well-know
 func Load(getenv func(string) string) (Config, error) {
 	c := Config{
 		Port:        or(getenv("PORT"), "8080"),
+		MetricsPort: or(getenv("METRICS_PORT"), "9091"),
 		DatabaseURL: getenv("DATABASE_URL"),
 		SupabaseURL: strings.TrimRight(getenv("SUPABASE_URL"), "/"),
 		JWTSecret:   getenv("SUPABASE_JWT_SECRET"),

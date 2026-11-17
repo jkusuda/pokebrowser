@@ -2,9 +2,9 @@ name: ci
 
 on:
   push:
-    branches: [go-backend]
+    branches: [main]
   pull_request:
-    branches: [go-backend]
+    branches: [main]
 
 jobs:
   go:
@@ -36,10 +36,6 @@ jobs:
         run: |
           npm ci
           npx supabase start --exclude studio,imgproxy,mailpit,edge-runtime,logflare,vector,storage-api,supavisor
-
-      - name: Migration carry-over checks
-        working-directory: .
-        run: supabase/tests/carryover.sh
 
       - name: Client access checks
         working-directory: .

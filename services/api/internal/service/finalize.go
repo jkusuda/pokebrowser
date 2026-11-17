@@ -42,7 +42,9 @@ func (s *Service) RunFinalizer(ctx context.Context, interval time.Duration) {
 	t := time.NewTicker(interval)
 	defer t.Stop()
 	for {
-		if n, err := s.FinalizeEndedEvents(ctx); err != nil {
+		n, err := s.FinalizeEndedEvents(ctx)
+		s.metrics.ObserveFinalizer(n, err)
+		if err != nil {
 			s.log.ErrorContext(ctx, "finalize events", "err", err)
 		} else if n > 0 {
 			s.log.InfoContext(ctx, "finalized events", "count", n)

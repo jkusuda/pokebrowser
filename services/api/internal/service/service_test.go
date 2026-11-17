@@ -16,6 +16,7 @@ import (
 	"github.com/jkusuda/pokebrowser/services/api/internal/auth"
 	"github.com/jkusuda/pokebrowser/services/api/internal/errs"
 	"github.com/jkusuda/pokebrowser/services/api/internal/game"
+	"github.com/jkusuda/pokebrowser/services/api/internal/metrics"
 	"github.com/jkusuda/pokebrowser/services/api/internal/store"
 )
 
@@ -54,7 +55,7 @@ func setup(t *testing.T) *env {
 	t.Cleanup(func() { admin.Close(ctx) })
 
 	e := &env{t: t, admin: admin, clock: time.Now()}
-	e.svc = New(st, catalog, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	e.svc = New(st, catalog, slog.New(slog.NewTextHandler(io.Discard, nil)), metrics.New())
 	e.svc.now = func() time.Time { return e.clock }
 	return e
 }
